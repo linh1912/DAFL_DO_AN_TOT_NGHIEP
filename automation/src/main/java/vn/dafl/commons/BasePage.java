@@ -5,6 +5,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import vn.dafl.driver.DriverManager;
 
@@ -214,5 +215,75 @@ public class BasePage {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    // ---------- Tien ich bo sung cho ban CN (select, JS, doc gia tri input) ----------
+
+    /** Doc thuoc tinh value cua phan tu (dung cho o nhap dang <input>, vi du o so luong gio hang). */
+    public String getElementValue(String locator) {
+        waitForElementVisible(locator);
+        String value = getWebElement(locator).getAttribute("value");
+        return value == null ? "" : value.trim();
+    }
+
+    public String getElementValue(String locator, String... values) {
+        return getElementValue(getDynamicLocator(locator, values));
+    }
+
+    /** Phan tu co dang duoc chon/kich hoat hay khong (nut bi disabled thi tra ve false). */
+    public boolean isElementEnabled(String locator) {
+        try {
+            return getWebElement(locator).isEnabled();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isElementEnabled(String locator, String... values) {
+        return isElementEnabled(getDynamicLocator(locator, values));
+    }
+
+    /**
+     * Chon mot muc trong o chon dia gioi (tinh/quan/phuong) theo dung text hien thi.
+     * FE render dang <select> khi co du lieu dia gioi tinh kem theo; neu phan tu la
+     * <input> (che do du phong khi khong co du lieu tinh) thi go text truc tiep.
+     */
+    public void selectByVisibleText(String locator, String visibleText) {
+        waitForElementVisible(locator);
+        WebElement element = getWebElement(locator);
+        if ("select".equalsIgnoreCase(element.getTagName())) {
+            new Select(element).selectByVisibleText(visibleText);
+        } else {
+            element.clear();
+            element.sendKeys(visibleText);
+        }
+        pauseAfterAction();
+    }
+
+    public void selectByVisibleText(String locator, String visibleText, String... values) {
+        selectByVisibleText(getDynamicLocator(locator, values), visibleText);
+    }
+
+    /** Chon muc trong <select> theo thuoc tinh value (vd: loc trang thai don, sap xep san pham). */
+    public void selectByValue(String locator, String value) {
+        waitForElementVisible(locator);
+        new Select(getWebElement(locator)).selectByValue(value);
+        pauseAfterAction();
+    }
+
+    /** Gia tri value dang duoc chon cua <select>. */
+    public String getSelectedValue(String locator) {
+        waitForElementVisible(locator);
+        return new Select(getWebElement(locator)).getFirstSelectedOption().getAttribute("value");
+    }
+
+    /** Thuc thi JavaScript tren trinh duyet (doc/ghi localStorage phuc vu test JWT...). */
+    public Object executeScript(String script, Object... args) {
+        return ((JavascriptExecutor) getDriver()).executeScript(script, args);
+    }
+
+    /** Bam nut bang JavaScript - dung khi can "double click" that nhanh o nut dat hang. */
+    public void clickElementByJS(String locator) {
+        clickToElementByJS(locator);
     }
 }

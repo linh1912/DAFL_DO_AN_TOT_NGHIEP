@@ -1,6 +1,7 @@
 # DANH SÁCH TEST CASE — DAFL (FE + BE)
 
-> Tổng: 30 test case. Cột 'Tự động hóa' cho biết test đã được viết thành Selenium/JMeter (mã TC_UI tương ứng trong automation), đang làm thủ công, hay nằm trong kế hoạch tự động hóa.
+> Tổng: 30 test case trong bảng đặc tả dưới đây (tài liệu đặc tả gốc).
+> LƯU Ý CẬP NHẬT (bản app cuối theo đặc tả CN-01..CN-08): bộ kiểm thử tự động Selenium hiện có **83 test method trong 10 lớp** — bảng ánh xạ chính thức TC-CN ↔ lớp/phương thức ↔ data-testid nằm ở file `TEST-MAPPING.md` ở thư mục gốc repo. Bảng dưới đây giữ lại làm dấu vết đặc tả vòng đời trước (một số trường hợp như nút điền sẵn tài khoản demo, đăng ký được đăng nhập ngay, lỗi tại auth-error-msg... đã thay đổi hành vi ở bản CN). Cột 'Tự động hóa' cho biết test đã được viết thành Selenium/JMeter (mã TC_UI tương ứng trong automation), đang làm thủ công, hay nằm trong kế hoạch tự động hóa.
 > Dữ liệu kiểm thử lấy từ dữ liệu seed thật của Backend (DbInitializer.cs): tài khoản demo demo@dafl.vn, voucher DAFL10 (10%%, trần 100.000đ), DAFL20 (cố định 20.000đ), 17+ danh mục sản phẩm.
 
 | Mã TC | Module | Tên test case | Loại | Ưu tiên | Kết quả mong đợi (tóm tắt) | Tự động hóa |

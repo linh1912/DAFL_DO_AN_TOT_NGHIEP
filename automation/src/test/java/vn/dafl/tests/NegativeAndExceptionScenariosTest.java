@@ -8,177 +8,291 @@ import vn.dafl.pageObjects.AuthModalPageObject;
 import vn.dafl.pageObjects.CartDrawerPageObject;
 import vn.dafl.pageObjects.CheckoutPageObject;
 import vn.dafl.pageObjects.HomePageObject;
+import vn.dafl.pageObjects.OrdersPageObject;
 import vn.dafl.pageObjects.ProductCatalogPageObject;
 
 /**
- * Kiem thu am tinh va ngoai le: du lieu sai/thieu, voucher sai, tim kiem rong,
- * thanh toan thieu thong tin. Ky vong chung: he thong chan thao tac va bao loi,
- * khong tao du lieu rac (don hang/don thanh toan) tu du lieu khong hop le.
- * Chinh sach mat khau cua SUT: it nhat 8 ky tu, co chu hoa va ky tu dac biet.
+ * Kich ban am tinh / ngoai le theo dac ta CN-01..CN-08 (ban chot v5):
+ * auth sai dinh dang/thieu truong, mat khau khong dat policy nghiem ngat,
+ * voucher sai/bi Backend tu choi luc dat hang, loi khoi giao hang shipping-*,
+ * gio trong va rieng tu don hang giua cac tai khoan.
  */
 public class NegativeAndExceptionScenariosTest extends BaseTest {
 
-    // ---------- Nhom dang nhap ----------
-    @Test(description = "NEG-AUTH-01: dang nhap bang email chua dang ky")
+    // ---------------- NEG-AUTH: dang nhap sai ----------------
+
+    @Test(description = "NEG-AUTH-01 (CN-02 E1): Dang nhap bang email chua dang ky -> 'Email hoac mat khau khong dung'")
     public void loginWithUnregisteredEmail() {
         HomePageObject homePage = openHomePage();
         AuthModalPageObject authModal = homePage.openLoginModal();
-        authModal.loginAs("chuatungdangky@dafl.vn", "Test@1234");
-        Assert.assertTrue(authModal.isErrorMessageDisplayed(), "Dang nhap email ao nhung khong bao loi");
-        Assert.assertTrue(authModal.getErrorMessage().contains(GlobalConstants.LOGIN_ERROR_MESSAGE),
-                "Thong diep loi khong khop voi Backend");
+
+        authModal.loginAs("chua-tung-dang-ky@dafl.vn", GlobalConstants.DEMO_PASSWORD);
+
+        Assert.assertTrue(authModal.isLoginPasswordErrorDisplayed(), "Phai bao loi duoi o mat khau");
+        Assert.assertEquals(authModal.getLoginPasswordError(), GlobalConstants.LOGIN_ERROR_MESSAGE,
+                "Thong bao loi dang nhap phai dung cau cua SUT");
+        Assert.assertTrue(authModal.isModalStillOpen(), "Dang nhap that bai thi modal van mo");
     }
 
-    @Test(description = "NEG-AUTH-02: dang nhap de trong email va mat khau")
+    @Test(description = "NEG-AUTH-02: Dang nhap de trong ca email va mat khau -> loi ngay duoi tung o, khong dang nhap")
     public void loginWithEmptyFields() {
         HomePageObject homePage = openHomePage();
         AuthModalPageObject authModal = homePage.openLoginModal();
-        authModal.loginAs("", "");
-        Assert.assertTrue(authModal.isModalStillOpen(), "De trong ca hai truong ma van dang nhap duoc");
-        Assert.assertFalse(homePage.isUserLoggedIn(), "De trong thong tin nhung trang thai da dang nhap");
+
+        authModal.submitLogin();
+
+        Assert.assertTrue(authModal.isLoginEmailErrorDisplayed() || authModal.isLoginPasswordErrorDisplayed(),
+                "De trong truong dang nhap phai co loi inline");
+        Assert.assertTrue(authModal.isModalStillOpen(), "Modal phai con mo");
+        Assert.assertTrue(getAuthToken() == null || getAuthToken().isEmpty(), "Khong duoc cap token");
     }
 
-    @Test(description = "NEG-AUTH-03: dang nhap bang email sai dinh dang")
+    @Test(description = "NEG-AUTH-03: Dang nhap bang email sai dinh dang -> loi dinh dang duoi o email")
     public void loginWithInvalidEmailFormat() {
         HomePageObject homePage = openHomePage();
         AuthModalPageObject authModal = homePage.openLoginModal();
-        authModal.loginAs("emailsaidinhdang@", "Test@1234");
-        Assert.assertTrue(authModal.isModalStillOpen(), "Email sai dinh dang ma van qua duoc form dang nhap");
-        Assert.assertFalse(homePage.isUserLoggedIn(), "Email sai dinh dang nhung trang thai da dang nhap");
+
+        authModal.loginAs("day-khong-phai-email", GlobalConstants.DEMO_PASSWORD);
+
+        Assert.assertTrue(authModal.isLoginEmailErrorDisplayed(),
+                "Email sai dinh dang phai bao loi duoi o email");
+        Assert.assertTrue(authModal.isModalStillOpen(), "Modal phai con mo");
     }
 
-    // ---------- Nhom dang ky ----------
-    @Test(description = "NEG-REG-01: mat khau dang ky ngan hon 8 ky tu")
+    // ---------------- NEG-REG: mat khau khong dat policy nghiem ngat ----------------
+
+    private AuthModalPageObject openRegisterForm() {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+        authModal.switchToRegisterTab();
+        return authModal;
+    }
+
+    @Test(description = "NEG-REG-01: Dang ky mat khau qua ngan (< 8 ky tu) bi tu choi")
     public void registerWithTooShortPassword() {
-        AuthModalPageObject authModal = openHomePage().openLoginModal();
-        authModal.register("Test Ngan", randomEmail(), "0912345678", "Ha Noi", "Ab@1", "Ab@1");
-        Assert.assertTrue(authModal.isModalStillOpen(),
-                "Mat khau 4 ky tu van dang ky thanh cong (SUT yeu cau >= 8 ky tu)");
+        AuthModalPageObject authModal = openRegisterForm();
+        authModal.register("Selenium Tester", randomEmail(), randomPhone(), "Pa1!", "Pa1!");
+        Assert.assertTrue(authModal.isFieldErrorDisplayed(vn.dafl.pageUIs.AuthModalPageUI.REGISTER_PASSWORD_ERROR),
+                "Mat khau ngan phai bao loi duoi o mat khau");
+        Assert.assertFalse(authModal.isRegisterSuccessDisplayed(), "Khong duoc dang ky thanh cong");
     }
 
-    @Test(description = "NEG-REG-02: mat khau dang ky khong co chu hoa")
-    public void registerWithPasswordMissingUppercase() {
-        AuthModalPageObject authModal = openHomePage().openLoginModal();
-        authModal.register("Test Hoa", randomEmail(), "0912345678", "Ha Noi", "test@1234", "test@1234");
-        Assert.assertTrue(authModal.isModalStillOpen(),
-                "Mat khau khong co chu hoa van dang ky thanh cong");
+    @Test(description = "NEG-REG-02: Dang ky mat khau thieu chu hoa bi tu choi")
+    public void registerPasswordMissingUppercase() {
+        AuthModalPageObject authModal = openRegisterForm();
+        authModal.register("Selenium Tester", randomEmail(), randomPhone(), "password123!", "password123!");
+        Assert.assertFalse(authModal.isUppercaseRuleSatisfied(), "Quy tac chu hoa phai chua dat");
+        Assert.assertTrue(authModal.isFieldErrorDisplayed(vn.dafl.pageUIs.AuthModalPageUI.REGISTER_PASSWORD_ERROR),
+                "Thieu chu hoa phai bao loi mat khau");
     }
 
-    @Test(description = "NEG-REG-03: mat khau dang ky khong co ky tu dac biet")
-    public void registerWithPasswordMissingSpecialChar() {
-        AuthModalPageObject authModal = openHomePage().openLoginModal();
-        authModal.register("Test Dac Biet", randomEmail(), "0912345678", "Ha Noi", "Test1234", "Test1234");
-        Assert.assertTrue(authModal.isModalStillOpen(),
-                "Mat khau khong co ky tu dac biet van dang ky thanh cong");
+    @Test(description = "NEG-REG-03: Dang ky mat khau thieu ky tu dac biet bi tu choi")
+    public void registerPasswordMissingSpecialChar() {
+        AuthModalPageObject authModal = openRegisterForm();
+        authModal.register("Selenium Tester", randomEmail(), randomPhone(), "Password123", "Password123");
+        Assert.assertFalse(authModal.isSpecialRuleSatisfied(), "Quy tac ky tu dac biet phai chua dat");
+        Assert.assertTrue(authModal.isFieldErrorDisplayed(vn.dafl.pageUIs.AuthModalPageUI.REGISTER_PASSWORD_ERROR),
+                "Thieu ky tu dac biet phai bao loi mat khau");
     }
 
-    @Test(description = "NEG-REG-04: mat khau xac nhan khong khop")
+    @Test(description = "NEG-REG-04: Dang ky mat khau thieu chu so bi tu choi")
+    public void registerPasswordMissingDigit() {
+        AuthModalPageObject authModal = openRegisterForm();
+        authModal.register("Selenium Tester", randomEmail(), randomPhone(), "Password!", "Password!");
+        Assert.assertFalse(authModal.isDigitRuleSatisfied(), "Quy tac chu so phai chua dat");
+        Assert.assertTrue(authModal.isFieldErrorDisplayed(vn.dafl.pageUIs.AuthModalPageUI.REGISTER_PASSWORD_ERROR),
+                "Thieu chu so phai bao loi mat khau");
+    }
+
+    @Test(description = "NEG-REG-05 (CN-01 E5): Mat khau xac nhan khong khop -> loi duoi o xac nhan")
     public void registerWithMismatchedConfirmPassword() {
-        AuthModalPageObject authModal = openHomePage().openLoginModal();
-        authModal.register("Test Khop", randomEmail(), "0912345678", "Ha Noi", "Test@1234", "Test@5678");
-        Assert.assertTrue(authModal.isModalStillOpen(),
-                "Mat khau xac nhan khac nhau van dang ky thanh cong");
+        AuthModalPageObject authModal = openRegisterForm();
+        authModal.register("Selenium Tester", randomEmail(), randomPhone(),
+                GlobalConstants.DEMO_PASSWORD, "Password123@");
+        Assert.assertTrue(authModal.isFieldErrorDisplayed(vn.dafl.pageUIs.AuthModalPageUI.REGISTER_CONFIRM_PASSWORD_ERROR),
+                "Xac nhan khong khop phai bao loi duoi o xac nhan mat khau");
+        Assert.assertTrue(authModal.getRegisterConfirmPasswordError().contains("không khớp"),
+                "Noi dung loi xac nhan khong dung: " + authModal.getRegisterConfirmPasswordError());
     }
 
-    @Test(description = "NEG-REG-05: dang ky bang email da ton tai (tai khoan demo)")
-    public void registerWithExistingEmail() {
-        AuthModalPageObject authModal = openHomePage().openLoginModal();
-        authModal.register("Trung Email", GlobalConstants.DEMO_EMAIL, "0912345678",
-                "Ha Noi", "Test@1234", "Test@1234");
-        Assert.assertTrue(authModal.isModalStillOpen() || authModal.isErrorMessageDisplayed(),
-                "Dang ky trung email cua tai khoan demo van thanh cong");
+    @Test(description = "NEG-REG-06: Dang ky SDT sai dinh dang (9 so) bi tu choi")
+    public void registerWithInvalidPhoneFormat() {
+        AuthModalPageObject authModal = openRegisterForm();
+        authModal.register("Selenium Tester", randomEmail(), "091234567",
+                GlobalConstants.DEMO_PASSWORD, GlobalConstants.DEMO_PASSWORD);
+        Assert.assertTrue(authModal.isFieldErrorDisplayed(vn.dafl.pageUIs.AuthModalPageUI.REGISTER_PHONE_ERROR),
+                "SDT 9 so phai bao loi duoi o SDT");
+        Assert.assertFalse(authModal.isRegisterSuccessDisplayed(), "Khong duoc dang ky thanh cong");
     }
 
-    // ---------- Nhom voucher ----------
-    @Test(description = "NEG-VCH-01: ap ma giam gia khong ton tai")
+    // ---------------- NEG-VCH: voucher ----------------
+
+    @Test(description = "NEG-VCH-01: Ap ma giam gia khong ton tai -> thong bao loi dung cua SUT")
     public void applyInvalidVoucherCode() {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        catalog.addFirstProductToCart();
+        catalog.addToCart(catalog.getFirstProductId());
         homePage.waitForCartBadgeCount(1);
 
-        CartDrawerPageObject cart = homePage.openCartDrawer();
-        cart.applyVoucher("INVALID123");
-        Assert.assertTrue(cart.isVoucherErrorDisplayed(), "Ap ma sai nhung khong thay thong diep loi voucher");
+        CartDrawerPageObject cart = homePage.openCart();
+        cart.applyVoucher("MA-KHONG-TON-TAI-2026");
+
+        Assert.assertTrue(cart.isVoucherErrorDisplayed(), "Ap ma sai phai hien loi voucher");
         Assert.assertTrue(cart.getVoucherErrorMessage().contains(GlobalConstants.VOUCHER_ERROR_MESSAGE),
-                "Thong diep loi voucher khong khop voi Backend: " + cart.getVoucherErrorMessage());
+                "Thong bao loi voucher khong dung: " + cart.getVoucherErrorMessage());
+        Assert.assertFalse(cart.isVoucherAppliedBannerDisplayed(), "Ma sai khong duoc danh dau da ap dung");
     }
 
-    @Test(description = "NEG-VCH-02: ap ma giam gia rong")
+    @Test(description = "NEG-VCH-02: Ap ma giam gia rong -> khong ap dung, khong bao thanh cong")
     public void applyEmptyVoucherCode() {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        catalog.addFirstProductToCart();
+        catalog.addToCart(catalog.getFirstProductId());
         homePage.waitForCartBadgeCount(1);
 
-        CartDrawerPageObject cart = homePage.openCartDrawer();
+        CartDrawerPageObject cart = homePage.openCart();
         cart.applyVoucher("");
-        cart.sleepInSecond(1);
+
         Assert.assertFalse(cart.isVoucherAppliedBannerDisplayed(),
-                "Ap ma rong ma he thong van ghi nhan voucher");
+                "Ma rong khong duoc coi la ap dung thanh cong");
     }
 
-    // ---------- Nhom tim kiem ----------
-    @Test(description = "NEG-SRCH-01: tim kiem san pham khong ton tai")
+    @Test(description = "NEG-VCH-03 (TC-CN07-04): Gio tut xuong duoi muc toi thieu sau khi ap ma -> Backend TU CHOI dat hang kem thong diep rieng")
+    public void voucherRejectedAtCheckoutWhenCartDropsBelowMinimum() {
+        loginWithDemoAccount();
+        HomePageObject homePage = new HomePageObject();
+        homePage.searchProduct("Khăn ướt");
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        String productId = catalog.getFirstProductId();
+        Assert.assertNotNull(productId, "Phai tim thay san pham khan uot");
+        long unitPrice = catalog.getProductPrice(productId);
+        Assert.assertTrue(unitPrice < 100_000, "Test nay can san pham don gia duoi 100.000d");
+
+        catalog.addToCart(productId);
+        homePage.waitForCartBadgeCount(1);
+        CartDrawerPageObject cart = homePage.openCart();
+        int needed = (int) Math.ceil(100_000.0 / unitPrice);
+        cart.setItemQuantity(productId, needed);
+        cart.waitForItemQuantity(productId, needed);
+        cart.applyVoucher(GlobalConstants.VOUCHER_PERCENT_10);
+        Assert.assertTrue(cart.isVoucherAppliedBannerDisplayed(), "Ap DAFL10 o muc >= 100.000d phai thanh cong");
+
+        // Ha so luong xuong 1 -> tam tinh < 100.000d, voucher khong con hop le
+        cart.setItemQuantity(productId, 1);
+        cart.waitForItemQuantity(productId, 1);
+
+        CheckoutPageObject checkout = new CheckoutPageObject();
+        checkout.fillDefaultShippingForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PHONE);
+        checkout.selectCodPayment();
+        checkout.submitOrder();
+
+        Assert.assertTrue(checkout.isCheckoutErrorDisplayed(),
+                "Backend phai tu choi dat hang va hien loi tai checkout");
+        Assert.assertTrue(checkout.getCheckoutErrorMessage().contains(GlobalConstants.VOUCHER_MIN_ORDER_MESSAGE),
+                "Thong diep tu choi phai noi ve don toi thieu: " + checkout.getCheckoutErrorMessage());
+        Assert.assertFalse(checkout.isOrderSuccessViewDisplayed(), "Khong duoc dat hang thanh cong");
+    }
+
+    // ---------------- NEG-SRCH ----------------
+
+    @Test(description = "NEG-SRCH-01: Tim kiem san pham khong ton tai -> trang thai rong, khong loi he thong")
     public void searchForNonExistentProduct() {
-        HomePageObject homePage = openHomePage();
+        openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        homePage.enterSearchKeyword("sanphamkhonghecosan987");
-        catalog.sleepInSecond(2);
-        Assert.assertEquals(catalog.getProductCount(), 0,
-                "Tim san pham khong ton tai nhung van co ket qua");
+        new HomePageObject().searchProduct("xyz-khong-co-san-pham-nay-123");
+
+        Assert.assertEquals(catalog.getProductCountOnPage(), 0, "Khong duoc hien san pham nao");
+        Assert.assertTrue(catalog.isCatalogEmptyStateDisplayed(), "Phai hien trang thai rong cua danh muc");
     }
 
-    // ---------- Nhom thanh toan ----------
-    @Test(description = "NEG-CHK-01: thanh toan voi so dien thoai khong hop le")
+    // ---------------- NEG-CHK: loi khoi giao hang ----------------
+
+    @Test(description = "NEG-CHK-01: Dat hang voi SDT giao hang sai dinh dang -> loi shipping-phone-error, khong tao don")
     public void checkoutWithInvalidPhone() {
         loginWithDemoAccount();
+        HomePageObject homePage = new HomePageObject();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        catalog.addFirstProductToCart();
+        int badgeBefore = homePage.getCartBadgeCount();
+        catalog.addToCart(catalog.getFirstProductId());
+        homePage.waitForCartBadgeCount(badgeBefore + 1);
 
+        homePage.openCart();
         CheckoutPageObject checkout = new CheckoutPageObject();
-        checkout.openCheckoutPage();
-        checkout.fillCheckoutForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL,
-                "123", GlobalConstants.DEMO_ADDRESS);
+        checkout.fillShippingForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL, "123",
+                GlobalConstants.SHIPPING_PROVINCE, GlobalConstants.SHIPPING_DISTRICT, GlobalConstants.SHIPPING_WARD,
+                GlobalConstants.SHIPPING_DETAIL, null);
+        checkout.selectCodPayment();
         checkout.submitOrder();
-        checkout.sleepInSecond(2);
-        Assert.assertFalse(checkout.isPaymentPageDisplayed() || checkout.isOrderCodeDisplayed(),
-                "So dien thoai '123' van dat hang duoc");
+
+        Assert.assertTrue(checkout.isFieldErrorDisplayed(vn.dafl.pageUIs.CheckoutPageUI.SHIPPING_PHONE_ERROR),
+                "SDT giao hang sai phai bao loi duoi o SDT");
+        Assert.assertFalse(checkout.isOrderSuccessViewDisplayed(), "Khong duoc tao don voi SDT sai");
     }
 
-    @Test(description = "NEG-CHK-02: thanh toan de trong dia chi giao hang")
-    public void checkoutWithEmptyAddress() {
+    @Test(description = "NEG-CHK-02: Dat hang de trong dia chi chi tiet -> loi shipping-detail-error, khong tao don")
+    public void checkoutWithEmptyShippingDetail() {
         loginWithDemoAccount();
+        HomePageObject homePage = new HomePageObject();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        catalog.addFirstProductToCart();
+        int badgeBefore = homePage.getCartBadgeCount();
+        catalog.addToCart(catalog.getFirstProductId());
+        homePage.waitForCartBadgeCount(badgeBefore + 1);
 
+        homePage.openCart();
         CheckoutPageObject checkout = new CheckoutPageObject();
-        checkout.openCheckoutPage();
-        checkout.fillCheckoutForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL,
-                GlobalConstants.DEMO_PHONE, "");
+        checkout.fillShippingForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PHONE,
+                GlobalConstants.SHIPPING_PROVINCE, GlobalConstants.SHIPPING_DISTRICT, GlobalConstants.SHIPPING_WARD,
+                "", null);
+        checkout.selectCodPayment();
         checkout.submitOrder();
-        checkout.sleepInSecond(2);
-        Assert.assertFalse(checkout.isPaymentPageDisplayed() || checkout.isOrderCodeDisplayed(),
-                "De trong dia chi van dat hang duoc");
+
+        Assert.assertTrue(checkout.isFieldErrorDisplayed(vn.dafl.pageUIs.CheckoutPageUI.SHIPPING_DETAIL_ERROR),
+                "Dia chi chi tiet trong phai bao loi duoi o dia chi");
+        Assert.assertFalse(checkout.isOrderSuccessViewDisplayed(), "Khong duoc tao don khi thieu dia chi");
     }
 
-    @Test(description = "NEG-CHK-03: vao trang thanh toan khi gio dang trong (da dang nhap)")
+    @Test(description = "NEG-CHK-03: Gio trong -> khong co nut thanh toan de dat hang")
     public void checkoutWithEmptyCart() {
-        loginWithDemoAccount();
+        registerAndLogin("Khach Gio Trong", randomEmail(), randomPhone(), GlobalConstants.DEMO_PASSWORD);
+        HomePageObject homePage = new HomePageObject();
+        CartDrawerPageObject cart = homePage.openCart();
+
+        Assert.assertTrue(cart.isCartEmpty(), "Tai khoan moi phai co gio trong");
+        Assert.assertFalse(new CheckoutPageObject().isCheckoutSubmitDisplayed(),
+                "Gio trong thi khong duoc hien nut thanh toan");
+    }
+
+    // ---------------- NEG-ORD: rieng tu don hang ----------------
+
+    @Test(description = "NEG-ORD-01 (TC-CN08-02): Tai khoan khac khong thay don hang cua tai khoan demo trong danh sach cua minh")
+    public void cannotSeeAnotherUsersOrder() {
+        // Tai khoan demo dat mot don COD
+        HomePageObject homePage = loginWithDemoAccount();
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        catalog.waitForProductsLoaded();
+        int badgeBefore = homePage.getCartBadgeCount();
+        catalog.addToCart(catalog.getFirstProductId());
+        homePage.waitForCartBadgeCount(badgeBefore + 1);
+        homePage.openCart();
         CheckoutPageObject checkout = new CheckoutPageObject();
-        checkout.openCheckoutPage();
-        if (checkout.isCheckoutFormDisplayed()) {
-            checkout.fillCheckoutForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL,
-                    GlobalConstants.DEMO_PHONE, GlobalConstants.DEMO_ADDRESS);
-            checkout.submitOrder();
-            checkout.sleepInSecond(2);
-        }
-        Assert.assertFalse(checkout.isPaymentPageDisplayed() || checkout.isOrderCodeDisplayed(),
-                "Gio trong van tao duoc don hang/thanh toan");
+        checkout.fillDefaultShippingForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PHONE);
+        checkout.selectCodPayment();
+        checkout.submitOrder();
+        Assert.assertTrue(checkout.isOrderSuccessViewDisplayed(), "Don cua demo phai dat thanh cong");
+        String demoOrderCode = checkout.getOrderSuccessCode();
+
+        homePage.logout();
+        homePage.waitForLoggedOut();
+
+        // Tai khoan moi dang nhap: danh sach don cua ho khong duoc chua don cua demo
+        registerAndLogin("Khach La", randomEmail(), randomPhone(), GlobalConstants.DEMO_PASSWORD);
+        OrdersPageObject ordersPage = new HomePageObject().openOrdersPage();
+        Assert.assertFalse(ordersPage.isElementDisplayed("css=[data-testid='order-item-" + demoOrderCode + "']"),
+                "Khong duoc thay don hang cua nguoi khac trong danh sach cua minh");
     }
 }

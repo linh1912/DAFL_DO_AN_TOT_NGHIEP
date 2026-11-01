@@ -2,9 +2,8 @@ package vn.dafl.commons;
 
 /**
  * Hang so dung chung cho toan bo framework.
- * Du lieu demo (tai khoan, voucher) lay tu du lieu seed cua SUT DAFL
- * (Backend/Infrastructure/Data/DbInitializer.cs) - tai khoan demo cong khai
- * ma chinh ung dung cung cap san nut "dung tai khoan demo" tren giao dien.
+ * Du lieu demo (tai khoan, voucher) va thong diep loi lay tu du lieu seed +
+ * Backend/Frontend that cua SUT DAFL (ban CN-01..CN-08).
  */
 public class GlobalConstants {
 
@@ -18,15 +17,38 @@ public class GlobalConstants {
     public static final String DEMO_PASSWORD = "Password123!";
     public static final String DEMO_FULL_NAME = "Nguyễn Văn Demo";
     public static final String DEMO_PHONE = "0987654321";
-    public static final String DEMO_ADDRESS = "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội";
 
-    // Ma giam gia duoc seed san trong CSDL cua SUT
-    public static final String VOUCHER_PERCENT_10 = "DAFL10"; // giam 10% (don dau)
-    public static final String VOUCHER_FIXED_20K = "DAFL20";  // giam thang 20.000d
+    // Dia chi giao hang mau (du lieu dia gioi tinh trong FE: vietnam-provinces.json)
+    public static final String SHIPPING_PROVINCE = "Thành phố Hà Nội";
+    public static final String SHIPPING_DISTRICT = "Quận Ba Đình";
+    public static final String SHIPPING_WARD = "Phường Phúc Xá";
+    public static final String SHIPPING_DETAIL = "Số 1 Đại Cồ Việt";
 
-    // Thong diep loi thuc te tra ve tu Backend cua SUT
-    public static final String LOGIN_ERROR_MESSAGE = "Email hoặc mật khẩu không chính xác";
+    // Ma giam gia duoc seed san trong CSDL cua SUT (DbInitializer.cs)
+    public static final String VOUCHER_PERCENT_10 = "DAFL10"; // giam 10%, don toi thieu 100.000d
+    public static final String VOUCHER_FIXED_20K = "DAFL20";  // giam thang 20.000d, don toi thieu 100.000d
+    public static final String VOUCHER_FREESHIP = "FREESHIP"; // mien phi ship, don toi thieu 200.000d
+    public static final String VOUCHER_VIP_50K = "VIP50K";    // giam 50.000d, don toi thieu 500.000d
+
+    // Nguong tien cua SUT (ban chot CN + override O1)
+    public static final long SHIPPING_FEE = 25_000;             // phi ship co dinh
+    public static final long FREE_SHIPPING_THRESHOLD = 299_000; // mien phi ship tu muc nay
+
+    // Thong diep thuc te tra ve tu Backend/Frontend cua SUT
+    public static final String LOGIN_ERROR_MESSAGE = "Email hoặc mật khẩu không đúng";
     public static final String VOUCHER_ERROR_MESSAGE = "Mã giảm giá không tồn tại hoặc đã hết hiệu lực";
+    public static final String VOUCHER_MIN_ORDER_MESSAGE = "Đơn hàng tối thiểu cần đạt";
+    public static final String REGISTER_SUCCESS_MESSAGE = "Đăng ký thành công";
+    public static final String SESSION_EXPIRED_MESSAGE = "Phiên đăng nhập đã hết hạn";
+    public static final String PROFILE_SUCCESS_MESSAGE = "Cập nhật thành công";
+    public static final String DUPLICATE_EMAIL_MESSAGE = "Email đã được sử dụng";
+    public static final String DUPLICATE_PHONE_MESSAGE = "Số điện thoại đã được sử dụng";
+    public static final String CANCEL_SUCCESS_MESSAGE = "Hủy đơn thành công";
+    public static final String ORDER_STATUS_PENDING = "Chờ xác nhận";
+    public static final String ORDER_STATUS_CANCELLED = "Đã hủy";
+
+    /** Dinh dang ma don hien thi cua SUT: DH{yyyyMMdd}-{NNNN}. */
+    public static final String ORDER_DISPLAY_CODE_REGEX = "DH\\d{8}-\\d{4}";
 
     private GlobalConstants() {
     }

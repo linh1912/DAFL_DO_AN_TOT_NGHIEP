@@ -4,68 +4,210 @@ import org.openqa.selenium.WebElement;
 import vn.dafl.commons.BasePage;
 import vn.dafl.pageUIs.ProductCatalogPageUI;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/** Page Object cho luoi san pham: doc id san pham dong tu data-testid,
- *  them gio, loc danh muc va trang thai rong. */
+/** Page Object cho luoi san pham trang chu (CN-04) va trang chi tiet san pham (CN-05). */
 public class ProductCatalogPageObject extends BasePage {
 
-    public List<WebElement> getProductCards() {
-        return getListWebElements(ProductCatalogPageUI.ANY_PRODUCT_CARD);
-    }
-
-    public int getProductCount() {
-        return getProductCards().size();
-    }
-
     public void waitForProductsLoaded() {
-        waitForElementVisible(ProductCatalogPageUI.ANY_PRODUCT_CARD);
+        waitForListElementsVisible(ProductCatalogPageUI.ANY_PRODUCT_CARD);
     }
 
-    /** Lay id cua san pham o vi tri index (bat dau tu 0) tu data-testid "product-card-{id}". */
-    public String getProductIdAt(int index) {
-        List<WebElement> cards = getProductCards();
-        if (index >= cards.size()) {
-            throw new IllegalStateException("Chi co " + cards.size() + " san pham, khong co vi tri " + index);
-        }
-        String testId = cards.get(index).getAttribute("data-testid");
-        return testId.replace("product-card-", "");
-    }
-
+    /** San pham dau tien dang hien thi; id lay tu data-testid cua the san pham. */
     public String getFirstProductId() {
-        return getProductIdAt(0);
+        List<WebElement> cards = getListWebElements(ProductCatalogPageUI.ANY_PRODUCT_CARD);
+        if (cards.isEmpty()) {
+            return null;
+        }
+        String testId = cards.get(0).getAttribute("data-testid");
+        return testId == null ? null : testId.replace("product-card-", "");
+    }
+
+    public List<String> getDisplayedProductIds() {
+        List<String> ids = new ArrayList<>();
+        for (WebElement card : getListWebElements(ProductCatalogPageUI.ANY_PRODUCT_CARD)) {
+            String testId = card.getAttribute("data-testid");
+            if (testId != null) {
+                ids.add(testId.replace("product-card-", ""));
+            }
+        }
+        return ids;
+    }
+
+    public int getProductCountOnPage() {
+        return getListWebElements(ProductCatalogPageUI.ANY_PRODUCT_CARD).size();
     }
 
     public String getProductName(String productId) {
         return getElementText(ProductCatalogPageUI.DYNAMIC_PRODUCT_NAME, productId);
     }
 
-    public String getProductPriceText(String productId) {
-        return getElementText(ProductCatalogPageUI.DYNAMIC_PRODUCT_PRICE, productId);
+    public long getProductPrice(String productId) {
+        String text = getElementText(ProductCatalogPageUI.DYNAMIC_PRODUCT_PRICE, productId);
+        return parseMoney(text);
     }
 
-    public void addProductToCart(String productId) {
-        scrollToElement(ProductCatalogPageUI.DYNAMIC_PRODUCT_CARD.replace("%s", productId));
+    /** Chuoi ton kho tren the san pham: "Con X san pham" hoac "Het hang". */
+    public String getProductStockText(String productId) {
+        return getElementText(ProductCatalogPageUI.DYNAMIC_PRODUCT_STOCK, productId);
+    }
+
+    /** Gia cua tung the san pham theo thu tu hien thi (dung cho test sap xep). */
+    public List<Long> getDisplayedProductPrices() {
+        List<Long> prices = new ArrayList<>();
+        for (String id : getDisplayedProductIds()) {
+            prices.add(getProductPrice(id));
+        }
+        return prices;
+    }
+
+    public void addToCart(String productId) {
+        scrollToElement(ProductCatalogPageUI.DYNAMIC_PRODUCT_CARD, productId);
         clickToElement(ProductCatalogPageUI.DYNAMIC_ADD_TO_CART_BTN, productId);
+        pauseAfterAction();
     }
 
-    public void addFirstProductToCart() {
-        addProductToCart(getFirstProductId());
-    }
-
-    public boolean isCategoryEmptyStateDisplayed() {
-        return isElementDisplayedWithWait(ProductCatalogPageUI.CATEGORY_EMPTY_STATE, 5);
-    }
-
-    public boolean isProductDetailDisplayed() {
-        return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_DETAIL_PAGE, 5);
+    public boolean isAddToCartButtonEnabled(String productId) {
+        return isElementEnabled(ProductCatalogPageUI.DYNAMIC_ADD_TO_CART_BTN, productId);
     }
 
     public void openProductDetail(String productId) {
-        clickToElement(ProductCatalogPageUI.DYNAMIC_PRODUCT_CARD, productId);
+        scrollToElement(ProductCatalogPageUI.DYNAMIC_PRODUCT_CARD, productId);
+        clickToElement(ProductCatalogPageUI.DYNAMIC_PRODUCT_NAME, productId);
+        waitForElementVisible(ProductCatalogPageUI.PRODUCT_DETAIL_PAGE);
     }
 
-    public void backToCatalog() {
+    // ---------- Loc / sap xep / phan trang (CN-04) ----------
+    public String getCatalogResultCountText() {
+        return getElementText(ProductCatalogPageUI.CATALOG_RESULT_COUNT);
+    }
+
+    public boolean isCatalogEmptyStateDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.CATALOG_EMPTY_STATE, 5);
+    }
+
+    public void clearFilters() {
+        clickToElement(ProductCatalogPageUI.CLEAR_FILTERS_BTN);
+        sleepInSecond(2);
+    }
+
+    /** Sap xep theo value cua <select>: newest | price-asc | price-desc. */
+    public void selectSort(String sortValue) {
+        selectByValue(ProductCatalogPageUI.SORT_SELECT, sortValue);
+        sleepInSecond(2);
+    }
+
+    public String getSortValue() {
+        return getSelectedValue(ProductCatalogPageUI.SORT_SELECT);
+    }
+
+    /** Loc gia theo khoang (FE debounce 500ms roi tai lai danh sach). */
+    public void setPriceRange(String from, String to) {
+        if (from != null) {
+            sendKeyToElement(ProductCatalogPageUI.PRICE_FROM_INPUT, from);
+        }
+        if (to != null) {
+            sendKeyToElement(ProductCatalogPageUI.PRICE_TO_INPUT, to);
+        }
+        sleepInSecond(2);
+    }
+
+    public boolean isPriceFilterErrorDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRICE_FILTER_ERROR, 5);
+    }
+
+    public String getPriceFilterError() {
+        waitForElementVisible(ProductCatalogPageUI.PRICE_FILTER_ERROR);
+        return getElementText(ProductCatalogPageUI.PRICE_FILTER_ERROR);
+    }
+
+    public boolean isPaginationDisplayed() {
+        return isElementDisplayed(ProductCatalogPageUI.CATALOG_PAGINATION);
+    }
+
+    public void goToCatalogPage(int pageNumber) {
+        clickToElement(ProductCatalogPageUI.DYNAMIC_PAGINATION_PAGE_BTN, String.valueOf(pageNumber));
+        sleepInSecond(2);
+    }
+
+    public void goToNextCatalogPage() {
+        clickToElement(ProductCatalogPageUI.PAGINATION_NEXT_BTN);
+        sleepInSecond(2);
+    }
+
+    public void goToPreviousCatalogPage() {
+        clickToElement(ProductCatalogPageUI.PAGINATION_PREV_BTN);
+        sleepInSecond(2);
+    }
+
+    public boolean isNextPageButtonEnabled() {
+        return isElementEnabled(ProductCatalogPageUI.PAGINATION_NEXT_BTN);
+    }
+
+    // ---------- Trang chi tiet san pham (CN-05) ----------
+    public boolean isProductDetailDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_DETAIL_PAGE, 10);
+    }
+
+    public boolean isProductNotFoundDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_NOT_FOUND_PAGE, 10);
+    }
+
+    /** So luong con lai ghi o dong "(Con X san pham co san)" tren trang chi tiet; -1 neu khong doc duoc. */
+    public int getDetailAvailableStock() {
+        if (!isElementDisplayed(ProductCatalogPageUI.DETAIL_STOCK_TEXT)) {
+            return -1;
+        }
+        String text = getElementText(ProductCatalogPageUI.DETAIL_STOCK_TEXT);
+        String digits = text.replaceAll("[^0-9]", "");
+        return digits.isEmpty() ? -1 : Integer.parseInt(digits);
+    }
+
+    public int getDetailQuantity() {
+        String text = getElementText(ProductCatalogPageUI.DETAIL_QTY_VALUE).trim();
+        return Integer.parseInt(text.replaceAll("[^0-9]", ""));
+    }
+
+    public void increaseDetailQuantity() {
+        clickToElement(ProductCatalogPageUI.DETAIL_QTY_PLUS);
+    }
+
+    public void decreaseDetailQuantity() {
+        clickToElement(ProductCatalogPageUI.DETAIL_QTY_MINUS);
+    }
+
+    public boolean isDetailPlusEnabled() {
+        return isElementEnabled(ProductCatalogPageUI.DETAIL_QTY_PLUS);
+    }
+
+    public boolean isDetailMinusEnabled() {
+        return isElementEnabled(ProductCatalogPageUI.DETAIL_QTY_MINUS);
+    }
+
+    public void addToCartFromDetail() {
+        clickToElement(ProductCatalogPageUI.DETAIL_ADD_TO_CART_BTN);
+        pauseAfterAction();
+    }
+
+    public void buyNowFromDetail() {
+        clickToElement(ProductCatalogPageUI.BUY_NOW_BTN);
+    }
+
+    public boolean isDetailAddToCartEnabled() {
+        return isElementEnabled(ProductCatalogPageUI.DETAIL_ADD_TO_CART_BTN);
+    }
+
+    public boolean isBuyNowEnabled() {
+        return isElementEnabled(ProductCatalogPageUI.BUY_NOW_BTN);
+    }
+
+    public boolean isOutOfStockNoticeDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.DETAIL_OUT_OF_STOCK_NOTICE, 5);
+    }
+
+    public void backFromDetail() {
         clickToElement(ProductCatalogPageUI.PRODUCT_DETAIL_BACK_BTN);
+        waitForProductsLoaded();
     }
 }

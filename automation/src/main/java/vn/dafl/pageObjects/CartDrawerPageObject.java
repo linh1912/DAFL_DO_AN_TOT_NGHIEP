@@ -3,7 +3,8 @@ package vn.dafl.pageObjects;
 import vn.dafl.commons.BasePage;
 import vn.dafl.pageUIs.CartDrawerPageUI;
 
-/** Page Object cho gio hang: dong san pham, so luong, tong tien va voucher. */
+/** Page Object cho gio hang: dong san pham, so luong, tong tien va voucher.
+ *  Ban CN-06: o so luong la <input> (doc bang thuoc tinh value), giam ve 0/Xoa phai xac nhan. */
 public class CartDrawerPageObject extends BasePage {
 
     public void waitForDrawerVisible() {
@@ -22,8 +23,10 @@ public class CartDrawerPageObject extends BasePage {
         return getElementText(CartDrawerPageUI.DYNAMIC_CART_ITEM_NAME, productId);
     }
 
+    /** So luong hien tai: o so luong la <input> nen doc thuoc tinh value. */
     public int getItemQuantity(String productId) {
-        return Integer.parseInt(getElementText(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, productId));
+        String value = getElementValue(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, productId);
+        return value.isEmpty() ? 0 : Integer.parseInt(value.replaceAll("[^0-9]", ""));
     }
 
     public void increaseQuantity(String productId) {
@@ -34,6 +37,17 @@ public class CartDrawerPageObject extends BasePage {
 
     public void decreaseQuantity(String productId) {
         clickToElement(CartDrawerPageUI.DYNAMIC_CART_ITEM_MINUS_BTN, productId);
+    }
+
+    /** Go truc tiep so luong vao o nhap roi nhan Enter de xac nhan (commit khi blur). */
+    public void setItemQuantity(String productId, int quantity) {
+        String locator = getDynamicLocator(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, productId);
+        waitForElementVisible(locator);
+        clickToElement(locator);
+        getWebElement(locator).clear();
+        getWebElement(locator).sendKeys(String.valueOf(quantity));
+        getWebElement(locator).sendKeys(org.openqa.selenium.Keys.ENTER);
+        pauseAfterAction();
     }
 
     public void waitForItemQuantity(String productId, int expected) {
@@ -47,12 +61,56 @@ public class CartDrawerPageObject extends BasePage {
         throw new AssertionError("So luong san pham " + productId + " khong dat " + expected + " sau 15 giay");
     }
 
+    /** Cho so luong on dinh o mot gia tri bat ky (dung khi he thong tu kep ve ton kho). */
+    public int waitForQuantityToSettle(String productId) {
+        int previous = -1;
+        long deadline = System.currentTimeMillis() + 15000;
+        while (System.currentTimeMillis() < deadline) {
+            int current = getItemQuantity(productId);
+            if (current == previous && current > 0) {
+                return current;
+            }
+            previous = current;
+            sleepInSecond(1);
+        }
+        return getItemQuantity(productId);
+    }
+
+    // ---------- Xoa san pham (CN-06.3: phai xac nhan) ----------
+    public void clickRemoveItem(String productId) {
+        clickToElement(CartDrawerPageUI.DYNAMIC_CART_ITEM_REMOVE_BTN, productId);
+    }
+
+    public boolean isRemoveConfirmDialogDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.CART_REMOVE_CONFIRM_DIALOG, 5);
+    }
+
+    public void confirmRemoveItem() {
+        clickToElement(CartDrawerPageUI.CART_REMOVE_CONFIRM_BTN);
+    }
+
+    public void cancelRemoveItem() {
+        clickToElement(CartDrawerPageUI.CART_REMOVE_CANCEL_BTN);
+    }
+
+    public boolean isItemUnavailable(String productId) {
+        return isElementDisplayed(CartDrawerPageUI.DYNAMIC_CART_ITEM_UNAVAILABLE, productId);
+    }
+
+    public boolean isAddedToCartToastDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.CART_ADDED_TOAST, 5);
+    }
+
     public String getSubtotalText() {
         return getElementText(CartDrawerPageUI.CART_RAW_SUBTOTAL);
     }
 
     public String getFinalTotalText() {
         return getElementText(CartDrawerPageUI.CART_FINAL_TOTAL);
+    }
+
+    public String getShippingFeeText() {
+        return getElementText(CartDrawerPageUI.CART_SHIPPING_FEE);
     }
 
     public boolean isVoucherDiscountDisplayed() {

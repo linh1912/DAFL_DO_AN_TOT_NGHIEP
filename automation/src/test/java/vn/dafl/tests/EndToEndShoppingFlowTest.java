@@ -4,77 +4,71 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
+import vn.dafl.pageObjects.AuthModalPageObject;
 import vn.dafl.pageObjects.CartDrawerPageObject;
 import vn.dafl.pageObjects.CheckoutPageObject;
 import vn.dafl.pageObjects.HomePageObject;
 import vn.dafl.pageObjects.OrdersPageObject;
 import vn.dafl.pageObjects.ProductCatalogPageObject;
 
+import java.util.List;
+
 /**
- * Luong mua hang dau-cuoi (E2E) tren cung mot phien trinh duyet:
- * dang nhap -> duyet san pham -> them 2 san pham -> ap voucher -> thanh toan
- * -> tra tien PayOS (mock) -> kiem tra don trong lich su.
+ * Luong mua hang dau-cuoi theo ban chot v5 (CN-04 -> CN-06 -> CN-07 -> CN-08):
+ * khach duyet danh muc va them gio khong can dang nhap; den luc thanh toan moi
+ * dang nhap (gio khach tu gop vao tai khoan), dien thong tin giao hang, dat COD
+ * va thay don o trang thai Cho xac nhan trong lich su don hang.
  */
 public class EndToEndShoppingFlowTest extends BaseTest {
 
-    @Test(description = "E2E: dang nhap -> mua 2 san pham -> voucher -> dat hang -> thanh toan -> thay don")
-    public void endToEndShoppingFlow() {
-        // Buoc 1: dang nhap tai khoan demo
-        HomePageObject homePage = loginWithDemoAccount();
-        Assert.assertTrue(homePage.isUserLoggedIn(), "Buoc 1: dang nhap that bai");
-
-        // Buoc 2: duyet danh muc va chon 2 san pham dau tien
+    @Test(description = "E2E: Khach them gio -> thanh toan bi dua qua dang nhap -> quay lai dat COD thanh cong -> thay don Cho xac nhan")
+    public void guestToCheckoutEndToEndFlow() {
+        // 1. Khach duyet danh muc va them 2 san pham (khong can dang nhap)
+        HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        Assert.assertTrue(catalog.getProductCount() >= 2, "Buoc 2: can it nhat 2 san pham de chay luong E2E");
-        String firstId = catalog.getProductIdAt(0);
-        String secondId = catalog.getProductIdAt(1);
-
-        // Buoc 3: them ca 2 san pham vao gio
-        catalog.addProductToCart(firstId);
-        homePage.waitForCartBadgeCount(1);
-        catalog.addProductToCart(secondId);
+        List<String> ids = catalog.getDisplayedProductIds();
+        Assert.assertTrue(ids.size() >= 2, "Danh muc phai co it nhat 2 san pham");
+        String productA = ids.get(0);
+        String productB = ids.get(1);
+        catalog.addToCart(productA);
+        catalog.addToCart(productB);
         homePage.waitForCartBadgeCount(2);
 
-        // Buoc 4: mo gio, kiem tra 2 dong san pham va ap voucher DAFL20
-        CartDrawerPageObject cart = homePage.openCartDrawer();
-        Assert.assertTrue(cart.isItemDisplayed(firstId), "Buoc 4: thieu san pham 1 trong gio");
-        Assert.assertTrue(cart.isItemDisplayed(secondId), "Buoc 4: thieu san pham 2 trong gio");
-        long subtotal = parseMoney(cart.getSubtotalText());
-        Assert.assertTrue(subtotal > 0, "Buoc 4: tam tinh phai lon hon 0");
-        cart.applyVoucher(GlobalConstants.VOUCHER_FIXED_20K);
-        Assert.assertTrue(cart.isVoucherAppliedBannerDisplayed() || cart.isVoucherDiscountDisplayed(),
-                "Buoc 4: ap voucher DAFL20 khong thay dau hieu giam gia");
-        cart.closeDrawer();
-
-        // Buoc 5: vao trang thanh toan, dien thong tin va dat hang
+        // 2. Mo gio va bam thanh toan -> bi dua qua dang nhap
+        homePage.openCart();
         CheckoutPageObject checkout = new CheckoutPageObject();
-        checkout.openCheckoutPage();
-        Assert.assertTrue(checkout.isCheckoutFormDisplayed(), "Buoc 5: khong thay form thanh toan");
-        checkout.fillCheckoutForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL,
-                GlobalConstants.DEMO_PHONE, GlobalConstants.DEMO_ADDRESS);
         checkout.submitOrder();
+        Assert.assertTrue(getDriver().getCurrentUrl().contains("/login"),
+                "Khach bam thanh toan phai bi dua qua dang nhap");
 
-        // Buoc 6: thanh toan qua cong PayOS (mock) bang nut gia lap thanh cong
-        String orderCode = null;
-        if (checkout.isOrderCodeDisplayed()) {
-            orderCode = checkout.getOrderCode();
-        }
-        Assert.assertTrue(checkout.isPaymentPageDisplayed() || checkout.isPaymentViewDisplayed(),
-                "Buoc 6: khong vao duoc man hinh thanh toan");
-        if (orderCode == null && checkout.getCurrentPageUrl().contains("/payment/")) {
-            orderCode = checkout.getCurrentPageUrl().substring(
-                    checkout.getCurrentPageUrl().lastIndexOf('/') + 1);
-        }
-        checkout.simulatePayosSuccess();
-        Assert.assertTrue(checkout.isOrderPaidViewDisplayed(), "Buoc 6: thanh toan khong thanh cong");
+        // 3. Dang nhap tai khoan demo -> quay lai trang gio, gio khach da gop day du
+        AuthModalPageObject authModal = new AuthModalPageObject();
+        authModal.waitForModalVisible();
+        authModal.loginAs(GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PASSWORD);
+        homePage.waitForLoggedIn();
+        Assert.assertTrue(getDriver().getCurrentUrl().contains("/cart"),
+                "Dang nhap xong phai quay lai trang gio");
+        CartDrawerPageObject cart = new CartDrawerPageObject();
+        Assert.assertTrue(cart.isItemDisplayed(productA), "San pham A cua gio khach phai duoc gop sang");
+        Assert.assertTrue(cart.isItemDisplayed(productB), "San pham B cua gio khach phai duoc gop sang");
 
-        // Buoc 7: kiem tra don hang vua tao trong lich su don hang
-        OrdersPageObject ordersPage = homePage.navigateToOrdersPage();
-        Assert.assertTrue(ordersPage.isOrdersPageDisplayed(), "Buoc 7: khong mo duoc trang lich su don");
-        if (orderCode != null && !orderCode.isEmpty()) {
-            Assert.assertTrue(ordersPage.isOrderDisplayed(orderCode),
-                    "Buoc 7: khong thay don " + orderCode + " trong lich su");
-        }
+        // 4. Dien thong tin giao hang va dat hang COD
+        checkout.fillDefaultShippingForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PHONE);
+        checkout.selectCodPayment();
+        checkout.submitOrder();
+        Assert.assertTrue(checkout.isOrderSuccessViewDisplayed(), "Dat hang COD phai thanh cong");
+        String orderCode = checkout.getOrderSuccessCode();
+        Assert.assertTrue(orderCode.matches(GlobalConstants.ORDER_DISPLAY_CODE_REGEX),
+                "Ma don phai dung dinh dang DH{yyyyMMdd}-{NNNN}, dang thay: " + orderCode);
+
+        // 5. Don xuat hien trong lich su voi trang thai Cho xac nhan
+        OrdersPageObject ordersPage = checkout.clickViewOrders();
+        Assert.assertTrue(ordersPage.isOrderDisplayed(orderCode), "Don vua dat phai co trong lich su");
+        ordersPage.openOrderDetail(orderCode);
+        Assert.assertEquals(ordersPage.getOrderDetailStatus(), GlobalConstants.ORDER_STATUS_PENDING,
+                "Don COD moi phai o trang thai Cho xac nhan");
+        Assert.assertTrue(ordersPage.isOrderShippingInfoDisplayed(),
+                "Chi tiet don phai hien khoi thong tin giao hang (anh chup dia chi)");
     }
 }

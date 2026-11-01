@@ -6,83 +6,85 @@ import vn.dafl.pageUIs.HomePageUI;
 
 import java.util.List;
 
-/** Page Object cho Header va cac dieu huong chung cua SUT. */
+/** Page Object cho Header (dung chung tren moi trang) + thanh danh muc. */
 public class HomePageObject extends BasePage {
 
-    public void waitForHomePageLoaded() {
-        waitForElementVisible(HomePageUI.BRAND_LOGO);
-        waitForElementVisible(HomePageUI.CART_BTN);
-    }
-
-    public boolean isBrandLogoDisplayed() {
-        return isElementDisplayed(HomePageUI.BRAND_LOGO);
-    }
-
-    // ---------- Tim kiem (o tim kiem nam o header) ----------
-    public void enterSearchKeyword(String keyword) {
-        sendKeyToElement(HomePageUI.SEARCH_INPUT, keyword);
-    }
-
-    public void clearSearchKeyword() {
-        if (isElementDisplayed(HomePageUI.SEARCH_CLEAR_BTN)) {
-            clickToElement(HomePageUI.SEARCH_CLEAR_BTN);
-        }
-    }
-
-    // ---------- Tai khoan ----------
-    public void openAccountDropdown() {
-        // Chi bam nut toggle khi menu dang dong: nut nay co tinh chat bat/tat nen
-        // neu menu dang mo ma bam nua se thanh dong lai, roi cho vo ich 30 giay.
-        if (!isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)) {
-            clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        }
-        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
-    }
-
     public AuthModalPageObject openLoginModal() {
-        if (!isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)) {
-            openAccountDropdown();
-        }
+        waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
         clickToElement(HomePageUI.DROPDOWN_LOGIN_BTN);
         AuthModalPageObject authModal = new AuthModalPageObject();
         authModal.waitForModalVisible();
         return authModal;
     }
 
-    /** Da dang nhap hay chua: sau dang nhap, menu tai khoan co nut "Dang xuat". */
-    public boolean isUserLoggedIn() {
-        openAccountDropdown();
-        return isElementDisplayed(HomePageUI.DROPDOWN_LOGOUT_BTN);
-    }
-
+    /** Dang nhap thanh cong khi menu tai khoan khong con nut Dang nhap ma co nut Dang xuat. */
     public void waitForLoggedIn() {
-        openAccountDropdown();
+        waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
         waitForElementVisible(HomePageUI.DROPDOWN_LOGOUT_BTN);
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN); // dong dropdown lai
-    }
-
-    public void logout() {
-        openAccountDropdown();
-        clickToElement(HomePageUI.DROPDOWN_LOGOUT_BTN);
-        openAccountDropdown();
-        waitForElementVisible(HomePageUI.DROPDOWN_LOGIN_BTN);
+        // Dong menu lai de khong che cac thao tac tiep theo.
         clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
     }
 
-    public OrdersPageObject navigateToOrdersPage() {
-        openAccountDropdown();
-        clickToElement(HomePageUI.DROPDOWN_ORDERS_BTN);
-        return new OrdersPageObject();
+    public boolean isLoggedIn() {
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        boolean result = isElementDisplayed(HomePageUI.DROPDOWN_LOGOUT_BTN);
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        return result;
     }
 
-    public ProfilePageObject navigateToProfilePage() {
-        openAccountDropdown();
+    /** Ten dang hien thi tren nut tai khoan o header: "Dang nhap" khi chua dang nhap. */
+    public String getAccountDisplayName() {
+        waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_NAME);
+        return getElementText(HomePageUI.ACCOUNT_TOGGLE_NAME).trim();
+    }
+
+    public void logout() {
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        clickToElement(HomePageUI.DROPDOWN_LOGOUT_BTN);
+        waitForElementInvisible(HomePageUI.DROPDOWN_LOGOUT_BTN);
+    }
+
+    /** Cho toi khi menu tai khoan tro lai trang thai chua dang nhap. */
+    public void waitForLoggedOut() {
+        long deadline = System.currentTimeMillis() + 15000;
+        while (System.currentTimeMillis() < deadline) {
+            clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+            if (isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)
+                    && isElementDisplayed(HomePageUI.DROPDOWN_LOGIN_BTN)) {
+                clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+                return;
+            }
+            if (isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)) {
+                clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+            }
+            sleepInSecond(1);
+        }
+        throw new AssertionError("Menu tai khoan khong tro ve trang thai chua dang nhap sau 15 giay");
+    }
+
+    public OrdersPageObject openOrdersPage() {
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        clickToElement(HomePageUI.DROPDOWN_ORDERS_BTN);
+        OrdersPageObject ordersPage = new OrdersPageObject();
+        ordersPage.waitForOrdersLoaded();
+        return ordersPage;
+    }
+
+    public ProfilePageObject openProfilePage() {
+        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
         clickToElement(HomePageUI.DROPDOWN_PROFILE_BTN);
         return new ProfilePageObject();
     }
 
-    // ---------- Gio hang ----------
-    public CartDrawerPageObject openCartDrawer() {
+    /** Bam nut gio hang - SUT chuyen sang trang /cart (route "cart"). */
+    public CartDrawerPageObject openCart() {
         clickToElement(HomePageUI.CART_BTN);
         CartDrawerPageObject cartDrawer = new CartDrawerPageObject();
         cartDrawer.waitForDrawerVisible();
@@ -93,10 +95,71 @@ public class HomePageObject extends BasePage {
         if (!isElementDisplayed(HomePageUI.CART_BADGE_COUNT)) {
             return 0;
         }
-        String text = getElementText(HomePageUI.CART_BADGE_COUNT);
-        return text.isEmpty() ? 0 : Integer.parseInt(text.replaceAll("[^0-9]", ""));
+        String text = getElementText(HomePageUI.CART_BADGE_COUNT).trim();
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
+    public boolean isCartBadgeDisplayed() {
+        return isElementDisplayed(HomePageUI.CART_BADGE_COUNT);
+    }
+
+    /** Go tu khoa vao o tim kiem tren header (FE debounce ~300ms + tai lai danh sach). */
+    public void searchProduct(String keyword) {
+        waitForElementVisible(HomePageUI.SEARCH_INPUT);
+        sendKeyToElement(HomePageUI.SEARCH_INPUT, keyword);
+        sleepInSecond(2);
+    }
+
+    public void clearSearch() {
+        if (isElementDisplayed(HomePageUI.SEARCH_CLEAR_BTN)) {
+            clickToElement(HomePageUI.SEARCH_CLEAR_BTN);
+            sleepInSecond(2);
+        }
+    }
+
+    public String getFirstCategoryId() {
+        List<WebElement> pills = getListWebElements(HomePageUI.ANY_CATEGORY_PILL);
+        for (WebElement pill : pills) {
+            String testId = pill.getAttribute("data-testid");
+            if (testId != null && !testId.equals("category-pill-all") && testId.startsWith("category-pill-")) {
+                return testId.replace("category-pill-", "");
+            }
+        }
+        return null;
+    }
+
+    public void selectCategoryByIndex(int index) {
+        List<WebElement> pills = getListWebElements(HomePageUI.ANY_CATEGORY_PILL);
+        int count = 0;
+        for (WebElement pill : pills) {
+            String testId = pill.getAttribute("data-testid");
+            if (testId != null && !testId.equals("category-pill-all")) {
+                if (count == index) {
+                    pill.click();
+                    sleepInSecond(2);
+                    return;
+                }
+                count++;
+            }
+        }
+        throw new IllegalStateException("Khong tim thay nut danh muc o vi tri " + index);
+    }
+
+    public void selectCategory(String categoryId) {
+        clickToElement(HomePageUI.DYNAMIC_CATEGORY_PILL, categoryId);
+        sleepInSecond(2);
+    }
+
+    public void selectAllCategories() {
+        clickToElement(HomePageUI.CATEGORY_PILL_ALL);
+        sleepInSecond(2);
+    }
+
+    /** Cho toi khi huy hieu gio hang dat dung so luong mong doi (tong so luong san pham). */
     public void waitForCartBadgeCount(int expected) {
         long deadline = System.currentTimeMillis() + 15000;
         while (System.currentTimeMillis() < deadline) {
@@ -105,26 +168,7 @@ public class HomePageObject extends BasePage {
             }
             sleepInSecond(1);
         }
-        throw new AssertionError("Badge gio hang khong dat gia tri " + expected + " sau 15 giay");
-    }
-
-    // ---------- Danh muc ----------
-    public List<WebElement> getCategoryPills() {
-        waitForElementVisible(HomePageUI.CATEGORIES_BAR);
-        return getListWebElements(HomePageUI.ANY_CATEGORY_PILL);
-    }
-
-    public void clickCategoryPillById(String categoryId) {
-        clickToElement(HomePageUI.DYNAMIC_CATEGORY_PILL, categoryId);
-    }
-
-    public String getFirstCategoryId() {
-        for (WebElement pill : getCategoryPills()) {
-            String testId = pill.getAttribute("data-testid");
-            if (testId != null && !testId.equals("category-pill-all")) {
-                return testId.replace("category-pill-", "");
-            }
-        }
-        throw new IllegalStateException("Khong tim thay danh muc nao tren trang chu");
+        throw new AssertionError("Huy hieu gio hang khong dat " + expected + " sau 15 giay (hien tai: "
+                + getCartBadgeCount() + ")");
     }
 }

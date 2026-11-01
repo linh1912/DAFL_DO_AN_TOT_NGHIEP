@@ -2,7 +2,7 @@
 <jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="DAFL Backend Performance Test Plan (theo Swagger BE)" enabled="true">
-      <stringProp name="TestPlan.comments">Kich ban tai viet theo Swagger/OpenAPI cua Backend DAFL (Program.cs - AddSwaggerGen): bao phu cac endpoint Auth, Categories, Products, Cart, Vouchers, Orders, Payments, Notifications. Xac thuc bang session cookie sid (HTTP Cookie Manager). Tham so may dich: -Jtarget_host, -Jtarget_port, -Jthreads, -Jrampup, -Jduration. Endpoint payos-webhook de tat vi can chu ky PayOS hop le.</stringProp>
+      <stringProp name="TestPlan.comments">Kich ban tai viet theo Swagger/OpenAPI cua Backend DAFL (Program.cs - AddSwaggerGen): bao phu cac endpoint Auth, Categories, Products, Cart, Vouchers, Orders, Payments, Notifications. Xac thuc bang JWT: dang nhap lay token tu $.data.token roi gan header Authorization: Bearer (ban CN-02, token luu localStorage phia FE). Tham so may dich: -Jtarget_host, -Jtarget_port, -Jthreads, -Jrampup, -Jduration. Endpoint payos-webhook de tat vi can chu ky PayOS hop le.</stringProp>
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
@@ -80,11 +80,19 @@
             </elementProp>
           </collectionProp>
         </HeaderManager><hashTree/>
-        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager (phien dang nhap sid)" enabled="true">
+        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager (TAT - ban CN dung JWT Bearer)" enabled="false">
           <collectionProp name="CookieManager.cookies"/>
           <boolProp name="CookieManager.clearEachIteration">false</boolProp>
           <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
         </CookieManager><hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authorization Bearer JWT" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="Authorization" elementType="Header">
+              <stringProp name="Header.name">Authorization</stringProp>
+              <stringProp name="Header.value">Bearer ${jwtToken}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager><hashTree/>
         <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Think Time 100-500ms" enabled="true">
           <stringProp name="ConstantTimer.delay">100</stringProp>
           <stringProp name="RandomTimer.range">400</stringProp>
@@ -153,10 +161,15 @@
           </ResponseAssertion><hashTree/>
           <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Trich xuat userId" enabled="true">
           <stringProp name="JSONPostProcessor.referenceNames">userId</stringProp>
-          <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.id</stringProp>
+          <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.user.id</stringProp>
           <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
-        </JSONPostProcessor><hashTree/><JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Kiem tra $.success" enabled="true">
+        </JSONPostProcessor><JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Trich xuat JWT token" enabled="true">
+          <stringProp name="JSONPostProcessor.referenceNames">jwtToken</stringProp>
+          <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.token</stringProp>
+          <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+        </JSONPostProcessor><hashTree/><hashTree/><JSONPathAssertion guiclass="JSONPathAssertionGui" testclass="JSONPathAssertion" testname="Kiem tra $.success" enabled="true">
           <stringProp name="JSON_PATH">$.success</stringProp>
           <stringProp name="EXPECTED_VALUE">true</stringProp>
           <boolProp name="JSONVALIDATION">true</boolProp>
@@ -354,7 +367,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;userId&quot;:&quot;${userId}&quot;,&quot;productId&quot;:&quot;${productId}&quot;,&quot;quantity&quot;:1}</stringProp>
+                <stringProp name="Argument.value">{&quot;productId&quot;:&quot;${productId}&quot;,&quot;quantity&quot;:1}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name"></stringProp>
@@ -391,12 +404,12 @@
           <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
         </JSONPostProcessor><hashTree/>
         </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/cart?userId={id}" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/cart" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/cart?userId=${userId}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/cart</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -408,7 +421,7 @@
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">GET /api/cart?userId={id} - response code khong phai 200</stringProp>
+            <stringProp name="Assertion.custom_message">GET /api/cart - response code khong phai 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">8</intProp>
@@ -487,7 +500,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;customerName&quot;:&quot;Nguyễn Văn Demo&quot;,&quot;customerEmail&quot;:&quot;demo@dafl.vn&quot;,&quot;customerPhone&quot;:&quot;0987654321&quot;,&quot;shippingAddress&quot;:&quot;Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội&quot;,&quot;voucherCode&quot;:&quot;DAFL20&quot;,&quot;userId&quot;:&quot;${userId}&quot;,&quot;items&quot;:[{&quot;productId&quot;:&quot;${productId}&quot;,&quot;quantity&quot;:1}]}</stringProp>
+                <stringProp name="Argument.value">{&quot;customerName&quot;:&quot;Nguyễn Văn Demo&quot;,&quot;customerEmail&quot;:&quot;demo@dafl.vn&quot;,&quot;customerPhone&quot;:&quot;0987654321&quot;,&quot;voucherCode&quot;:&quot;DAFL20&quot;,&quot;paymentMethod&quot;:&quot;COD&quot;,&quot;items&quot;:[{&quot;productId&quot;:&quot;${productId}&quot;,&quot;quantity&quot;:1}],&quot;shipping&quot;:{&quot;recipientName&quot;:&quot;Nguyễn Văn Demo&quot;,&quot;phone&quot;:&quot;0987654321&quot;,&quot;provinceCode&quot;:&quot;1&quot;,&quot;provinceName&quot;:&quot;Thành phố Hà Nội&quot;,&quot;districtCode&quot;:&quot;1&quot;,&quot;districtName&quot;:&quot;Quận Ba Đình&quot;,&quot;wardCode&quot;:&quot;1&quot;,&quot;wardName&quot;:&quot;Phường Phúc Xá&quot;,&quot;detailAddress&quot;:&quot;Số 1 Đại Cồ Việt&quot;,&quot;note&quot;:&quot;&quot;}}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name"></stringProp>
@@ -550,12 +563,12 @@
           </ResponseAssertion><hashTree/>
           
         </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/orders/history?userId={id}" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/orders/history" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/orders/history?userId=${userId}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/orders/history</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -567,19 +580,19 @@
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">GET /api/orders/history?userId={id} - response code khong phai 200</stringProp>
+            <stringProp name="Assertion.custom_message">GET /api/orders/history - response code khong phai 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">8</intProp>
           </ResponseAssertion><hashTree/>
           
         </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/notifications?userId={id}" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GET /api/notifications" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/notifications?userId=${userId}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/notifications</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -591,7 +604,7 @@
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">GET /api/notifications?userId={id} - response code khong phai 200</stringProp>
+            <stringProp name="Assertion.custom_message">GET /api/notifications - response code khong phai 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">8</intProp>
@@ -660,11 +673,19 @@
             </elementProp>
           </collectionProp>
         </HeaderManager><hashTree/>
-        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager (phien dang nhap sid)" enabled="true">
+        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager (TAT - ban CN dung JWT Bearer)" enabled="false">
           <collectionProp name="CookieManager.cookies"/>
           <boolProp name="CookieManager.clearEachIteration">false</boolProp>
           <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
         </CookieManager><hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authorization Bearer JWT" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="Authorization" elementType="Header">
+              <stringProp name="Header.name">Authorization</stringProp>
+              <stringProp name="Header.value">Bearer ${jwtToken2}</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager><hashTree/>
         <UniformRandomTimer guiclass="UniformRandomTimerGui" testclass="UniformRandomTimer" testname="Think Time 100-500ms" enabled="true">
           <stringProp name="ConstantTimer.delay">100</stringProp>
           <stringProp name="RandomTimer.range">400</stringProp>
@@ -675,7 +696,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;email&quot;:&quot;perf_${__time(yyyyMMddHHmmss)}_${__threadNum}@dafl.vn&quot;,&quot;password&quot;:&quot;Test@1234&quot;,&quot;fullName&quot;:&quot;Perf Tester&quot;,&quot;phoneNumber&quot;:&quot;0901234567&quot;,&quot;address&quot;:&quot;Ha Noi&quot;}</stringProp>
+                <stringProp name="Argument.value">{&quot;email&quot;:&quot;perf_${__time(yyyyMMddHHmmss)}_${__threadNum}@dafl.vn&quot;,&quot;password&quot;:&quot;Test@1234&quot;,&quot;fullName&quot;:&quot;Perf Tester&quot;,&quot;phoneNumber&quot;:&quot;0901234567&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name"></stringProp>
@@ -740,10 +761,15 @@
           </ResponseAssertion><hashTree/>
           <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Trich xuat userId2" enabled="true">
           <stringProp name="JSONPostProcessor.referenceNames">userId2</stringProp>
-          <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.id</stringProp>
+          <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.user.id</stringProp>
           <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
-        </JSONPostProcessor><hashTree/>
+        </JSONPostProcessor><JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Trich xuat JWT token" enabled="true">
+          <stringProp name="JSONPostProcessor.referenceNames">jwtToken2</stringProp>
+          <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.token</stringProp>
+          <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+        </JSONPostProcessor><hashTree/><hashTree/>
         </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/auth/profile" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
@@ -751,7 +777,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;fullName&quot;:&quot;Perf Tester Updated&quot;,&quot;phoneNumber&quot;:&quot;0901234567&quot;,&quot;address&quot;:&quot;Hai Ba Trung, Ha Noi&quot;}</stringProp>
+                <stringProp name="Argument.value">{&quot;fullName&quot;:&quot;Perf Tester Updated&quot;,&quot;phoneNumber&quot;:&quot;0901234567&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
                 <boolProp name="HTTPArgument.use_equals">true</boolProp>
                 <stringProp name="Argument.name"></stringProp>
@@ -840,12 +866,12 @@
           </ResponseAssertion><hashTree/>
           
         </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/notifications/read-all?userId={id}" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="PUT /api/notifications/read-all" enabled="true">
           <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
-          <stringProp name="HTTPSampler.path">/api/notifications/read-all?userId=${userId2}</stringProp>
+          <stringProp name="HTTPSampler.path">/api/notifications/read-all</stringProp>
           <stringProp name="HTTPSampler.method">PUT</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -857,7 +883,7 @@
             <collectionProp name="Asserion.test_strings">
               <stringProp name="49586">200</stringProp>
             </collectionProp>
-            <stringProp name="Assertion.custom_message">PUT /api/notifications/read-all?userId={id} - response code khong phai 200</stringProp>
+            <stringProp name="Assertion.custom_message">PUT /api/notifications/read-all - response code khong phai 200</stringProp>
             <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
             <boolProp name="Assertion.assume_success">false</boolProp>
             <intProp name="Assertion.test_type">8</intProp>

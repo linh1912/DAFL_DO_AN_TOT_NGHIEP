@@ -18,13 +18,14 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 6 lớp test, 32 test case
-│   │   ├── AuthTest · CatalogAndSearchTest · CartManagementTest
-│   │   ├── CheckoutAndOrderTest · EndToEndShoppingFlowTest
-│   │   └── NegativeAndExceptionScenariosTest (14 case âm/ngoại lệ)
+│   ├── src/test/java/vn/dafl/tests/  ← 10 lớp test, 83 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   │   ├── AuthTest (16) · CatalogAndSearchTest (10) · ProductDetailTest (7)
+│   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (7) · OrderCancellationTest (3)
+│   │   ├── ProfileAndAddressTest (9) · SocialLoginTest (4) · EndToEndShoppingFlowTest (1)
+│   │   └── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
 │   ├── testng.xml · testng-flow.xml · testng-negative.xml
 │   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
-├── performance/           ← [2] Kiểm thử hiệu năng (Apache JMeter): dafl-loadtest.jmx — viết theo Swagger/OpenAPI của Backend (25 sampler, luồng cookie-session)
+├── performance/           ← [2] Kiểm thử hiệu năng (Apache JMeter): dafl-loadtest.jmx — viết theo Swagger/OpenAPI của Backend (25 sampler, xác thực JWT Bearer: đăng nhập lấy token rồi gắn header Authorization)
 ├── quality-gate/          ← [3] Quality Gate: check_performance_gate.sh (Jenkins/Linux) + .py (Windows)
 ├── ci/jenkins/quick-setup/ ← Jenkins dựng sẵn bằng Docker + JCasC, tự tạo 3 job
 ├── Jenkinsfile            ← Pipeline TỔNG HỢP: dựng SUT → automation → performance → 2 Quality Gate → deploy khi PASS

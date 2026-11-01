@@ -12,6 +12,8 @@ public class HomePageUI {
     public static final String NOTIF_BELL_BTN = "css=[data-testid='notif-bell-btn']";
     public static final String NOTIF_BADGE_COUNT = "css=[data-testid='notif-badge-count']";
     public static final String ACCOUNT_TOGGLE_BTN = "css=[data-testid='account-toggle-btn']";
+    /** Ten nguoi dung hien thi tren nut tai khoan o header (khi chua dang nhap la "Dang nhap"). */
+    public static final String ACCOUNT_TOGGLE_NAME = "css=.account-toggle-name";
     public static final String ACCOUNT_DROPDOWN_MENU = "css=[data-testid='account-dropdown-menu']";
     public static final String DROPDOWN_LOGIN_BTN = "css=[data-testid='dropdown-login-btn']";
     public static final String DROPDOWN_LOGOUT_BTN = "css=[data-testid='dropdown-logout-btn']";

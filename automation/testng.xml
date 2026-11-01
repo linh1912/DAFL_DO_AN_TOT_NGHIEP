@@ -23,8 +23,12 @@
         <classes>
             <class name="vn.dafl.tests.AuthTest"/>
             <class name="vn.dafl.tests.CatalogAndSearchTest"/>
+            <class name="vn.dafl.tests.ProductDetailTest"/>
             <class name="vn.dafl.tests.CartManagementTest"/>
             <class name="vn.dafl.tests.CheckoutAndOrderTest"/>
+            <class name="vn.dafl.tests.OrderCancellationTest"/>
+            <class name="vn.dafl.tests.ProfileAndAddressTest"/>
+            <class name="vn.dafl.tests.SocialLoginTest"/>
         </classes>
     </test>
 </suite>

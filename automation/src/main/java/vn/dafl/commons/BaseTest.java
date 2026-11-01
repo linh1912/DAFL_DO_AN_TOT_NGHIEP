@@ -1,5 +1,6 @@
 package vn.dafl.commons;
 
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -91,5 +92,82 @@ public abstract class BaseTest {
     protected long parseMoney(String moneyText) {
         String digits = moneyText.replaceAll("[^0-9]", "");
         return digits.isEmpty() ? 0 : Long.parseLong(digits);
+    }
+
+    /** Sinh so dien thoai Viet Nam (10 so, bat dau 09) gan nhu khong trung lap cho test dang ky. */
+    protected String randomPhone() {
+        String tail = String.valueOf(System.currentTimeMillis());
+        return "09" + tail.substring(tail.length() - 8);
+    }
+
+    /**
+     * Dang ky mot tai khoan moi qua UI va de nguyen o tab Dang nhap sau khi thanh cong
+     * (ban CN-01: dang ky xong hien "Dang ky thanh cong" va chuyen sang dang nhap, khong con OTP).
+     * Tra ve AuthModalPageObject dang mo o tab dang nhap.
+     */
+    protected AuthModalPageObject registerNewAccount(String fullName, String email, String phone, String password) {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+        authModal.register(fullName, email, phone, password, password);
+        if (!authModal.isRegisterSuccessDisplayed()) {
+            throw new AssertionError("Dang ky tai khoan " + email + " khong thanh cong");
+        }
+        return authModal;
+    }
+
+    /** Dang ky tai khoan moi roi dang nhap ngay bang chinh tai khoan do. */
+    protected HomePageObject registerAndLogin(String fullName, String email, String phone, String password) {
+        AuthModalPageObject authModal = registerNewAccount(fullName, email, phone, password);
+        authModal.loginAs(email, password);
+        HomePageObject homePage = new HomePageObject();
+        homePage.waitForLoggedIn();
+        return homePage;
+    }
+
+    /** Dang nhap bang mot tai khoan bat ky qua Auth Modal. */
+    protected HomePageObject loginAs(String email, String password) {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+        authModal.loginAs(email, password);
+        homePage.waitForLoggedIn();
+        return homePage;
+    }
+
+    /** Token JWT hien tai trong localStorage (key dafl_token theo CN-02); null neu chua dang nhap. */
+    protected String getAuthToken() {
+        Object token = ((JavascriptExecutor) getDriver())
+                .executeScript("return window.localStorage.getItem('dafl_token');");
+        return token == null ? null : String.valueOf(token);
+    }
+
+    /** Lam hong token JWT de mo phong phien het han/bi sua (CN-02 E3). */
+    protected void corruptAuthToken() {
+        ((JavascriptExecutor) getDriver())
+                .executeScript("window.localStorage.setItem('dafl_token', 'token.da.bi.sua.khong.hop.le');");
+    }
+
+    /** Trich ma don hien thi dang DH{yyyyMMdd}-{NNNN} tu mot doan text bat ky; null neu khong co. */
+    protected String extractOrderDisplayCode(String text) {
+        if (text == null) {
+            return null;
+        }
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile(GlobalConstants.ORDER_DISPLAY_CODE_REGEX).matcher(text);
+        return matcher.find() ? matcher.group() : null;
+    }
+
+    /** Nghi ngan trong test class (BasePage.sleepInSecond chi co tren page object). */
+    protected void sleepInSecond(long seconds) {
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    /** Kiem tra mot doan text co xuat hien o bat ky dau tren trang hien tai khong. */
+    protected boolean isTextVisibleOnPage(String text) {
+        return !getDriver().findElements(org.openqa.selenium.By.xpath(
+                "//*[contains(text(),'" + text.replace("'", "") + "')]")).isEmpty();
     }
 }
