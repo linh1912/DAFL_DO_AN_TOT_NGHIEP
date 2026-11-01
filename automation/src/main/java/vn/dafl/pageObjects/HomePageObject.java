@@ -16,30 +16,46 @@ public class HomePageObject extends BasePage {
         waitForElementVisible(HomePageUI.CATEGORIES_BAR);
     }
 
+    /** Chi bam nut tai khoan khi menu dang DONG - bam luc menu dang mo se dong menu lai. */
+    private void openAccountDropdown() {
+        if (!isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)) {
+            clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+            waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        }
+    }
+
+    private void closeAccountDropdown() {
+        if (isElementDisplayed(HomePageUI.ACCOUNT_DROPDOWN_MENU)) {
+            clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        }
+    }
+
     public AuthModalPageObject openLoginModal() {
-        waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        openAccountDropdown();
         clickToElement(HomePageUI.DROPDOWN_LOGIN_BTN);
         AuthModalPageObject authModal = new AuthModalPageObject();
         authModal.waitForModalVisible();
         return authModal;
     }
 
-    /** Dang nhap thanh cong khi menu tai khoan khong con nut Dang nhap ma co nut Dang xuat. */
+    /** Dang nhap thanh cong khi menu tai khoan co nut Dang xuat; hoi lai trang thai toi da 30 giay. */
     public void waitForLoggedIn() {
-        waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
-        waitForElementVisible(HomePageUI.DROPDOWN_LOGOUT_BTN);
-        // Dong menu lai de khong che cac thao tac tiep theo.
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        long deadline = System.currentTimeMillis() + 30000;
+        while (System.currentTimeMillis() < deadline) {
+            openAccountDropdown();
+            if (isElementDisplayed(HomePageUI.DROPDOWN_LOGOUT_BTN)) {
+                closeAccountDropdown();
+                return;
+            }
+            sleepInSecond(1);
+        }
+        throw new AssertionError("Dang nhap chua thanh cong: khong thay nut Dang xuat trong menu tai khoan sau 30 giay");
     }
 
     public boolean isLoggedIn() {
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        openAccountDropdown();
         boolean result = isElementDisplayed(HomePageUI.DROPDOWN_LOGOUT_BTN);
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        closeAccountDropdown();
         return result;
     }
 
@@ -50,8 +66,7 @@ public class HomePageObject extends BasePage {
     }
 
     public void logout() {
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        openAccountDropdown();
         clickToElement(HomePageUI.DROPDOWN_LOGOUT_BTN);
         waitForElementInvisible(HomePageUI.DROPDOWN_LOGOUT_BTN);
     }
@@ -75,8 +90,7 @@ public class HomePageObject extends BasePage {
     }
 
     public OrdersPageObject openOrdersPage() {
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        openAccountDropdown();
         clickToElement(HomePageUI.DROPDOWN_ORDERS_BTN);
         OrdersPageObject ordersPage = new OrdersPageObject();
         ordersPage.waitForOrdersLoaded();
@@ -84,8 +98,7 @@ public class HomePageObject extends BasePage {
     }
 
     public ProfilePageObject openProfilePage() {
-        clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
-        waitForElementVisible(HomePageUI.ACCOUNT_DROPDOWN_MENU);
+        openAccountDropdown();
         clickToElement(HomePageUI.DROPDOWN_PROFILE_BTN);
         return new ProfilePageObject();
     }

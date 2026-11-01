@@ -2,6 +2,7 @@ package vn.dafl.commons;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -125,18 +126,18 @@ public class BasePage {
     public void sendKeyToElement(String locator, String textValue) {
         waitForElementVisible(locator);
         WebElement element = getWebElement(locator);
-        element.clear();
+        element.click();
+        // Xoa bang phim tat (su kien ban phim that) thay cho element.clear():
+        // clear() cua WebDriver khong kich hoat onChange cua React khi o nhap DA co gia tri,
+        // nen trang thai form van giu gia tri cu du nhin bang mat thay chu moi (loi gui lai mat khau cu).
+        element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        element.sendKeys(Keys.DELETE);
         element.sendKeys(textValue);
         pauseAfterAction();
     }
 
     public void sendKeyToElement(String locator, String textValue, String... values) {
-        String dynamic = getDynamicLocator(locator, values);
-        waitForElementVisible(dynamic);
-        WebElement element = getWebElement(dynamic);
-        element.clear();
-        element.sendKeys(textValue);
-        pauseAfterAction();
+        sendKeyToElement(getDynamicLocator(locator, values), textValue);
     }
 
     public String getElementText(String locator) {
