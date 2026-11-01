@@ -26,8 +26,8 @@ public class SocialLoginTest extends BaseTest {
         authModal.confirmSocialMockLogin();
 
         homePage.waitForLoggedIn();
-        Assert.assertEquals(homePage.getAccountDisplayName(), "Google Test User",
-                "Dang nhap Google mock phai vao dung tai khoan Google Test User");
+        Assert.assertEquals(homePage.getAccountDisplayName(), "Người Dùng Google Test",
+                "Dang nhap Google mock phai vao dung tai khoan Nguoi Dung Google Test");
         Assert.assertTrue(getAuthToken() != null && !getAuthToken().isEmpty(),
                 "Dang nhap social cung phai cap JWT");
     }
@@ -45,8 +45,8 @@ public class SocialLoginTest extends BaseTest {
         authModal.confirmSocialMockLogin();
 
         homePage.waitForLoggedIn();
-        Assert.assertEquals(homePage.getAccountDisplayName(), "Facebook Test User",
-                "Dang nhap Facebook mock phai vao dung tai khoan Facebook Test User");
+        Assert.assertEquals(homePage.getAccountDisplayName(), "Người Dùng Facebook Test",
+                "Dang nhap Facebook mock phai vao dung tai khoan Nguoi Dung Facebook Test");
     }
 
     @Test(description = "TC-SOC-03: Huy dang nhap mock giua chung -> hien loi social va khong dang nhap")
