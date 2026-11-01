@@ -189,6 +189,11 @@ public class BasePage {
         waitForElementVisible(getDynamicLocator(locator, values));
     }
 
+    public void waitForListElementsVisible(String locator) {
+        getWait(GlobalConstants.LONG_TIMEOUT)
+                .until(ExpectedConditions.visibilityOfAllElementsLocatedBy(getByLocator(locator)));
+    }
+
     public void waitForElementClickable(String locator) {
         getWait(GlobalConstants.LONG_TIMEOUT)
                 .until(ExpectedConditions.elementToBeClickable(getByLocator(locator)));
@@ -207,6 +212,16 @@ public class BasePage {
         WebElement element = getWebElement(locator);
         ((JavascriptExecutor) getDriver()).executeScript(
                 "arguments[0].scrollIntoView({block: 'center'});", element);
+    }
+
+    public void scrollToElement(String locator, String... values) {
+        scrollToElement(getDynamicLocator(locator, values));
+    }
+
+    /** Cat bo moi dinh dang tien te, chi giu chu so (vd "1.250.000d" -> 1250000). */
+    public long parseMoney(String moneyText) {
+        String digits = moneyText.replaceAll("[^0-9]", "");
+        return digits.isEmpty() ? 0 : Long.parseLong(digits);
     }
 
     public void sleepInSecond(long seconds) {
