@@ -270,7 +270,9 @@ public class BasePage {
         if ("select".equalsIgnoreCase(element.getTagName())) {
             new Select(element).selectByVisibleText(visibleText);
         } else {
-            element.clear();
+            element.click();
+            element.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+            element.sendKeys(Keys.DELETE);
             element.sendKeys(visibleText);
         }
         pauseAfterAction();

@@ -149,6 +149,8 @@ public class ProfilePageObject extends BasePage {
 
     /** Mo form them dia chi; tra ve false neu bi chan boi gioi han 5 dia chi. */
     public boolean openAddAddressForm() {
+        // Cuon nut ra giua man hinh truoc khi bam - nut nam sat header dinh (sticky) nen bi che.
+        scrollToElement(ProfilePageUI.ADDRESS_ADD_BTN);
         clickToElement(ProfilePageUI.ADDRESS_ADD_BTN);
         if (isAddressLimitErrorDisplayed()) {
             return false;

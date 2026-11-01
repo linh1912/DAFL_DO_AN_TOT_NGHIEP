@@ -1,5 +1,6 @@
 package vn.dafl.pageObjects;
 
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.WebElement;
 import vn.dafl.commons.BasePage;
 import vn.dafl.pageUIs.HomePageUI;
@@ -105,7 +106,13 @@ public class HomePageObject extends BasePage {
 
     /** Bam nut gio hang - SUT chuyen sang trang /cart (route "cart"). */
     public CartDrawerPageObject openCart() {
-        clickToElement(HomePageUI.CART_BTN);
+        try {
+            clickToElement(HomePageUI.CART_BTN);
+        } catch (ElementClickInterceptedException e) {
+            // Toast thong bao cua FE (vd vua them san pham) che nut gio hang o goc header:
+            // click bang JS de bo qua lop phu.
+            clickElementByJS(HomePageUI.CART_BTN);
+        }
         CartDrawerPageObject cartDrawer = new CartDrawerPageObject();
         cartDrawer.waitForDrawerVisible();
         return cartDrawer;

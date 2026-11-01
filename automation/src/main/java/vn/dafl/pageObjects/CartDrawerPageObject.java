@@ -41,11 +41,10 @@ public class CartDrawerPageObject extends BasePage {
 
     /** Go truc tiep so luong vao o nhap roi nhan Enter de xac nhan (commit khi blur). */
     public void setItemQuantity(String productId, int quantity) {
+        // Dung sendKeyToElement (xoa bang Ctrl+A/Delete) de React nhan dung gia tri moi;
+        // clear() cua WebDriver tung khien so luong tren server khong duoc cap nhat.
+        sendKeyToElement(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, String.valueOf(quantity), productId);
         String locator = getDynamicLocator(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, productId);
-        waitForElementVisible(locator);
-        clickToElement(locator);
-        getWebElement(locator).clear();
-        getWebElement(locator).sendKeys(String.valueOf(quantity));
         getWebElement(locator).sendKeys(org.openqa.selenium.Keys.ENTER);
         pauseAfterAction();
     }

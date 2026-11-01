@@ -44,5 +44,5 @@ public class ProductCatalogPageUI {
     public static final String DETAIL_OUT_OF_STOCK_NOTICE = "css=[data-testid='detail-out-of-stock-notice']";
     public static final String DYNAMIC_VARIANT_OPTION = "css=[data-testid='variant-option-%s']";
     /** Dong chu "(Con X san pham co san)" canh o so luong o trang chi tiet. */
-    public static final String DETAIL_STOCK_TEXT = "xpath=//*[contains(text(),'sản phẩm có sẵn')]";
+    public static final String DETAIL_STOCK_TEXT = "xpath=//span[contains(.,'sản phẩm có sẵn')]";
 }
