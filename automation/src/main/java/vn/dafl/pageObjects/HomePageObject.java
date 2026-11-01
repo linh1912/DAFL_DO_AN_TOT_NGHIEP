@@ -9,6 +9,13 @@ import java.util.List;
 /** Page Object cho Header (dung chung tren moi trang) + thanh danh muc. */
 public class HomePageObject extends BasePage {
 
+    /** Cho trang chu tai xong: header, nut tai khoan va thanh danh muc da hien thi. */
+    public void waitForHomePageLoaded() {
+        waitForElementVisible(HomePageUI.HEADER);
+        waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_BTN);
+        waitForElementVisible(HomePageUI.CATEGORIES_BAR);
+    }
+
     public AuthModalPageObject openLoginModal() {
         waitForElementVisible(HomePageUI.ACCOUNT_TOGGLE_BTN);
         clickToElement(HomePageUI.ACCOUNT_TOGGLE_BTN);
