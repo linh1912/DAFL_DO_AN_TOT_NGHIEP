@@ -18,17 +18,17 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 14 lớp test, 130 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
-│   │   ├── web/  ← 11 lớp web bán hàng, 99 test
+│   ├── src/test/java/vn/dafl/tests/  ← 15 lớp test, 130 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   │   ├── web/  ← 12 lớp web bán hàng, 102 test
 │   │   │   ├── AuthTest (18) · CatalogAndSearchTest (11) · ProductDetailTest (9)
 │   │   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (10) · OrderCancellationTest (3)
 │   │   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
 │   │   │   ├── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
-│   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2)
-│   │   └── admin/  ← 3 lớp admin, 31 test (chạy trên app Admin riêng localhost:3001)
-│   │       ├── AdminAndNewsletterTest (14) · AdminDetailTest (9)  (chỉ đọc)
-│   │       └── AdminCrudTest (8)  (CRUD thật, chỉ đụng dữ liệu do test tạo, tự dọn)
-│   ├── testng.xml (cả 2 khối Web + Admin, 130 test) · testng-web.xml (99 test) · testng-admin.xml (31 test)
+│   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2) · NewsletterTest (3)
+│   │   └── admin/  ← 3 lớp admin, 28 test (chạy trên app Admin riêng localhost:3001, KHÔNG cần :3000)
+│   │       ├── AdminAndNewsletterTest (11) · AdminDetailTest (9)  (chỉ đọc)
+│   │       └── AdminCrudTest (8)  (CRUD thật: tạo/sửa/xóa SP + danh mục, voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn, điều chỉnh điểm; chỉ đụng dữ liệu do test tạo, tự dọn — trừ ACR-06/07)
+│   ├── testng.xml (cả 2 khối Web + Admin, 130 test) · testng-web.xml (102 test) · testng-admin.xml (28 test)
 │   ├── testng-flow.xml · testng-negative.xml
 │   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
 │       run_test_web.bat (chỉ test web) · run_test_admin.bat (chỉ test admin)
@@ -52,11 +52,11 @@ DAFL_DO_AN_TOT_NGHIEP/
 
 ```bat
 cd automation
-run_test_with_gui.bat        :: toan bo suite testng.xml (130 test: 99 web + 31 admin), Chrome co giao dien
+run_test_with_gui.bat        :: toan bo suite testng.xml (130 test: 102 web + 28 admin), Chrome co giao dien
 run_test_headless.bat        :: toan bo suite, che do headless (cho CI)
-run_test_web.bat             :: chi test web ban hang (testng-web.xml, 99 test)
-run_test_admin.bat           :: chi test admin (testng-admin.xml, 31 test) — can ca 2 service
-                               :3000 + :3001 dang chay va tai khoan admin@dafl.vn da duoc seed
+run_test_web.bat             :: chi test web ban hang (testng-web.xml, 102 test)
+run_test_admin.bat           :: chi test admin (testng-admin.xml, 28 test) — chi can service
+                               admin :3001 dang chay va tai khoan admin@dafl.vn da duoc seed
 ```
 
 Chạy từng suite bằng Maven Wrapper:

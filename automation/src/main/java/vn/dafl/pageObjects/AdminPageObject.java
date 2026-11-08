@@ -23,9 +23,10 @@ public class AdminPageObject extends BasePage {
             "promotions", "customers", "membership", "returns"
     };
 
-    /** Mo thang /admin (khong qua menu header). */
+    /** Mo thang /admin tren app Admin rieng :3001 (khong qua menu header).
+     *  KHONG dung /admin o :3000 nua (dot 10: test admin chi chay :3001). */
     public void openAdminPage() {
-        openPageUrl(GlobalConstants.getAppUrl() + "/admin");
+        openPageUrl(GlobalConstants.ADMIN_APP_URL + "/admin");
     }
 
     /** Cho toi khi trang admin quyet dinh xong quyen: hoac menu quan tri, hoac trang 403,
@@ -303,12 +304,11 @@ public class AdminPageObject extends BasePage {
     }
 
     // ---------- Dang nhap Admin tren app rieng :3001 (dot 9, dung cho AdminCrudTest) ----------
-    /** Dang nhap Super Admin tren trang Admin rieng (localhost:3001, build
-     *  VITE_ADMIN_ONLY=true). Token JWT luu theo origin nen phai dang nhap o :3001
-     *  va o lai :3001 (khong dung /admin o :3000 sau khi dang nhap :3001).
-     *  Bo qua test (SkipException) khi service :3001 chua chay hoac tai khoan
-     *  admin@dafl.vn chua duoc seed tren DB nay. */
-    public void loginAsAdminOnAdminAppOrSkip() {
+    /** Dang nhap bang tai khoan bat ky tren trang dang nhap Admin rieng :3001
+     *  (khong yeu cau phai la Super Admin - dung cho test 403 cua tai khoan thuong);
+     *  bo qua test neu service :3001 chua chay. Sau khi dang nhap KHONG tu mo /admin
+     *  (nguoi goi tu quyet dinh mo trang nao de kiem tra quyen). */
+    public void loginAsUserOnAdminAppOrSkip(String usernameOrEmail, String password) {
         openPageUrl(GlobalConstants.ADMIN_APP_URL + "/login");
         AuthModalPageObject authModal = new AuthModalPageObject();
         try {
@@ -317,7 +317,16 @@ public class AdminPageObject extends BasePage {
             throw new SkipException("Bo qua: trang Admin rieng " + GlobalConstants.ADMIN_APP_URL
                     + " chua chay (can 'docker compose up -d --build' de service dafl-admin len cong 3001)");
         }
-        authModal.loginAs("admin", GlobalConstants.ADMIN_PASSWORD);
+        authModal.loginAs(usernameOrEmail, password);
+    }
+
+    /** Dang nhap Super Admin tren trang Admin rieng (localhost:3001, build
+     *  VITE_ADMIN_ONLY=true). Token JWT luu theo origin nen phai dang nhap o :3001
+     *  va o lai :3001 (khong dung /admin o :3000 sau khi dang nhap :3001).
+     *  Bo qua test (SkipException) khi service :3001 chua chay hoac tai khoan
+     *  admin@dafl.vn chua duoc seed tren DB nay. */
+    public void loginAsAdminOnAdminAppOrSkip() {
+        loginAsUserOnAdminAppOrSkip("admin", GlobalConstants.ADMIN_PASSWORD);
         openPageUrl(GlobalConstants.ADMIN_APP_URL + "/admin");
         try {
             waitForAdminGateResolved();
@@ -481,7 +490,8 @@ public class AdminPageObject extends BasePage {
         return isElementDisplayed(AdminPageUI.ADMIN_EMPTY_PROMOS_MSG);
     }
 
-    // ----- Don hang (chi don do chinh test tao) -----
+    // ----- Don hang (dot 10: chi doi/huy 1 don 'Chờ xử lý' CO SAN trong DB;
+    //  khong dat don moi qua web ban hang nua, khong khoi phuc duoc trang thai cu) -----
     /** Mo muc Don hang, tim theo ma don (loc server-side) roi mo modal chi tiet cua don do. */
     public void searchOrderByCodeAndOpen(String orderCode) {
         clickAdminNav("orders");

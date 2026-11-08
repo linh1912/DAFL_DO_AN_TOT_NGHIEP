@@ -1,13 +1,11 @@
 package vn.dafl.tests.admin;
 
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
-import vn.dafl.pageObjects.CheckoutPageObject;
-import vn.dafl.pageObjects.HomePageObject;
-import vn.dafl.pageObjects.ProductCatalogPageObject;
 
 /**
  * Test CRUD that tren trang quan tri /admin o app rieng localhost:3001 (dot 9).
@@ -16,8 +14,11 @@ import vn.dafl.pageObjects.ProductCatalogPageObject;
  * - San pham / danh muc: ten kem timestamp, xoa trong finally (neu van con).
  * - Voucher: giao dien KHONG co nut sua/xoa nen chi tao -> kich hoat -> tat co ly do;
  *   voucher o trang thai Da tat la vo hieu nen de lai an toan, khong don dep duoc.
- * - Don hang: chi doi trang thai / huy don do chinh test tao bang cach dat COD
- *   truoc do voi tai khoan demo; KHONG dung don cua nguoi khac.
+ * - Don hang (dot 10): ACR-06/07 KHONG dat don moi qua web ban hang nua ma doi
+ *   trang thai / huy 1 don 'Chờ xử lý' CO SAN trong DB (theo yeu cau bo :3000 khoi
+ *   test admin). Don do la du lieu that, khong phai do test tao, va trang thai cu
+ *   khong khoi phuc lai duoc sau test; neu DB khong co don cho xu ly thi test tu
+ *   bo qua (skip, khong tinh fail).
  * - Diem hoi vien: cong 5 diem cho tai khoan demo roi hoan tac -5 trong finally
  *   (tong ket bang 0); khong co cho nao tren giao dien hien so du diem de doc lai
  *   nen chi khang dinh thong bao thanh cong + form duoc xoa trang.
@@ -25,6 +26,7 @@ import vn.dafl.pageObjects.ProductCatalogPageObject;
  * duyet/tu choi yeu cau tra hang cua nguoi khac.
  * Test tu bo qua (skip, khong tinh fail) khi service admin :3001 chua chay hoac
  * tai khoan admin@dafl.vn chua duoc seed tren DB nay.
+ * Toan bo lop nay chi chay tren :3001, khong mo :3000 (dot 10).
  */
 public class AdminCrudTest extends BaseTest {
 
@@ -59,28 +61,17 @@ public class AdminCrudTest extends BaseTest {
         return adminPage;
     }
 
-    /** Dat 1 don COD bang tai khoan demo tren shop :3000, tra ve ma don hien thi
-     *  (vd DH261108-0001). Don nay do chinh test tao nen admin duoc phep doi/huy. */
-    private String placeCodOrderAsDemo() {
-        HomePageObject homePage = loginWithDemoAccount();
-        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
-        catalog.waitForProductsLoaded();
-        int badgeBefore = homePage.getCartBadgeCount();
-        catalog.addToCart(catalog.getFirstProductId());
-        homePage.waitForCartBadgeCount(badgeBefore + 1);
-
-        homePage.openCart();
-        CheckoutPageObject checkout = new CheckoutPageObject();
-        Assert.assertTrue(checkout.isCheckoutFormDisplayed(), "Phai thay form thanh toan trong trang gio");
-        checkout.fillDefaultShippingForm(GlobalConstants.DEMO_FULL_NAME, GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PHONE);
-        checkout.selectCodPayment();
-        checkout.submitOrder();
-
-        Assert.assertTrue(checkout.isOrderSuccessViewDisplayed(), "Dat hang COD phai hien man hinh thanh cong");
-        String orderCode = checkout.getOrderSuccessCode();
-        Assert.assertTrue(orderCode.matches(GlobalConstants.ORDER_DISPLAY_CODE_REGEX),
-                "Ma don phai dung dinh dang DH{yyyyMMdd}-{NNNN}, dang thay: " + orderCode);
-        return orderCode;
+    /** Lay ma don 'Chờ xử lý' dau tien trong bang Don hang (loc server-side theo
+     *  trang thai o admin; nhan hien thi cua Pending o admin la 'Chờ xử lý', khac
+     *  nhan 'Chờ xác nhận' o web ban hang); null neu khong co don nao o trang thai nay. */
+    private String getFirstPendingOrderCodeOrNull(AdminPageObject adminPage) {
+        adminPage.clickAdminNav("orders");
+        adminPage.selectOrderStatusFilter(GlobalConstants.ADMIN_ORDER_STATUS_PENDING_LABEL);
+        adminPage.clickOrderFilterSearch();
+        if (adminPage.getAdminTableRowCount() == 0) {
+            return null;
+        }
+        return extractOrderDisplayCode(adminPage.getAdminTableRowTexts().get(0));
     }
 
     /** Lay text cua dong dau tien trong bang dang mo co chua chuoi cho truoc ("" neu khong co). */
@@ -311,13 +302,20 @@ public class AdminCrudTest extends BaseTest {
         // thai Disabled la vo hieu (khong ap dung duoc khi dat hang) nen de lai an toan.
     }
 
-    // ---------- Don hang (chi don do chinh test tao) ----------
+    // ---------- Don hang (dot 10: doi/huy 1 don 'Chờ xử lý' CO SAN trong DB) ----------
 
-    @Test(description = "ACR-06: Doi trang thai don do chinh test tao (COD Pending -> Confirmed) tren Admin")
-    public void adminChangeOwnTestOrderStatusToConfirmed() {
-        String orderCode = placeCodOrderAsDemo();
-
+    @Test(description = "ACR-06: Doi trang thai 1 don 'Chờ xử lý' có sẵn sang 'Đã xác nhận' tren Admin (skip neu khong co don cho xu ly)")
+    public void adminChangePendingOrderStatusToConfirmed() {
+        // LUU Y (dot 10, theo yeu cau bo :3000 khoi test admin): test nay KHONG dat don
+        // moi qua web ban hang nua ma doi trang thai 1 don 'Chờ xử lý' CO SAN trong DB.
+        // Don do la du lieu that (khong phai do test tao) va trang thai cu khong khoi
+        // phuc lai duoc sau test. Neu DB khong co don cho xu ly thi test tu bo qua.
         AdminPageObject adminPage = loginAsAdminOrSkip();
+        String orderCode = getFirstPendingOrderCodeOrNull(adminPage);
+        if (orderCode == null) {
+            throw new SkipException("Bo qua: DB nay khong co don hang nao o trang thai 'Chờ xử lý' de doi trang thai");
+        }
+
         adminPage.searchOrderByCodeAndOpen(orderCode);
         adminPage.changeOrderStatusTo("Đã xác nhận");
         Assert.assertTrue(adminPage.isNoticeDisplayed(), "Doi trang thai don xong phai hien thong bao thanh cong");
@@ -327,13 +325,18 @@ public class AdminCrudTest extends BaseTest {
                 "Don " + orderCode + " sau khi doi trang thai phai hien 'Đã xác nhận' trong bang don");
     }
 
-    @Test(description = "ACR-07: Huy don do chinh test tao (COD Pending) tren Admin, bat buoc co ly do")
-    public void adminCancelOwnTestOrder() {
-        String orderCode = placeCodOrderAsDemo();
-
+    @Test(description = "ACR-07: Huy 1 don 'Chờ xử lý' có sẵn tren Admin, bat buoc co ly do (skip neu khong co don cho xu ly)")
+    public void adminCancelPendingOrder() {
+        // LUU Y (dot 10, giong ACR-06): huy 1 don 'Chờ xử lý' CO SAN trong DB, khong
+        // phai don do test tao; trang thai cu khong khoi phuc lai duoc sau test.
         AdminPageObject adminPage = loginAsAdminOrSkip();
+        String orderCode = getFirstPendingOrderCodeOrNull(adminPage);
+        if (orderCode == null) {
+            throw new SkipException("Bo qua: DB nay khong co don hang nao o trang thai 'Chờ xử lý' de huy");
+        }
+
         adminPage.searchOrderByCodeAndOpen(orderCode);
-        adminPage.cancelOrderWithReason("Hủy bởi test ACR-07 (đơn do test tạo)");
+        adminPage.cancelOrderWithReason("Hủy bởi test ACR-07 (đơn Chờ xử lý có sẵn)");
         Assert.assertTrue(adminPage.isNoticeDisplayed(), "Huy don xong phai hien thong bao thanh cong");
 
         adminPage.closeOrderDetail();

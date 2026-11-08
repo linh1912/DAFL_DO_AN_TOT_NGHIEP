@@ -7,7 +7,7 @@
         <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
     </listeners>
 
-    <!-- Chi chay test admin: 3 lop, 31 test -->
+    <!-- Chi chay test admin: 3 lop, 28 test (chi can app Admin rieng :3001) -->
     <test name="Admin">
         <classes>
             <class name="vn.dafl.tests.admin.AdminAndNewsletterTest"/>

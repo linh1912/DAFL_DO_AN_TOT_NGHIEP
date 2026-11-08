@@ -59,6 +59,11 @@ public class GlobalConstants {
     public static final String ORDER_STATUS_PENDING = "Chờ xác nhận";
     public static final String ORDER_STATUS_CANCELLED = "Đã hủy";
 
+    /** Nhan trang thai don Pending rieng o TRANG QUAN TRI /admin (khac nhan o web
+     *  ban hang: don Pending o admin hien 'Chờ xử lý', o shop hien 'Chờ xác nhận').
+     *  Dung cho select loc 'admin-order-status-filter' (chon theo text hien thi). */
+    public static final String ADMIN_ORDER_STATUS_PENDING_LABEL = "Chờ xử lý";
+
     // Trang quan tri /admin (chi Super Admin; tai khoan thuong thay trang 403 kem huong dan cap quyen)
     public static final String ADMIN_FORBIDDEN_MESSAGE = "Bạn không có quyền truy cập trang quản trị";
     public static final String ADMIN_FORBIDDEN_GUIDE_HEADING = "Cách cấp quyền Super Admin";

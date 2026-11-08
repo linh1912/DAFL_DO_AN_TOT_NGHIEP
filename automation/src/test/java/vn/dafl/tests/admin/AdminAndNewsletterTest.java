@@ -1,24 +1,23 @@
 package vn.dafl.tests.admin;
 
 import org.testng.Assert;
-import org.testng.SkipException;
 import org.testng.annotations.Test;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
-import vn.dafl.pageObjects.HomePageObject;
-import vn.dafl.pageObjects.SiteFooterPageObject;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Trang quan tri /admin + dang ky ban tin o footer (dot 3, web DAFL cuoi cung).
+ * Trang quan tri /admin tren app Admin rieng localhost:3001 (dot 3, web DAFL cuoi cung).
  * Admin: chi test DOC (GET) - mo trang, doc menu, chuyen muc. KHONG doi trang thai
  * don, KHONG them/sua/xoa san pham/khuyen mai, KHONG khoa tai khoan, KHONG doi
  * mat khau admin (test doi mat khau admin tu khoi phuc co rui ro ket mat khau tam
  * neu suite dung giua chung - da loai bo khoi bo test).
- * Newsletter: dang ky that qua POST /api/newsletter/subscribe, luu vao DB.
+ * 3 test dang ky ban tin NL-01..03 truoc day o day da chuyen sang lop web
+ * vn.dafl.tests.web.NewsletterTest (dot 10) vi chung test footer cua web ban hang.
+ * Toan bo lop nay chi chay tren :3001, khong mo :3000 (dot 10).
  */
 public class AdminAndNewsletterTest extends BaseTest {
 
@@ -27,19 +26,13 @@ public class AdminAndNewsletterTest extends BaseTest {
             "promotions", "customers", "membership", "returns"
     );
 
-    /** Dang nhap bang tai khoan Super Admin; bo qua test neu tai khoan chua duoc seed
-     *  tren DB nay (DbInitializer chi seed admin@dafl.vn khi bang Users trong). */
-    private HomePageObject loginAsAdminOrSkip() {
-        HomePageObject homePage = openHomePage();
-        try {
-            vn.dafl.pageObjects.AuthModalPageObject authModal = homePage.openLoginModal();
-            authModal.loginAs(GlobalConstants.ADMIN_EMAIL, GlobalConstants.ADMIN_PASSWORD);
-            homePage.waitForLoggedIn();
-        } catch (AssertionError e) {
-            throw new SkipException("Bo qua: tai khoan admin " + GlobalConstants.ADMIN_EMAIL
-                    + " chua ton tai/khong dang nhap duoc tren DB nay (can seed hoac cap Role='SuperAdmin' bang SQL)");
-        }
-        return homePage;
+    /** Dang nhap bang tai khoan Super Admin tren app Admin rieng :3001; bo qua test
+     *  neu tai khoan chua duoc seed tren DB nay (DbInitializer chi seed admin@dafl.vn
+     *  khi bang Users trong). */
+    private AdminPageObject loginAsAdminOrSkip() {
+        AdminPageObject adminPage = new AdminPageObject();
+        adminPage.loginAsAdminOnAdminAppOrSkip();
+        return adminPage;
     }
 
     @Test(description = "ADM-01: Khach chua dang nhap mo /admin -> bi chuyen ve trang dang nhap")
@@ -54,8 +47,10 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-02: Tai khoan thuong mo /admin -> trang 403 kem huong dan cap quyen Super Admin")
     public void customerOpeningAdminSeesForbiddenPageWithGuidance() {
-        loginWithDemoAccount();
+        // Dang nhap bang tai khoan thuong ngay tren trang dang nhap Admin rieng :3001
+        // (khong qua web ban hang :3000 - dot 10).
         AdminPageObject adminPage = new AdminPageObject();
+        adminPage.loginAsUserOnAdminAppOrSkip(GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PASSWORD);
         adminPage.openAdminPage();
         adminPage.waitForAdminGateResolved();
 
@@ -73,9 +68,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-03: Super Admin mo /admin -> thay du 8 muc menu quan tri")
     public void adminSeesEightMenuItems() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
 
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
@@ -86,9 +79,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-04: Super Admin mo /admin -> muc Tong quan tai duoc")
     public void adminDashboardLoads() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
 
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
@@ -97,9 +88,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-05 (chi doc): Super Admin chuyen muc Don hang / San pham / Khach hang thay duoc noi dung")
     public void adminCanBrowseOrdersProductsCustomersReadOnly() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
 
@@ -115,9 +104,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-06 (chi doc, dot 4): Bieu do doanh thu Admin hien (hoac bao chua co doanh thu) + 2 nut chon khoang 7/30 ngay hoat dong")
     public void adminRevenueChartLoadsAndRangeButtonsWork() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         Assert.assertTrue(adminPage.isDashboardHeadingDisplayed(), "Phai o muc Tong quan");
@@ -149,58 +136,11 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Doi lai 7 ngay phai tai duoc bao cao, dang thay: " + stateBack);
     }
 
-    @Test(description = "NL-01: Dang ky ban tin bang email moi -> hien khoi cam on (luu that vao DB)")
-    public void newsletterSubscribeSuccess() {
-        openHomePage();
-        SiteFooterPageObject footer = new SiteFooterPageObject();
-        footer.subscribeNewsletter(randomEmail());
-
-        Assert.assertTrue(footer.isNewsletterSuccessDisplayed(), "Dang ky email moi phai hien khoi cam on");
-        Assert.assertTrue(footer.getNewsletterSuccessText()
-                        .contains(GlobalConstants.NEWSLETTER_SUCCESS_MESSAGE),
-                "Thong diep cam on khong dung: " + footer.getNewsletterSuccessText());
-    }
-
-    @Test(description = "NL-02: Dang ky ban tin bang email sai dinh dang -> bao loi ngay, khong goi API")
-    public void newsletterInvalidEmailShowsError() {
-        openHomePage();
-        SiteFooterPageObject footer = new SiteFooterPageObject();
-        footer.subscribeNewsletter("email-khong-hop-le");
-
-        Assert.assertTrue(footer.isNewsletterErrorDisplayed(), "Email sai dinh dang phai hien loi");
-        Assert.assertTrue(footer.getNewsletterErrorText()
-                        .contains(GlobalConstants.NEWSLETTER_INVALID_EMAIL_MESSAGE),
-                "Thong diep loi email khong dung: " + footer.getNewsletterErrorText());
-        Assert.assertFalse(footer.isNewsletterSuccessDisplayed(),
-                "Email sai dinh dang khong duoc hien khoi cam on");
-    }
-
-    @Test(description = "NL-03: Dang ky lai email da dang ky -> van hien khoi cam on, khong bao loi, khong tao trung lap")
-    public void newsletterDuplicateEmailShowsAlreadyRegistered() {
-        String email = randomEmail();
-        openHomePage();
-        SiteFooterPageObject footer = new SiteFooterPageObject();
-        footer.subscribeNewsletter(email);
-        Assert.assertTrue(footer.isNewsletterSuccessDisplayed(), "Lan dang ky dau phai thanh cong");
-
-        // Tai lai trang chu roi dang ky lai cung email (form chi hien lai sau khi tai lai trang).
-        getDriver().get(GlobalConstants.getAppUrl() + "/");
-        new HomePageObject().waitForHomePageLoaded();
-        footer.subscribeNewsletter(email);
-
-        Assert.assertTrue(footer.isNewsletterSuccessDisplayed(),
-                "Dang ky lai email da co phai van hien khoi cam on (BE tra 200, khong tao trung lap)");
-        Assert.assertFalse(footer.isNewsletterErrorDisplayed(),
-                "Dang ky lai email da co khong duoc bao loi");
-    }
-
     // ---------- Tim kiem / loc / Export o bang Admin (dot 8, chi doc) ----------
 
     @Test(description = "ADM-07: Tim kiem o muc San pham loc dung (tu khoa co -> thay dong, tu khoa la -> bao rong)")
     public void adminProductSearchFiltersRows() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("products");
@@ -223,9 +163,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-08: Tim kiem o muc Khach hang loc dung (email demo co -> thay dong, tu khoa la -> bao rong)")
     public void adminCustomerSearchFiltersRows() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("customers");
@@ -246,9 +184,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-09: Loc don hang theo trang thai 'Đã hủy' -> chi thay don da huy hoac bao rong")
     public void adminOrderStatusFilterShowsOnlyCancelled() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("orders");
@@ -269,9 +205,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-10: Nut Export o muc Don hang bam duoc, trang admin van dung yen (chi tai CSV ve, khong doi du lieu)")
     public void adminExportButtonIsClickableWithoutError() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("orders");
@@ -286,9 +220,7 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     @Test(description = "ADM-11: O search tren topbar loc that theo muc dang mo (muc San pham)")
     public void adminTopbarSearchFiltersCurrentTab() {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("products");

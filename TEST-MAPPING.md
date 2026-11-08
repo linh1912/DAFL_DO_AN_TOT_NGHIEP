@@ -1,8 +1,8 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **130 test method / 14 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (11 lớp web bán hàng, 99 test) và `automation/src/test/java/vn/dafl/tests/admin/` (3 lớp admin, 31 test).
+> Bộ test tự động: **130 test method / 15 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (12 lớp web bán hàng, 102 test) và `automation/src/test/java/vn/dafl/tests/admin/` (3 lớp admin, 28 test).
 > Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
-> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 99 test); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 31 test — cần thêm service admin `http://localhost:3001` đang chạy + tài khoản admin đã seed).
+> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 102 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 28 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
 > Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-11, ADT-01..ADT-09, ACR-01..ACR-08 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
 
 ## Tổng hợp theo lớp
@@ -20,10 +20,11 @@
 | web/NegativeAndExceptionScenariosTest | 17 | Âm tính/ngoại lệ toàn hệ thống |
 | web/HomeHeroTest | 10 | Banner hero + Flash Sale (đợt 2–4) + modal thông báo + dark mode (đợt 8) |
 | web/NotFoundPageTest | 2 | Trang 404 (đợt 3–4) |
-| admin/AdminAndNewsletterTest | 14 | Trang Admin chỉ đọc + biểu đồ doanh thu + đăng ký bản tin (đợt 3–4) + tìm kiếm/lọc/Export/topbar search (đợt 8) |
+| web/NewsletterTest | 3 | Đăng ký bản tin ở footer web bán hàng NL-01..03 (chuyển từ admin/AdminAndNewsletterTest sang web đợt 10) |
+| admin/AdminAndNewsletterTest | 11 | Trang Admin chỉ đọc + biểu đồ doanh thu (đợt 3–4) + tìm kiếm/lọc/Export/topbar search (đợt 8); 3 test bản tin NL-01..03 đã chuyển sang web/NewsletterTest (đợt 10) |
 | admin/AdminDetailTest | 9 | Modal xem chi tiết admin Spark: sản phẩm, danh mục, khuyến mãi, hạng, đơn, khách, trả hàng + mở form sửa từ modal (đợt 8, chỉ đọc) |
-| admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy đơn do test tạo, điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy |
-| **Tổng** | **130** | **99 web + 31 admin** |
+| admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn (đợt 10 — không khôi phục được trạng thái cũ), điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy (trừ ACR-06/07) |
+| **Tổng** | **130** | **102 web + 28 admin** |
 
 ## CN-01 — Đăng ký tài khoản
 
@@ -179,9 +180,9 @@
 | ADT-07 (đợt 8) | AdminDetailTest.returnDetailModalShowsOrderCode | nut 'Duyệt / Từ chối' → `admin-return-detail` hien ma don, chi dong (khong duyet/tu choi; skip neu chua co yeu cau tra hang) |
 | ADT-08 (đợt 8) | AdminDetailTest.productDetailEditButtonOpensEditFormWithoutSaving | tu modal chi tiet SP, nut 'Sửa sản phẩm' → `admin-product-form` hien 'Sửa sản phẩm' + ten SP; dong form khong luu |
 | ADT-09 (đợt 8) | AdminDetailTest.categoryDetailModalClosesWithFooterButton | modal chi tiet danh muc dong duoc bang nut 'Đóng' o footer |
-| NL-01 | AdminAndNewsletterTest.newsletterSubscribeSuccess | email mới → `.newsletter-success` "Cảm ơn bạn đã đăng ký nhận bản tin DAFL." |
-| NL-02 | AdminAndNewsletterTest.newsletterInvalidEmailShowsError | email sai định dạng → `.newsletter-error` "Vui lòng nhập email đúng định dạng." |
-| NL-03 | AdminAndNewsletterTest.newsletterDuplicateEmailShowsAlreadyRegistered | đăng ký lại email cũ → vẫn khối cảm ơn, không lỗi, không trùng lặp DB |
+| NL-01 | NewsletterTest.newsletterSubscribeSuccess | email mới → `.newsletter-success` "Cảm ơn bạn đã đăng ký nhận bản tin DAFL." |
+| NL-02 | NewsletterTest.newsletterInvalidEmailShowsError | email sai định dạng → `.newsletter-error` "Vui lòng nhập email đúng định dạng." |
+| NL-03 | NewsletterTest.newsletterDuplicateEmailShowsAlreadyRegistered | đăng ký lại email cũ → vẫn khối cảm ơn, không lỗi, không trùng lặp DB |
 | ACR-01 (đợt 9) | AdminCrudTest.adminCreateProductShowsInTableAndSearchable | tạo SP tên `TESTSP-<timestamp>` (giá 99.000đ, tồn 10) → thông báo thành công + tìm theo tên thấy 1 dòng đúng giá; tự xóa SP sau test |
 | ACR-02 (đợt 9) | AdminCrudTest.adminEditProductChangesNameAndPrice | tạo SP rồi sửa tên + giá 149.000đ → tìm tên mới thấy đúng giá mới, tìm tên cũ ra 0 dòng; tự xóa SP sau test |
 | ACR-03 (đợt 9) | AdminCrudTest.adminDeleteProductRemovesFromTable | tạo SP rồi xóa → tìm lại ra 0 dòng + 'Không có sản phẩm nào.' |

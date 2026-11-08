@@ -4,10 +4,7 @@ import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 import vn.dafl.commons.BaseTest;
-import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
-import vn.dafl.pageObjects.AuthModalPageObject;
-import vn.dafl.pageObjects.HomePageObject;
 import vn.dafl.pageUIs.AdminPageUI;
 
 /**
@@ -17,29 +14,21 @@ import vn.dafl.pageUIs.AdminPageUI;
  * KHONG kich hoat/tat khuyen mai, KHONG duyet/tu choi tra hang, KHONG khoa tai khoan.
  * Test nao can du lieu (don hang, yeu cau tra hang) thi tu skip co ly do ro rang
  * neu DB do khong co du lieu do.
+ * Toan bo lop nay chi chay tren app Admin rieng :3001, khong mo :3000 (dot 10).
  */
 public class AdminDetailTest extends BaseTest {
 
-    /** Dang nhap bang tai khoan Super Admin; bo qua test neu tai khoan chua duoc seed
-     *  tren DB nay (giong AdminAndNewsletterTest). */
-    private HomePageObject loginAsAdminOrSkip() {
-        HomePageObject homePage = openHomePage();
-        try {
-            AuthModalPageObject authModal = homePage.openLoginModal();
-            authModal.loginAs(GlobalConstants.ADMIN_EMAIL, GlobalConstants.ADMIN_PASSWORD);
-            homePage.waitForLoggedIn();
-        } catch (AssertionError e) {
-            throw new SkipException("Bo qua: tai khoan admin " + GlobalConstants.ADMIN_EMAIL
-                    + " chua ton tai/khong dang nhap duoc tren DB nay (can seed hoac cap Role='SuperAdmin' bang SQL)");
-        }
-        return homePage;
+    /** Dang nhap bang tai khoan Super Admin tren app Admin rieng :3001; bo qua test
+     *  neu tai khoan chua duoc seed tren DB nay (giong AdminAndNewsletterTest). */
+    private AdminPageObject loginAsAdminOrSkip() {
+        AdminPageObject adminPage = new AdminPageObject();
+        adminPage.loginAsAdminOnAdminAppOrSkip();
+        return adminPage;
     }
 
     /** Mo /admin va dung o muc cho truoc; tra ve AdminPageObject da san sang. */
     private AdminPageObject openAdminTab(String navKey) {
-        loginAsAdminOrSkip();
-        AdminPageObject adminPage = new AdminPageObject();
-        adminPage.openAdminPage();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav(navKey);

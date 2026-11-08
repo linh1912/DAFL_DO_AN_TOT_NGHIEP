@@ -3,7 +3,7 @@ chcp 65001 > nul
 echo ========================================================
 echo   DAFL AUTOMATION - DO AN CONTINUOUS TESTING
 echo   Che do: Co giao dien Chrome - chi chay test ADMIN (testng-admin.xml)
-echo   Target SUT: http://localhost:3000 + http://localhost:3001 (can ca 2 service dang chay, tai khoan admin@dafl.vn da duoc seed) - chi 3 lop admin, 31 test
+echo   Target SUT: http://localhost:3001 (chi can service admin dang chay, tai khoan admin@dafl.vn da duoc seed) - chi 3 lop admin, 28 test
 echo ========================================================
 cd /d "%~dp0"
 
@@ -46,7 +46,7 @@ set "PATH=%JAVA_HOME%\bin;%PATH%"
 echo [JAVA] JAVA_HOME = %JAVA_HOME%
 
 rem ===== Chay test bang Maven Wrapper =====
-call "%~dp0mvnw.cmd" test -DsuiteXmlFile=testng-admin.xml -Dheadless=false -Daction.delay.ms=700 "-Dapp.url=http://localhost:3000" %*
+call "%~dp0mvnw.cmd" test -DsuiteXmlFile=testng-admin.xml -Dheadless=false -Daction.delay.ms=700 "-Dapp.url=http://localhost:3001" %*
 pause
 exit /b 0
 
