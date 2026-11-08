@@ -47,10 +47,33 @@ public class OrdersPageObject extends BasePage {
         return isElementDisplayedWithWait(OrdersPageUI.ORDERS_EMPTY_STATE, 5);
     }
 
-    /** Loc danh sach theo nhan trang thai tieng Viet (vd "Da huy", "Cho xac nhan"). */
+    /** Loc danh sach theo tab trang thai tieng Viet (vd "Da huy", "Cho xac nhan").
+     *  Web moi dung nhom TAB (order-status-tab-*), khong con <select>: bam truc tiep
+     *  vao tab tuong ung. statusLabel rong/null = tab "Tat ca" (order-status-tab-all). */
     public void filterByStatus(String statusLabel) {
-        selectByValue(OrdersPageUI.ORDER_STATUS_FILTER, statusLabel);
+        String tabValue = (statusLabel == null || statusLabel.isEmpty()) ? "all" : statusLabel;
+        waitForElementVisible(OrdersPageUI.ORDER_STATUS_FILTER);
+        clickToElement(OrdersPageUI.DYNAMIC_ORDER_STATUS_TAB, tabValue);
         sleepInSecond(2); // cho danh sach nap lai theo bo loc
+    }
+
+    /** Text hien tai cua tab trang thai (bao gom so luong trong ngoac neu co, vd "Tất cả (3)"). */
+    public String getOrderStatusTabText(String statusLabel) {
+        String tabValue = (statusLabel == null || statusLabel.isEmpty()) ? "all" : statusLabel;
+        waitForElementVisible(OrdersPageUI.DYNAMIC_ORDER_STATUS_TAB, tabValue);
+        return getElementText(OrdersPageUI.DYNAMIC_ORDER_STATUS_TAB, tabValue).trim();
+    }
+
+    /** So luong hien trong ngoac tren tab trang thai; 0 neu tab khong ghi so luong. */
+    public int getOrderStatusTabCount(String statusLabel) {
+        String text = getOrderStatusTabText(statusLabel);
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\((\\d+)\\)").matcher(text);
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : 0;
+    }
+
+    public boolean isOrderStatusTabDisplayed(String statusLabel) {
+        String tabValue = (statusLabel == null || statusLabel.isEmpty()) ? "all" : statusLabel;
+        return isElementDisplayedWithWait(getDynamicLocator(OrdersPageUI.DYNAMIC_ORDER_STATUS_TAB, tabValue), 5);
     }
 
     // ---------- Chi tiet don ----------

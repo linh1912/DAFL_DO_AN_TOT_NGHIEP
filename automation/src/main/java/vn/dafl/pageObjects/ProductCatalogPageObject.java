@@ -210,4 +210,39 @@ public class ProductCatalogPageObject extends BasePage {
         clickToElement(ProductCatalogPageUI.PRODUCT_DETAIL_BACK_BTN);
         waitForProductsLoaded();
     }
+
+    // ---------- Danh gia sao o trang chi tiet (dot 4) ----------
+    public boolean isReviewsSectionDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_REVIEWS_SECTION, 10);
+    }
+
+    public boolean isRatingSummaryDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_RATING_SUMMARY, 5);
+    }
+
+    /** Text tom tat diem trung binh (vd "5.0 ... 1 đánh giá"); rong neu khong co tom tat. */
+    public String getRatingSummaryText() {
+        if (!isRatingSummaryDisplayed()) {
+            return "";
+        }
+        return getElementText(ProductCatalogPageUI.PRODUCT_RATING_SUMMARY);
+    }
+
+    /** So danh gia (product-review-item) dang hien tren trang chi tiet. */
+    public int getReviewItemCount() {
+        return getListWebElements(ProductCatalogPageUI.ANY_PRODUCT_REVIEW_ITEM).size();
+    }
+
+    /** Text gop cua toan bo danh gia dang hien (ten nguoi danh gia + binh luan). */
+    public String getAllReviewsText() {
+        StringBuilder combined = new StringBuilder();
+        for (WebElement item : getListWebElements(ProductCatalogPageUI.ANY_PRODUCT_REVIEW_ITEM)) {
+            combined.append(item.getText()).append("\n");
+        }
+        return combined.toString();
+    }
+
+    public boolean isReviewsEmptyStateDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_REVIEWS_EMPTY_MSG, 5);
+    }
 }

@@ -45,4 +45,16 @@ public class ProductCatalogPageUI {
     public static final String DYNAMIC_VARIANT_OPTION = "css=[data-testid='variant-option-%s']";
     /** Dong chu "(Con X san pham co san)" canh o so luong o trang chi tiet. */
     public static final String DETAIL_STOCK_TEXT = "xpath=//span[contains(.,'sản phẩm có sẵn')]";
+
+    // Danh gia sao o trang chi tiet (dot 4, App.tsx: muc "Danh gia cua khach hang").
+    // Section LUON hien: co danh gia thi hien tom tat diem trung binh + danh sach
+    // product-review-item; chua co danh gia thi hien dong "Chua co danh gia nao".
+    // Du lieu tu ProductDetailDto.Evaluations (BE); seed tao 4 danh gia mau cho 4 son
+    // dau tien (Son kem 3CE, Son thoi Rom&nd, Son bong Peripera, Son kem Clio) - chi
+    // khi bang Evaluations trong luc seed.
+    public static final String PRODUCT_REVIEWS_SECTION = "css=[data-testid='product-reviews-section']";
+    public static final String PRODUCT_RATING_SUMMARY = "css=[data-testid='product-rating-summary']";
+    public static final String ANY_PRODUCT_REVIEW_ITEM = "css=[data-testid='product-review-item']";
+    public static final String PRODUCT_REVIEWS_EMPTY_MSG =
+            "xpath=//section[@data-testid='product-reviews-section']//p[contains(text(),'Chưa có đánh giá nào')]";
 }

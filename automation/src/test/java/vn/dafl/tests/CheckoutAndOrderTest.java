@@ -181,9 +181,9 @@ public class CheckoutAndOrderTest extends BaseTest {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         catalog.waitForProductsLoaded();
-        homePage.searchProduct("Khăn ướt");
+        homePage.searchProduct(GlobalConstants.CHEAP_SEED_PRODUCT_KEYWORD);
         String productId = catalog.getFirstProductId();
-        Assert.assertNotNull(productId, "Phai tim thay san pham khan uot trong du lieu seed");
+        Assert.assertNotNull(productId, "Phai tim thay san pham mat na giay trong du lieu seed my pham");
         long unitPrice = catalog.getProductPrice(productId);
         Assert.assertTrue(unitPrice < GlobalConstants.FREE_SHIPPING_THRESHOLD,
                 "San pham dung cho test phi ship phai re hon nguong mien phi ship");
@@ -199,5 +199,58 @@ public class CheckoutAndOrderTest extends BaseTest {
         cart.waitForItemQuantity(productId, needed);
         Assert.assertTrue(cart.getShippingFeeText().contains("Miễn phí"),
                 "Don tu 299.000d phai duoc mien phi ship, dang thay: " + cart.getShippingFeeText());
+    }
+
+    @Test(description = "CN-07 (dot 3): Nut Dat hang co class checkout-submit-btn (sticky tren mobile) va ghi dung tong tien")
+    public void checkoutSubmitButtonHasStickyClassAndOrderTotal() {
+        HomePageObject homePage = loginWithDemoAccount();
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        catalog.waitForProductsLoaded();
+        int badgeBefore = homePage.getCartBadgeCount();
+        catalog.addToCart(catalog.getFirstProductId());
+        homePage.waitForCartBadgeCount(badgeBefore + 1);
+
+        homePage.openCart();
+        CheckoutPageObject checkout = new CheckoutPageObject();
+        Assert.assertTrue(checkout.isCheckoutFormDisplayed(), "Phai thay form thanh toan trong trang gio");
+        Assert.assertTrue(checkout.isStickySubmitButtonDisplayed(),
+                "Nut dat hang phai co class checkout-submit-btn va hien thi");
+        Assert.assertTrue(checkout.getSubmitButtonText().contains("Đặt hàng"),
+                "Nut dat hang (COD mac dinh) phai ghi 'Đặt hàng', dang thay: " + checkout.getSubmitButtonText());
+    }
+
+    @Test(description = "CN-08 (dot 2-3): Tab trang thai don hien so luong; bam tab loc dung danh sach (khong con <select>)")
+    public void orderStatusTabsShowCountsAndFilterByTab() {
+        String email = randomEmail();
+        HomePageObject homePage = registerAndLogin("Khach Xem Tab Don", email, randomPhone(), GlobalConstants.DEMO_PASSWORD);
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        catalog.waitForProductsLoaded();
+        catalog.addToCart(catalog.getFirstProductId());
+        homePage.waitForCartBadgeCount(1);
+
+        homePage.openCart();
+        CheckoutPageObject checkout = new CheckoutPageObject();
+        checkout.fillDefaultShippingForm("Khach Xem Tab Don", email, GlobalConstants.DEMO_PHONE);
+        checkout.selectCodPayment();
+        checkout.submitOrder();
+        Assert.assertTrue(checkout.isOrderSuccessViewDisplayed(), "Dat hang COD phai thanh cong");
+
+        OrdersPageObject ordersPage = checkout.clickViewOrders();
+        Assert.assertTrue(ordersPage.isOrderStatusTabDisplayed(""),
+                "Phai thay tab Tat ca");
+        Assert.assertEquals(ordersPage.getOrderStatusTabCount(""), 1,
+                "Tai khoan moi co 1 don thi tab Tat ca phai ghi (1), dang thay: "
+                        + ordersPage.getOrderStatusTabText(""));
+        Assert.assertEquals(ordersPage.getOrderStatusTabCount(GlobalConstants.ORDER_STATUS_PENDING), 1,
+                "Don COD moi phai dem 1 o tab Cho xac nhan, dang thay: "
+                        + ordersPage.getOrderStatusTabText(GlobalConstants.ORDER_STATUS_PENDING));
+
+        // Tab loc dung that (khong phai <select>): tab Da huy -> trong, tab Cho xac nhan -> co don.
+        ordersPage.filterByStatus(GlobalConstants.ORDER_STATUS_CANCELLED);
+        Assert.assertTrue(ordersPage.isOrdersEmptyStateDisplayed(),
+                "Loc tab Da huy phai thay trang thai rong (tai khoan moi chua huy don nao)");
+        ordersPage.filterByStatus(GlobalConstants.ORDER_STATUS_PENDING);
+        Assert.assertEquals(ordersPage.getOrderCountOnCurrentPage(), 1,
+                "Loc tab Cho xac nhan phai thay dung 1 don vua dat");
     }
 }

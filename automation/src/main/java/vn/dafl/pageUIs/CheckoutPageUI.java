@@ -8,6 +8,8 @@ public class CheckoutPageUI {
 
     public static final String CHECKOUT_FORM = "css=[data-testid='checkout-form']";
     public static final String CHECKOUT_SUBMIT_BTN = "css=[data-testid='cart-checkout-btn']";
+    // Cung nut dat hang do, them class checkout-submit-btn (dot 3: sticky duoi man hinh mobile).
+    public static final String CHECKOUT_SUBMIT_BTN_STICKY_CLASS = "css=.checkout-submit-btn";
     public static final String BACK_TO_CART_BTN = "css=[data-testid='back-to-cart-btn']";
     public static final String CHECKOUT_ERROR_MSG = "css=[data-testid='checkout-error-msg']";
     public static final String CHECKOUT_PRICE_CHANGED_NOTICE = "css=[data-testid='checkout-price-changed-notice']";

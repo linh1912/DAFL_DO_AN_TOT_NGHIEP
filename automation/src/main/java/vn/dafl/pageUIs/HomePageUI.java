@@ -27,4 +27,28 @@ public class HomePageUI {
     public static final String CATEGORY_PILL_ALL = "css=[data-testid='category-pill-all']";
     public static final String DYNAMIC_CATEGORY_PILL = "css=[data-testid='category-pill-%s']";
     public static final String ANY_CATEGORY_PILL = "css=[data-testid^='category-pill-']";
+
+    // Banner hero trang chu (dot 2-4): 3 slide tu chay 4s/slide, chu nam trong hop toi mo
+    // .hero-text-box tren anh (doi 4), nut prev/next + dots chuyen slide.
+    public static final String HERO_CAROUSEL = "css=[data-testid='hero-carousel']";
+    public static final String DYNAMIC_HERO_SLIDE = "css=[data-testid='hero-slide-%s']";
+    public static final String DYNAMIC_HERO_DOT = "css=[data-testid='hero-dot-%s']";
+    public static final String HERO_PREV_BTN = "css=[data-testid='hero-prev-btn']";
+    public static final String HERO_NEXT_BTN = "css=[data-testid='hero-next-btn']";
+    public static final String ACTIVE_HERO_TEXT_BOX = "css=.hero-slide.active .hero-text-box";
+    public static final String ACTIVE_HERO_TITLE = "css=.hero-slide.active .hero-title";
+    public static final String ACTIVE_HERO_SUBTITLE = "css=.hero-slide.active .hero-subtitle";
+
+    // Khoi noi dung trang chu kieu Cocolux (dot 2): hang icon danh muc my pham, dai
+    // thuong hieu, muc Ban chay / Goi y cho ban.
+    public static final String ANY_CATEGORY_ICON = "css=[data-testid^='category-icon-']";
+    public static final String BRAND_STRIP = "css=[data-testid='brand-strip']";
+    public static final String BEST_SELLER_SECTION = "css=[data-testid='best-seller-section']";
+    public static final String SUGGESTED_SECTION = "css=[data-testid='suggested-section']";
+
+    // Flash Sale (dot 4): chi hien khi dang xem tat ca san pham VA co SP giam gia
+    // (OriginalPrice > Price); dem nguoc toi 23:59:59 hom nay, dinh dang HH:MM:SS.
+    public static final String FLASH_SALE_SECTION = "css=[data-testid='flash-sale-section']";
+    public static final String FLASH_SALE_COUNTDOWN = "css=[data-testid='flash-sale-countdown']";
+    public static final String ANY_FLASH_SALE_ITEM = "css=[data-testid^='flash-sale-item-']";
 }

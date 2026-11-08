@@ -3,7 +3,7 @@ package vn.dafl.pageObjects;
 import vn.dafl.commons.BasePage;
 import vn.dafl.pageUIs.AuthModalPageUI;
 
-/** Page Object cho Auth Modal: dang nhap, dang ky (CN-01/02), dang nhap mang xa hoi (mock).
+/** Page Object cho Auth Modal: dang nhap, dang ky (CN-01/02) bang email + mat khau.
  *  Ban CN: dang ky xong dang nhap duoc ngay (khong OTP), loi hien duoi tung o nhap. */
 public class AuthModalPageObject extends BasePage {
 
@@ -162,44 +162,6 @@ public class AuthModalPageObject extends BasePage {
     public void enterRegisterPassword(String password) {
         switchToRegisterTab();
         sendKeyToElement(AuthModalPageUI.REGISTER_PASSWORD_INPUT, password);
-    }
-
-    // ---------- Dang nhap mang xa hoi (mock trong moi truong test) ----------
-    public boolean isSocialGoogleButtonDisplayed() {
-        return isElementDisplayedWithWait(AuthModalPageUI.SOCIAL_GOOGLE_BTN, 5);
-    }
-
-    public boolean isSocialFacebookButtonDisplayed() {
-        return isElementDisplayedWithWait(AuthModalPageUI.SOCIAL_FACEBOOK_BTN, 5);
-    }
-
-    public void clickSocialGoogleButton() {
-        clickToElement(AuthModalPageUI.SOCIAL_GOOGLE_BTN);
-    }
-
-    public void clickSocialFacebookButton() {
-        clickToElement(AuthModalPageUI.SOCIAL_FACEBOOK_BTN);
-    }
-
-    public boolean isSocialMockPanelDisplayed() {
-        return isElementDisplayedWithWait(AuthModalPageUI.SOCIAL_MOCK_PANEL, 5);
-    }
-
-    public void confirmSocialMockLogin() {
-        clickToElement(AuthModalPageUI.SOCIAL_MOCK_CONFIRM_BTN);
-    }
-
-    public void cancelSocialMockLogin() {
-        clickToElement(AuthModalPageUI.SOCIAL_MOCK_CANCEL_BTN);
-    }
-
-    public boolean isSocialErrorDisplayed() {
-        return isElementDisplayedWithWait(AuthModalPageUI.SOCIAL_ERROR, 5);
-    }
-
-    public String getSocialError() {
-        waitForElementVisible(AuthModalPageUI.SOCIAL_ERROR);
-        return getElementText(AuthModalPageUI.SOCIAL_ERROR);
     }
 
     public boolean isErrorMessageDisplayed() {

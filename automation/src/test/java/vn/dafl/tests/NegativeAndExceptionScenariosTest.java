@@ -163,10 +163,10 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
     public void voucherRejectedAtCheckoutWhenCartDropsBelowMinimum() {
         loginWithDemoAccount();
         HomePageObject homePage = new HomePageObject();
-        homePage.searchProduct("Khăn ướt");
+        homePage.searchProduct(GlobalConstants.CHEAP_SEED_PRODUCT_KEYWORD);
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
         String productId = catalog.getFirstProductId();
-        Assert.assertNotNull(productId, "Phai tim thay san pham khan uot");
+        Assert.assertNotNull(productId, "Phai tim thay san pham mat na giay");
         long unitPrice = catalog.getProductPrice(productId);
         Assert.assertTrue(unitPrice < 100_000, "Test nay can san pham don gia duoi 100.000d");
 

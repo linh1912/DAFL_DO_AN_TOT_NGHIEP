@@ -28,7 +28,9 @@
             <class name="vn.dafl.tests.CheckoutAndOrderTest"/>
             <class name="vn.dafl.tests.OrderCancellationTest"/>
             <class name="vn.dafl.tests.ProfileAndAddressTest"/>
-            <class name="vn.dafl.tests.SocialLoginTest"/>
+            <class name="vn.dafl.tests.HomeHeroTest"/>
+            <class name="vn.dafl.tests.NotFoundPageTest"/>
+            <class name="vn.dafl.tests.AdminAndNewsletterTest"/>
         </classes>
     </test>
 </suite>

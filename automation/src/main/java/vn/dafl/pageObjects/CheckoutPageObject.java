@@ -26,6 +26,17 @@ public class CheckoutPageObject extends BasePage {
         return isElementDisplayed(CheckoutPageUI.CHECKOUT_SUBMIT_BTN);
     }
 
+    /** Nut dat hang co class checkout-submit-btn (dot 3, sticky tren mobile) va hien thi. */
+    public boolean isStickySubmitButtonDisplayed() {
+        return isElementDisplayedWithWait(CheckoutPageUI.CHECKOUT_SUBMIT_BTN_STICKY_CLASS, 10);
+    }
+
+    /** Text tren nut dat hang (vd "Đặt hàng (279.000đ)", khach thi "Đăng nhập để thanh toán (...)"). */
+    public String getSubmitButtonText() {
+        waitForElementVisible(CheckoutPageUI.CHECKOUT_SUBMIT_BTN_STICKY_CLASS);
+        return getElementText(CheckoutPageUI.CHECKOUT_SUBMIT_BTN_STICKY_CLASS);
+    }
+
     // ---------- Thong tin giao hang ----------
     /** Neu nguoi dung da co so dia chi, form nhap moi bi an - bam "Them dia chi moi" de mo. */
     public void ensureNewAddressFormVisible() {

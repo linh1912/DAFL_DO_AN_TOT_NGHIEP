@@ -12,7 +12,13 @@ public class OrdersPageUI {
     public static final String DYNAMIC_ORDER_DETAIL_BTN = "css=[data-testid='order-detail-btn-%s']";
     public static final String DYNAMIC_ORDER_CODE_TEXT = "xpath=//*[contains(text(),'%s')]";
     public static final String ORDERS_HEADING = "xpath=//*[self::h1 or self::h2][contains(text(),'Đơn hàng')]";
+    // Bo loc trang thai: tu ban web dot 2 tro di la NHOM TAB (div role=tablist), KHONG
+    // con la <select> nua - khong duoc dung selectByValue o day (se nem UnexpectedTagNameException).
+    // Tab testid: order-status-tab-all (tat ca) hoac order-status-tab-{nhan tieng Viet}.
+    // Nhan tab hien dang "Nhan (so luong)" khi so luong > 0, vd "Chờ xác nhận (2)".
     public static final String ORDER_STATUS_FILTER = "css=[data-testid='order-status-filter']";
+    public static final String DYNAMIC_ORDER_STATUS_TAB = "css=[data-testid='order-status-tab-%s']";
+    public static final String ORDER_STATUS_TAB_ALL = "css=[data-testid='order-status-tab-all']";
     public static final String ORDERS_PAGINATION = "css=[data-testid='orders-pagination']";
     public static final String ORDERS_PREV_BTN = "css=[data-testid='orders-prev-btn']";
     public static final String ORDERS_NEXT_BTN = "css=[data-testid='orders-next-btn']";

@@ -1,9 +1,9 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **83 test method / 10 lớp** trong `automation/src/test/java/vn/dafl/tests/`.
-> Mọi locator bám `data-testid` thật của FE bản CN cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch).
+> Bộ test tự động: **105 test method / 13 lớp** trong `automation/src/test/java/vn/dafl/tests/`.
+> Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
 > Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`).
-> Tài khoản demo: `demo@dafl.vn` / `Password123!`. Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
+> Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin (chỉ test đọc ở /admin): `admin@dafl.vn` / `Password123!` — seed chỉ tạo khi bảng Users trống; nếu chưa có thì các test ADM-03..ADM-06 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
 
 ## Tổng hợp theo lớp
 
@@ -11,15 +11,17 @@
 |---|---|---|
 | AuthTest | 16 | CN-01 đăng ký, CN-02 đăng nhập/JWT/đăng xuất |
 | CatalogAndSearchTest | 10 | CN-04 danh mục, tìm kiếm, lọc, sắp xếp, phân trang |
-| ProductDetailTest | 7 | CN-05 chi tiết sản phẩm |
+| ProductDetailTest | 9 | CN-05 chi tiết sản phẩm + đánh giá sao (đợt 4) |
 | CartManagementTest | 9 | CN-06 giỏ hàng khách + gộp giỏ + voucher |
-| CheckoutAndOrderTest | 7 | CN-07 thanh toán/đặt hàng, PayOS, phí ship |
+| CheckoutAndOrderTest | 9 | CN-07 thanh toán/đặt hàng, PayOS, phí ship + nút Đặt hàng sticky, tab đơn có số lượng |
 | OrderCancellationTest | 3 | CN-08 hủy đơn + hoàn tồn kho |
 | ProfileAndAddressTest | 9 | CN-03 hồ sơ, đổi mật khẩu, sổ địa chỉ |
-| SocialLoginTest | 4 | Social login mock (Google/Facebook) |
 | EndToEndShoppingFlowTest | 1 | Luồng đầu-cuối CN-04 → CN-08 |
 | NegativeAndExceptionScenariosTest | 17 | Âm tính/ngoại lệ toàn hệ thống |
-| **Tổng** | **83** | |
+| HomeHeroTest | 7 | Banner hero + Flash Sale (đợt 2–4) |
+| NotFoundPageTest | 2 | Trang 404 (đợt 3–4) |
+| AdminAndNewsletterTest | 9 | Trang Admin chỉ đọc + biểu đồ doanh thu + đăng ký bản tin (đợt 3–4) |
+| **Tổng** | **101** | |
 
 ## CN-01 — Đăng ký tài khoản
 
@@ -129,20 +131,40 @@
 | TC-CN08-03 | OrderCancellationTest.cancelPendingOrderSuccessfullyAndRestocks | `cancel-order-btn` → `cancel-order-dialog` → `cancel-reason-select` → `cancel-confirm-btn` → `cancel-success-msg`; tồn kho hoàn lại qua trang chi tiết SP |
 | CN-08.3 | OrderCancellationTest.cancelButtonDisappearsAfterCancellation | mở lại chi tiết đơn đã hủy: không còn `cancel-order-btn` |
 
-## Social login (mock — chỉ môi trường Development/Testing)
-
-| Mã TC | Lớp.phương thức | Testid/khẳng định chính |
-|---|---|---|
-| TC-SOC-01 | SocialLoginTest.mockGoogleLoginCreatesAccountAndSignsIn | `social-google-btn` → `social-mock-panel` → `social-mock-confirm-btn`; header "Google Test User"; có JWT |
-| TC-SOC-02 | SocialLoginTest.mockFacebookLoginSignsIn | `social-facebook-btn`; header "Facebook Test User" |
-| TC-SOC-03 | SocialLoginTest.cancelMockLoginShowsError | `social-mock-cancel-btn` → `social-error`; chưa đăng nhập |
-| TC-SOC-06 | SocialLoginTest.socialButtonsAlsoAvailableOnRegisterTab | khối social hiện ở cả tab Đăng ký |
-
 ## Luồng đầu-cuối
 
 | Mã TC | Lớp.phương thức | Testid/khẳng định chính |
 |---|---|---|
 | E2E | EndToEndShoppingFlowTest.guestToCheckoutEndToEndFlow | khách thêm 2 SP → thanh toán bị đưa qua đăng nhập → gộp giỏ → điền `shipping-*` → COD → `order-success-code` dạng DH → chi tiết đơn "Chờ xác nhận" + `order-shipping-info` |
+
+## Tính năng mới đợt hoàn thiện giao diện 2–4 (banner, Flash Sale, 404, Admin, newsletter, đánh giá, doanh thu)
+
+| Mã TC | Lớp.phương thức | Testid/khẳng định chính |
+|---|---|---|
+| HERO-01 | HomeHeroTest.heroCarouselDisplaysThreeSlidesWithTextBox | `hero-carousel`, `hero-slide-0/1/2`, `hero-dot-0/1/2`; slide active có `.hero-text-box` + tiêu đề 1 trong 3 tiêu đề đã biết |
+| HERO-02 | HomeHeroTest.heroPrevNextButtonsNavigateSlides | `hero-prev-btn` / `hero-next-btn` đổi slide đúng vòng 0 → 1 → 0 |
+| HERO-03 | HomeHeroTest.heroDotsNavigateToSlide | `hero-dot-2` → slide 2, `hero-dot-1` → slide 1 |
+| HERO-04 | HomeHeroTest.heroAutoAdvancesToNextSlide | banner tự chạy 4s/slide: slide active tự đổi trong 12 giây |
+| HERO-05 | HomeHeroTest.homeShowsCosmeticsCategoryIconsBrandStripAndSections | 6 `category-icon-*`, `brand-strip`, `best-seller-section`, `suggested-section` |
+| FS-01 | HomeHeroTest.flashSaleSectionDisplaysDiscountedProductsAndCountdown | `flash-sale-section`, `flash-sale-countdown` dạng HH:MM:SS, 1–8 `flash-sale-item-*` |
+| FS-02 | HomeHeroTest.flashSaleCountdownTicksDown | đếm ngược giảm thật sau 3 giây (tới 23:59:59 hôm nay) |
+| NF-01 | NotFoundPageTest.unknownRouteShowsNotFoundPage | `not-found-page` + nút "Về trang chủ" đưa về trang chủ |
+| NF-02 | NotFoundPageTest.unknownProductShowsProductNotFoundPage | `/product/khong-ton-tai` → `product-not-found-page` ("404 - Không tìm thấy sản phẩm") |
+| ADM-01 | AdminAndNewsletterTest.guestOpeningAdminIsRedirectedToLogin | khách mở `/admin` → về `/login` |
+| ADM-02 | AdminAndNewsletterTest.customerOpeningAdminSeesForbiddenPageWithGuidance | tài khoản thường → `admin-forbidden` + "Cách cấp quyền Super Admin" + email đang đăng nhập |
+| ADM-03 | AdminAndNewsletterTest.adminSeesEightMenuItems | Super Admin thấy đủ 8 `admin-nav-*` đúng thứ tự (skip nếu chưa seed admin) |
+| ADM-04 | AdminAndNewsletterTest.adminDashboardLoads | mục Tổng quan tải được |
+| ADM-05 | AdminAndNewsletterTest.adminCanBrowseOrdersProductsCustomersReadOnly | chỉ đọc: `admin-order-search`, `admin-product-search`, `admin-customer-search` |
+| ADM-06 | AdminAndNewsletterTest.adminRevenueChartLoadsAndRangeButtonsWork | `admin-revenue-range-7/30` đổi khoảng (GET `/api/admin/reports/revenue`); có đơn thì `admin-revenue-chart` vẽ SVG, chưa có đơn thì dòng "Chưa có doanh thu..." |
+| NL-01 | AdminAndNewsletterTest.newsletterSubscribeSuccess | email mới → `.newsletter-success` "Cảm ơn bạn đã đăng ký nhận bản tin DAFL." |
+| NL-02 | AdminAndNewsletterTest.newsletterInvalidEmailShowsError | email sai định dạng → `.newsletter-error` "Vui lòng nhập email đúng định dạng." |
+| NL-03 | AdminAndNewsletterTest.newsletterDuplicateEmailShowsAlreadyRegistered | đăng ký lại email cũ → vẫn khối cảm ơn, không lỗi, không trùng lặp DB |
+| CN-05 (đợt 4) | ProductDetailTest.productDetailShowsReviewsSection | `product-reviews-section` luôn hiện; có đánh giá → `product-rating-summary` + `product-review-item`, chưa có → "Chưa có đánh giá nào" |
+| CN-05 (đợt 4) | ProductDetailTest.seededProductShowsSampleReviewWithAverageRating | Son kem 3CE → 1 đánh giá mẫu, tóm tắt "5.0", Trần Hoàng Nam (skip nếu DB hiện tại không có đánh giá mẫu) |
+| CN-07 (đợt 3) | CheckoutAndOrderTest.checkoutSubmitButtonHasStickyClassAndOrderTotal | nút Đặt hàng có class `checkout-submit-btn` (sticky mobile), ghi "Đặt hàng" |
+| CN-08 (đợt 2–3) | CheckoutAndOrderTest.orderStatusTabsShowCountsAndFilterByTab | tab `order-status-tab-*` hiện số lượng "(n)"; bấm tab lọc đúng danh sách (đã sửa `filterByStatus` từ `<select>` sang tab) |
+
+> Không viết test đổi mật khẩu admin tự khôi phục (rủi ro kẹt mật khẩu tạm nếu suite dừng giữa chừng), không test đổi trạng thái đơn / xóa SP / khóa khách / điều chỉnh điểm qua UI (tránh phá dữ liệu seed dùng chung).
 
 ## Kiểm thử hiệu năng (JMeter) — đã đổi sang JWT
 

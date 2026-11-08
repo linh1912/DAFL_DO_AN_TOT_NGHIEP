@@ -45,12 +45,4 @@ public class AuthModalPageUI {
     public static final String PASSWORD_RULE_DIGIT = "css=[data-testid='password-rule-digit']";
     public static final String PASSWORD_RULE_SPECIAL = "css=[data-testid='password-rule-special']";
 
-    // Dang nhap mang xa hoi (mock o moi truong test)
-    public static final String SOCIAL_GOOGLE_BTN = "css=[data-testid='social-google-btn']";
-    public static final String SOCIAL_FACEBOOK_BTN = "css=[data-testid='social-facebook-btn']";
-    public static final String SOCIAL_ERROR = "css=[data-testid='social-error']";
-    public static final String SOCIAL_LOADING = "css=[data-testid='social-loading']";
-    public static final String SOCIAL_MOCK_PANEL = "css=[data-testid='social-mock-panel']";
-    public static final String SOCIAL_MOCK_CONFIRM_BTN = "css=[data-testid='social-mock-confirm-btn']";
-    public static final String SOCIAL_MOCK_CANCEL_BTN = "css=[data-testid='social-mock-cancel-btn']";
 }

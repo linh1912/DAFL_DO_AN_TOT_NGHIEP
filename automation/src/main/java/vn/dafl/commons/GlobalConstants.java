@@ -18,6 +18,14 @@ public class GlobalConstants {
     public static final String DEMO_FULL_NAME = "Nguyễn Văn Demo";
     public static final String DEMO_PHONE = "0987654321";
 
+    // Tai khoan Super Admin duy nhat cua SUT (seed trong DbInitializer.cs, chi tao khi
+    // bang Users trong; DbInitializer con tu tao neu thieu — xem khoi 1c).
+    // Mat khau mac dinh: Admin@123 (dang nhap duoc bang ten "admin" o trang
+    // quan tri rieng localhost:3001). Chi dung cho test DOC (GET) o trang
+    // /admin - KHONG doi mat khau, KHONG sua/xoa du lieu qua test.
+    public static final String ADMIN_EMAIL = "admin@dafl.vn";
+    public static final String ADMIN_PASSWORD = "Admin@123";
+
     // Dia chi giao hang mau (du lieu dia gioi tinh trong FE: vietnam-provinces.json)
     public static final String SHIPPING_PROVINCE = "Thành phố Hà Nội";
     public static final String SHIPPING_DISTRICT = "Quận Ba Đình";
@@ -46,6 +54,16 @@ public class GlobalConstants {
     public static final String CANCEL_SUCCESS_MESSAGE = "Hủy đơn thành công";
     public static final String ORDER_STATUS_PENDING = "Chờ xác nhận";
     public static final String ORDER_STATUS_CANCELLED = "Đã hủy";
+
+    // Trang quan tri /admin (chi Super Admin; tai khoan thuong thay trang 403 kem huong dan cap quyen)
+    public static final String ADMIN_FORBIDDEN_MESSAGE = "Bạn không có quyền truy cập trang quản trị";
+    public static final String ADMIN_FORBIDDEN_GUIDE_HEADING = "Cách cấp quyền Super Admin";
+    // Dang ky ban tin o footer (POST /api/newsletter/subscribe, luu that vao DB)
+    public static final String NEWSLETTER_SUCCESS_MESSAGE = "Cảm ơn bạn đã đăng ký nhận bản tin DAFL.";
+    public static final String NEWSLETTER_INVALID_EMAIL_MESSAGE = "Vui lòng nhập email đúng định dạng.";
+    // San pham re nhat trong du lieu seed my pham moi (DbInitializer.cs): dung cho test
+    // phi ship / voucher can don gia < 100.000d (seed cu "Khan uot" khong con ton tai).
+    public static final String CHEAP_SEED_PRODUCT_KEYWORD = "Mặt nạ giấy";
 
     /** Dinh dang ma don hien thi cua SUT: DH{yyyyMMdd}-{NNNN}. */
     public static final String ORDER_DISPLAY_CODE_REGEX = "DH\\d{8}-\\d{4}";

@@ -198,4 +198,108 @@ public class HomePageObject extends BasePage {
         throw new AssertionError("Huy hieu gio hang khong dat " + expected + " sau 15 giay (hien tai: "
                 + getCartBadgeCount() + ")");
     }
+
+    // ---------- Banner hero trang chu (dot 2-4) ----------
+    public boolean isHeroCarouselDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.HERO_CAROUSEL, 10);
+    }
+
+    /** Chi so slide dang active (0..2): slide co class "active". -1 neu khong xac dinh duoc. */
+    public int getActiveHeroSlideIndex() {
+        for (int i = 0; i < 3; i++) {
+            String cssClass = getElementAttribute(
+                    getDynamicLocator(HomePageUI.DYNAMIC_HERO_SLIDE, String.valueOf(i)), "class");
+            if (cssClass != null && cssClass.contains("active")) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public String getActiveHeroTitle() {
+        waitForElementVisible(HomePageUI.ACTIVE_HERO_TITLE);
+        return getElementText(HomePageUI.ACTIVE_HERO_TITLE);
+    }
+
+    public String getActiveHeroSubtitle() {
+        waitForElementVisible(HomePageUI.ACTIVE_HERO_SUBTITLE);
+        return getElementText(HomePageUI.ACTIVE_HERO_SUBTITLE);
+    }
+
+    /** Hop chu toi mo (.hero-text-box) cua slide dang active co hien thi khong. */
+    public boolean isActiveHeroTextBoxDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.ACTIVE_HERO_TEXT_BOX, 5);
+    }
+
+    public void clickHeroNext() {
+        clickToElement(HomePageUI.HERO_NEXT_BTN);
+        sleepInSecond(1); // cho hieu ung chuyen slide (0.5s) hoan tat
+    }
+
+    public void clickHeroPrev() {
+        clickToElement(HomePageUI.HERO_PREV_BTN);
+        sleepInSecond(1);
+    }
+
+    public void clickHeroDot(int index) {
+        clickToElement(HomePageUI.DYNAMIC_HERO_DOT, String.valueOf(index));
+        sleepInSecond(1);
+    }
+
+    /** Cho toi khi slide active doi khoi chi so ban dau (banner tu chay 4s/slide); toi da 12 giay. */
+    public void waitForHeroSlideAutoAdvance(int fromIndex) {
+        long deadline = System.currentTimeMillis() + 12000;
+        while (System.currentTimeMillis() < deadline) {
+            if (getActiveHeroSlideIndex() != fromIndex && getActiveHeroSlideIndex() != -1) {
+                return;
+            }
+            sleepInSecond(1);
+        }
+        throw new AssertionError("Banner khong tu chuyen slide sau 12 giay (van o slide " + fromIndex + ")");
+    }
+
+    // ---------- Khoi noi dung trang chu kieu Cocolux ----------
+    public int getCategoryIconCount() {
+        return getListWebElements(HomePageUI.ANY_CATEGORY_ICON).size();
+    }
+
+    public boolean isBrandStripDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.BRAND_STRIP, 5);
+    }
+
+    public boolean isBestSellerSectionDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.BEST_SELLER_SECTION, 5);
+    }
+
+    public boolean isSuggestedSectionDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.SUGGESTED_SECTION, 5);
+    }
+
+    // ---------- Flash Sale (dot 4) ----------
+    public boolean isFlashSaleSectionDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.FLASH_SALE_SECTION, 10);
+    }
+
+    public String getFlashSaleCountdownText() {
+        waitForElementVisible(HomePageUI.FLASH_SALE_COUNTDOWN);
+        return getElementText(HomePageUI.FLASH_SALE_COUNTDOWN).trim();
+    }
+
+    /** So SP trong muc Flash Sale (toi da 8, xep theo % giam). */
+    public int getFlashSaleItemCount() {
+        return getListWebElements(HomePageUI.ANY_FLASH_SALE_ITEM).size();
+    }
+
+    /** Doi dem nguoc HH:MM:SS sang tong so giay con lai; -1 neu khong dung dinh dang. */
+    public int getFlashSaleCountdownSeconds() {
+        String text = getFlashSaleCountdownText();
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("^(\\d{2}):(\\d{2}):(\\d{2})$")
+                .matcher(text);
+        if (!matcher.matches()) {
+            return -1;
+        }
+        return Integer.parseInt(matcher.group(1)) * 3600
+                + Integer.parseInt(matcher.group(2)) * 60
+                + Integer.parseInt(matcher.group(3));
+    }
 }

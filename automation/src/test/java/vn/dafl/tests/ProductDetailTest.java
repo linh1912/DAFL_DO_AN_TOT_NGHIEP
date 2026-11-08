@@ -138,4 +138,64 @@ public class ProductDetailTest extends BaseTest {
         Assert.assertTrue(catalog.isProductNotFoundDisplayed(),
                 "San pham khong ton tai phai hien trang '404 - Khong tim thay san pham'");
     }
+
+    @Test(description = "CN-05 (dot 4): Trang chi tiet luon hien muc Danh gia - co danh gia thi hien tom tat + danh sach, chua co thi hien trang thai rong")
+    public void productDetailShowsReviewsSection() {
+        openHomePage();
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        catalog.waitForProductsLoaded();
+        catalog.openProductDetail(catalog.getFirstProductId());
+
+        Assert.assertTrue(catalog.isProductDetailDisplayed(), "Phai thay trang chi tiet");
+        Assert.assertTrue(catalog.isReviewsSectionDisplayed(),
+                "Trang chi tiet phai co muc Danh gia cua khach hang (product-reviews-section)");
+        Assert.assertTrue(isTextVisibleOnPage("Đánh giá của khách hàng"),
+                "Muc danh gia phai co tieu de 'Đánh giá của khách hàng'");
+
+        if (catalog.getReviewItemCount() > 0) {
+            Assert.assertTrue(catalog.isRatingSummaryDisplayed(),
+                    "San pham co danh gia phai hien tom tat diem trung binh (product-rating-summary)");
+            Assert.assertTrue(catalog.getRatingSummaryText().matches("(?s).*\\d\\.\\d.*"),
+                    "Tom tat phai ghi diem trung binh dang X.Y, dang thay: " + catalog.getRatingSummaryText());
+        } else {
+            Assert.assertTrue(catalog.isReviewsEmptyStateDisplayed(),
+                    "San pham chua co danh gia phai hien dong 'Chưa có đánh giá nào'");
+        }
+    }
+
+    @Test(description = "CN-05 (dot 4): San pham seed co danh gia mau (Son kem 3CE) -> tom tat 5.0 + 1 danh gia cua Tran Hoang Nam")
+    public void seededProductShowsSampleReviewWithAverageRating() {
+        HomePageObject homePage = openHomePage();
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        catalog.waitForProductsLoaded();
+        homePage.searchProduct("Son kem 3CE");
+
+        String targetId = null;
+        for (String productId : catalog.getDisplayedProductIds()) {
+            if (catalog.getProductName(productId).contains("3CE Velvet")) {
+                targetId = productId;
+                break;
+            }
+        }
+        Assert.assertNotNull(targetId, "Phai tim thay san pham Son kem 3CE Velvet trong ket qua tim kiem");
+        catalog.openProductDetail(targetId);
+
+        Assert.assertTrue(catalog.isReviewsSectionDisplayed(), "Phai thay muc danh gia tren trang chi tiet");
+        if (catalog.getReviewItemCount() == 0) {
+            // Seed chi tao danh gia mau khi bang Evaluations trong luc seed; DB cu da co
+            // danh gia cu thi san pham my pham moi co the chua co danh gia nao.
+            throw new SkipException("Bo qua: DB hien tai khong co danh gia mau cho Son kem 3CE "
+                    + "(seed chi tao khi bang Evaluations trong)");
+        }
+        Assert.assertEquals(catalog.getReviewItemCount(), 1,
+                "Son kem 3CE chi co dung 1 danh gia mau trong seed");
+        Assert.assertTrue(catalog.isRatingSummaryDisplayed(), "Phai hien tom tat diem trung binh");
+        Assert.assertTrue(catalog.getRatingSummaryText().contains("5.0"),
+                "Diem trung binh cua 1 danh gia 5 sao phai la 5.0, dang thay: " + catalog.getRatingSummaryText());
+        String reviewsText = catalog.getAllReviewsText();
+        Assert.assertTrue(reviewsText.contains("Trần Hoàng Nam"),
+                "Danh gia mau phai cua Tran Hoang Nam, dang thay: " + reviewsText);
+        Assert.assertTrue(reviewsText.contains("Son 3CE lên màu chuẩn đẹp"),
+                "Danh gia mau phai co binh luan goc cua seed");
+    }
 }
