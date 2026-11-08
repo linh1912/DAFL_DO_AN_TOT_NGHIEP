@@ -163,8 +163,8 @@ Lưu ý: lệnh `docker compose down -v` sẽ xóa cả volume chứa dữ liệ
 
 1. Mở IntelliJ IDEA, chọn **File → Open**, trỏ tới thư mục `D:\DoAnTotNghiep\DAFL_DO_AN_TOT_NGHIEP\automation` và bấm **OK**. Đây là thư mục chứa file `pom.xml` nên IntelliJ sẽ nhận diện đây là một project Maven.
 2. Chờ IntelliJ tải thư viện: góc dưới bên phải xuất hiện tiến trình *Resolving Maven dependencies* — lần đầu mất vài phút. Nếu IntelliJ hỏi về JDK, vào **File → Project Structure → Project**, mục *SDK* chọn phiên bản **17** (nếu danh sách trống, chọn *Add SDK → Download JDK → Version 17 → Eclipse Temurin*).
-3. Chạy một lớp kiểm thử: mở thư mục `src/test/java/vn/dafl/tests`, mở file `EndToEndShoppingFlowTest.java`, bấm nút **Run ▶** màu xanh ở lề trái cạnh tên lớp. Một cửa sổ Chrome sẽ tự mở và thực hiện toàn bộ luồng mua hàng: đăng nhập tài khoản demo → chọn hai sản phẩm → thêm vào giỏ → áp mã giảm giá DAFL20 → điền form thanh toán → thanh toán qua cổng PayOS giả lập → kiểm tra đơn hàng trong lịch sử.
-4. Chạy toàn bộ bộ kiểm thử: trong cây thư mục bên trái, chuột phải vào file **`testng.xml`** ở thư mục gốc của project `automation` → **Run 'testng.xml'**. Muốn chỉ chạy luồng E2E hoặc chỉ chạy các trường hợp âm, dùng lần lượt file `testng-flow.xml` và `testng-negative.xml`.
+3. Chạy một lớp kiểm thử: mở thư mục `src/test/java/vn/dafl/tests/web` (test web bán hàng) hoặc `src/test/java/vn/dafl/tests/admin` (test admin), mở file `EndToEndShoppingFlowTest.java`, bấm nút **Run ▶** màu xanh ở lề trái cạnh tên lớp. Một cửa sổ Chrome sẽ tự mở và thực hiện toàn bộ luồng mua hàng: đăng nhập tài khoản demo → chọn hai sản phẩm → thêm vào giỏ → áp mã giảm giá DAFL20 → điền form thanh toán → thanh toán qua cổng PayOS giả lập → kiểm tra đơn hàng trong lịch sử.
+4. Chạy toàn bộ bộ kiểm thử: trong cây thư mục bên trái, chuột phải vào file **`testng.xml`** ở thư mục gốc của project `automation` → **Run 'testng.xml'**. Muốn chỉ chạy phần web bán hàng hoặc chỉ chạy phần admin, dùng lần lượt file `testng-web.xml` (99 test) và `testng-admin.xml` (31 test — cần thêm service admin `http://localhost:3001` đang chạy). Muốn chỉ chạy luồng E2E hoặc chỉ chạy các trường hợp âm, dùng lần lượt file `testng-flow.xml` và `testng-negative.xml`.
 5. Đọc kết quả ở panel **Run** phía dưới IntelliJ: cây test hiển thị màu xanh (pass) / đỏ (fail) kèm thời gian chạy. Khi có test fail, mở rộng node đỏ để xem thông điệp lỗi và vị trí dòng code.
 
 ### D.2. Cách 2 — Chạy bằng dòng lệnh (PowerShell)
@@ -180,27 +180,35 @@ cd D:\DoAnTotNghiep\DAFL_DO_AN_TOT_NGHIEP\automation
 # Chay khong giao dien (headless) - nhanh hon, dung trong CI
 .\mvnw.cmd test -Dheadless=true
 
+# Chi chay test web ban hang (99 test)
+.\mvnw.cmd test -DsuiteXmlFile=testng-web.xml -Dheadless=false
+
+# Chi chay test admin (31 test) - can ca 2 service :3000 + :3001 dang chay
+.\mvnw.cmd test -DsuiteXmlFile=testng-admin.xml -Dheadless=false
+
 # Chi chay nhom truong hop am / ngoai le
 .\mvnw.cmd test -DsuiteXmlFile=testng-negative.xml -Dheadless=true
 
 # Chi chay mot lop kiem thu cu the
-.\mvnw.cmd test "-Dtest=AuthTest" "-DsuiteXmlFile="
+.\mvnw.cmd test "-Dtest=vn.dafl.tests.web.AuthTest" "-DsuiteXmlFile="
 ```
 
 Khi chạy xong, dòng tổng kết trên console có dạng `Tests run: 32, Failures: 0, Errors: 0, Skipped: 0`. Báo cáo chi tiết dạng XML/HTML nằm trong thư mục `target\surefire-reports`. Để xem báo cáo Allure dạng web, chạy lệnh `.\mvnw.cmd allure:serve` (lệnh này tự mở trình duyệt hiển thị báo cáo; nhấn `Ctrl+C` để dừng).
 
 ### D.3. Cách 3 — Chạy bằng file .bat có sẵn
 
-Trong thư mục `automation` có hai file phục vụ việc chạy nhanh:
+Trong thư mục `automation` có bốn file phục vụ việc chạy nhanh:
 
 - `run_test_with_gui.bat` — chạy toàn bộ bộ kiểm thử với Chrome có giao diện.
 - `run_test_headless.bat` — chạy toàn bộ bộ kiểm thử ở chế độ headless.
+- `run_test_web.bat` — chỉ chạy test web bán hàng (`testng-web.xml`, 99 test).
+- `run_test_admin.bat` — chỉ chạy test admin (`testng-admin.xml`, 31 test); cần cả 2 service `:3000` + `:3001` đang chạy và tài khoản `admin@dafl.vn` đã được seed (nếu chưa sẵn, các test admin tự bỏ qua thay vì fail).
 
 Nhấp đúp vào file để chạy. Nội dung file tự thực hiện các bước: kiểm tra và xác định `JAVA_HOME` trỏ đúng JDK, gọi Maven Wrapper kèm các tham số tương đương Cách 2. Cách này tiện khi cần kiểm tra nhanh mà không mở IntelliJ.
 
 ### D.4. Phạm vi bộ kiểm thử
 
-Tổng cộng **101 test case** trong 12 lớp: `AuthTest` (16 — đăng nhập JWT, đăng ký không OTP, lỗi từng trường, checklist mật khẩu, token hết hạn), `CatalogAndSearchTest` (10 — hiển thị, tìm kiếm, lọc danh mục/giá, sắp xếp, phân trang 12/trang, từ khóa SQL injection), `ProductDetailTest` (9 — chi tiết sản phẩm, số lượng biên theo tồn kho, mua ngay, hết hàng, 404), `CartManagementTest` (9 — giỏ khách không cần đăng nhập, gộp giỏ khi đăng nhập, xác nhận xóa, kẹp số lượng theo tồn kho, voucher), `CheckoutAndOrderTest` (9 — đặt COD, PayOS giả lập, khách bị đưa qua đăng nhập rồi quay lại, địa chỉ đã lưu, chống đặt trùng, phí ship 25.000đ/miễn phí từ 299.000đ), `OrderCancellationTest` (3 — hủy đơn ở Chờ xác nhận, hoàn tồn kho, lọc theo trạng thái), `ProfileAndAddressTest` (9 — cập nhật hồ sơ, trùng SĐT, đổi mật khẩu, sổ địa chỉ tối đa 5 và mặc định), `HomeHeroTest` (7 — banner hero + Flash Sale), `NotFoundPageTest` (2 — trang 404), `AdminAndNewsletterTest` (9 — trang Admin chỉ đọc + biểu đồ doanh thu + đăng ký bản tin), `EndToEndShoppingFlowTest` (1 — luồng mua hàng đầu-cuối của khách), `NegativeAndExceptionScenariosTest` (17 — các trường hợp âm: sai mật khẩu, mật khẩu không đạt policy nghiêm ngặt, voucher bị Backend từ chối khi đặt hàng, lỗi khối giao hàng shipping-*...). Bảng ánh xạ đầy đủ TC-CN ↔ lớp/phương thức kiểm thử nằm trong `TEST-MAPPING.md`; đặc tả nghiệp vụ chi tiết nằm trong tài liệu đặc tả CN-01..CN-08 của đồ án.
+Tổng cộng **130 test case** trong 14 lớp, chia 2 thư mục riêng: `src/test/java/vn/dafl/tests/web/` (11 lớp web bán hàng, 99 test) và `src/test/java/vn/dafl/tests/admin/` (3 lớp admin, 31 test — chạy trên app Admin riêng `localhost:3001`): `AuthTest` (18 — đăng nhập JWT, đăng ký không OTP, lỗi từng trường, checklist mật khẩu, token hết hạn, đăng nhập admin bằng tên `admin` ở localhost:3001, không còn nút Google/Facebook), `CatalogAndSearchTest` (11 — hiển thị, tìm kiếm, lọc danh mục/giá, sắp xếp, phân trang 12/trang, từ khóa SQL injection, nút `Áp dụng` lọc giá), `ProductDetailTest` (9 — chi tiết sản phẩm, số lượng biên theo tồn kho, mua ngay, hết hàng, 404), `CartManagementTest` (9 — giỏ khách không cần đăng nhập, gộp giỏ khi đăng nhập, xác nhận xóa, kẹp số lượng theo tồn kho, voucher), `CheckoutAndOrderTest` (10 — đặt COD, PayOS giả lập, khách bị đưa qua đăng nhập rồi quay lại, địa chỉ đã lưu, chống đặt trùng, phí ship 25.000đ/miễn phí từ 299.000đ, PayOS không còn tab nhúng/iframe), `OrderCancellationTest` (3 — hủy đơn ở Chờ xác nhận, hoàn tồn kho, lọc theo trạng thái), `ProfileAndAddressTest` (9 — cập nhật hồ sơ, trùng SĐT, đổi mật khẩu, sổ địa chỉ tối đa 5 và mặc định), `HomeHeroTest` (10 — banner hero + Flash Sale + modal thông báo + dark mode), `NotFoundPageTest` (2 — trang 404), `AdminAndNewsletterTest` (14 — trang Admin chỉ đọc + biểu đồ doanh thu + đăng ký bản tin + tìm kiếm/lọc/Export/topbar search), `AdminDetailTest` (9 — modal xem chi tiết admin Spark, chỉ đọc), `AdminCrudTest` (8 — CRUD thật trên Admin: tạo/sửa/xóa sản phẩm + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy đơn do chính test tạo, điều chỉnh điểm cho demo; chỉ đụng dữ liệu do test tạo và tự dọn sau khi chạy), `EndToEndShoppingFlowTest` (1 — luồng mua hàng đầu-cuối của khách), `NegativeAndExceptionScenariosTest` (17 — các trường hợp âm: sai mật khẩu, mật khẩu không đạt policy nghiêm ngặt, voucher bị Backend từ chối khi đặt hàng, lỗi khối giao hàng shipping-*...). Bảng ánh xạ đầy đủ TC-CN ↔ lớp/phương thức kiểm thử nằm trong `TEST-MAPPING.md`; đặc tả nghiệp vụ chi tiết nằm trong tài liệu đặc tả CN-01..CN-08 của đồ án.
 
 ---
 

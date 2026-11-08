@@ -11,6 +11,14 @@ public class HomePageUI {
     public static final String THEME_TOGGLE_BTN = "css=[data-testid='theme-toggle-btn']";
     public static final String NOTIF_BELL_BTN = "css=[data-testid='notif-bell-btn']";
     public static final String NOTIF_BADGE_COUNT = "css=[data-testid='notif-badge-count']";
+    // Modal thong bao (dot 8): rong 480-520px, co nut 'Đánh dấu đã đọc tất cả',
+    // danh sach thong bao hoac dong 'Chưa có thông báo' khi rong.
+    public static final String NOTIF_MODAL = "css=[data-testid='notifications-modal']";
+    public static final String NOTIF_MARK_ALL_READ_BTN = "css=[data-testid='mark-all-read-btn']";
+    public static final String NOTIF_CLOSE_BTN = "css=[data-testid='close-notif-btn']";
+    public static final String ANY_NOTIF_ITEM = "css=[data-testid^='notification-item-']";
+    public static final String NOTIF_EMPTY_TEXT =
+            "xpath=//*[@data-testid='notifications-modal']//p[contains(text(),'Chưa có thông báo')]";
     public static final String ACCOUNT_TOGGLE_BTN = "css=[data-testid='account-toggle-btn']";
     /** Ten nguoi dung hien thi tren nut tai khoan o header (khi chua dang nhap la "Dang nhap"). */
     public static final String ACCOUNT_TOGGLE_NAME = "css=.account-toggle-name";

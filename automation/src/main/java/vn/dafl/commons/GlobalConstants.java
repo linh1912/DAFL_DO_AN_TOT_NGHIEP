@@ -12,6 +12,10 @@ public class GlobalConstants {
 
     public static final String DEFAULT_APP_URL = "http://localhost:3000";
 
+    /** Trang quan tri rieng (build VITE_ADMIN_ONLY=true, service dafl-admin): chi render
+     *  trang Admin + form dang nhap co ban; o day nhap "admin" cung dang nhap duoc. */
+    public static final String ADMIN_APP_URL = "http://localhost:3001";
+
     // Tai khoan demo duoc seed san trong CSDL cua SUT
     public static final String DEMO_EMAIL = "demo@dafl.vn";
     public static final String DEMO_PASSWORD = "Password123!";

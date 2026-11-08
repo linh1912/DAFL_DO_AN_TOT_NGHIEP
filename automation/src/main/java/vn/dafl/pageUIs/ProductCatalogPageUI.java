@@ -26,6 +26,8 @@ public class ProductCatalogPageUI {
     public static final String PRICE_FROM_INPUT = "css=[data-testid='price-from-input']";
     public static final String PRICE_TO_INPUT = "css=[data-testid='price-to-input']";
     public static final String PRICE_FILTER_ERROR = "css=[data-testid='price-filter-error']";
+    // Nut 'Áp dụng' cua bo loc khoang gia (dot 8): bam moi ap dung khoang gia da nhap.
+    public static final String PRICE_APPLY_BTN = "css=[data-testid='price-apply-btn']";
     public static final String CATALOG_PAGINATION = "css=[data-testid='catalog-pagination']";
     public static final String PAGINATION_PREV_BTN = "css=[data-testid='pagination-prev-btn']";
     public static final String PAGINATION_NEXT_BTN = "css=[data-testid='pagination-next-btn']";

@@ -9,7 +9,7 @@
 
     <test name="End-to-End Shopping Flow">
         <classes>
-            <class name="vn.dafl.tests.EndToEndShoppingFlowTest"/>
+            <class name="vn.dafl.tests.web.EndToEndShoppingFlowTest"/>
         </classes>
     </test>
 </suite>

@@ -18,16 +18,20 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 12 lớp test, 101 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
-│   │   ├── AuthTest (16) · CatalogAndSearchTest (10) · ProductDetailTest (9)
-│   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (9) · OrderCancellationTest (3)
-│   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
-│   │   ├── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
-│   │   └── HomeHeroTest (7) · NotFoundPageTest (2) · AdminAndNewsletterTest (9)
-│   │       (mới đợt cuối: banner hero + Flash Sale, trang 404, trang Admin chỉ đọc,
-│   │        đăng ký bản tin, đánh giá sao, biểu đồ doanh thu)
-│   ├── testng.xml · testng-flow.xml · testng-negative.xml
+│   ├── src/test/java/vn/dafl/tests/  ← 14 lớp test, 130 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   │   ├── web/  ← 11 lớp web bán hàng, 99 test
+│   │   │   ├── AuthTest (18) · CatalogAndSearchTest (11) · ProductDetailTest (9)
+│   │   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (10) · OrderCancellationTest (3)
+│   │   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
+│   │   │   ├── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
+│   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2)
+│   │   └── admin/  ← 3 lớp admin, 31 test (chạy trên app Admin riêng localhost:3001)
+│   │       ├── AdminAndNewsletterTest (14) · AdminDetailTest (9)  (chỉ đọc)
+│   │       └── AdminCrudTest (8)  (CRUD thật, chỉ đụng dữ liệu do test tạo, tự dọn)
+│   ├── testng.xml (cả 2 khối Web + Admin, 130 test) · testng-web.xml (99 test) · testng-admin.xml (31 test)
+│   ├── testng-flow.xml · testng-negative.xml
 │   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
+│       run_test_web.bat (chỉ test web) · run_test_admin.bat (chỉ test admin)
 ├── performance/           ← [2] Kiểm thử hiệu năng (Apache JMeter): dafl-loadtest.jmx — viết theo Swagger/OpenAPI của Backend (25 sampler, xác thực JWT Bearer: đăng nhập lấy token rồi gắn header Authorization)
 ├── quality-gate/          ← [3] Quality Gate: check_performance_gate.sh (Jenkins/Linux) + .py (Windows)
 ├── ci/jenkins/quick-setup/ ← Jenkins dựng sẵn bằng Docker + JCasC, tự tạo 3 job
@@ -48,8 +52,11 @@ DAFL_DO_AN_TOT_NGHIEP/
 
 ```bat
 cd automation
-run_test_with_gui.bat        :: toan bo suite testng.xml, Chrome co giao dien
+run_test_with_gui.bat        :: toan bo suite testng.xml (130 test: 99 web + 31 admin), Chrome co giao dien
 run_test_headless.bat        :: toan bo suite, che do headless (cho CI)
+run_test_web.bat             :: chi test web ban hang (testng-web.xml, 99 test)
+run_test_admin.bat           :: chi test admin (testng-admin.xml, 31 test) — can ca 2 service
+                               :3000 + :3001 dang chay va tai khoan admin@dafl.vn da duoc seed
 ```
 
 Chạy từng suite bằng Maven Wrapper:
@@ -57,6 +64,8 @@ Chạy từng suite bằng Maven Wrapper:
 ```bat
 cd automation
 mvnw.cmd test -Dheadless=false -Dapp.url=http://localhost:3000
+mvnw.cmd test -DsuiteXmlFile=testng-web.xml -Dheadless=false
+mvnw.cmd test -DsuiteXmlFile=testng-admin.xml -Dheadless=false
 mvnw.cmd test -DsuiteXmlFile=testng-flow.xml -Dheadless=true
 mvnw.cmd test -DsuiteXmlFile=testng-negative.xml -Dheadless=true
 ```

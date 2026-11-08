@@ -117,6 +117,16 @@ public class ProductCatalogPageObject extends BasePage {
         return isElementDisplayedWithWait(ProductCatalogPageUI.PRICE_FILTER_ERROR, 5);
     }
 
+    /** Bam nut 'Áp dụng' de ap dung khoang gia da nhap o 2 o gia (dot 8). */
+    public void clickPriceApply() {
+        clickToElement(ProductCatalogPageUI.PRICE_APPLY_BTN);
+        sleepInSecond(2); // cho loc ap dung + luoi tai lai
+    }
+
+    public boolean isPriceApplyButtonDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.PRICE_APPLY_BTN, 10);
+    }
+
     public String getPriceFilterError() {
         waitForElementVisible(ProductCatalogPageUI.PRICE_FILTER_ERROR);
         return getElementText(ProductCatalogPageUI.PRICE_FILTER_ERROR);

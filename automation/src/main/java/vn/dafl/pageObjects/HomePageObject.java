@@ -302,4 +302,55 @@ public class HomePageObject extends BasePage {
                 + Integer.parseInt(matcher.group(2)) * 60
                 + Integer.parseInt(matcher.group(3));
     }
+
+    // ---------- Modal thong bao + dark mode (dot 8) ----------
+    public void openNotifications() {
+        clickToElement(HomePageUI.NOTIF_BELL_BTN);
+        waitForElementVisible(HomePageUI.NOTIF_MODAL);
+    }
+
+    public boolean isNotificationModalDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.NOTIF_MODAL, 10);
+    }
+
+    public boolean isMarkAllReadButtonDisplayed() {
+        return isElementDisplayedWithWait(HomePageUI.NOTIF_MARK_ALL_READ_BTN, 5);
+    }
+
+    public int getNotificationItemCount() {
+        return getListWebElements(HomePageUI.ANY_NOTIF_ITEM).size();
+    }
+
+    public boolean isNotificationEmptyStateDisplayed() {
+        return isElementDisplayed(HomePageUI.NOTIF_EMPTY_TEXT);
+    }
+
+    public String getNotificationModalText() {
+        waitForElementVisible(HomePageUI.NOTIF_MODAL);
+        return getElementText(HomePageUI.NOTIF_MODAL);
+    }
+
+    public void closeNotifications() {
+        clickToElement(HomePageUI.NOTIF_CLOSE_BTN);
+        waitForElementInvisible(HomePageUI.NOTIF_MODAL);
+    }
+
+    /** Gia tri theme hien tai tren <html data-theme>: 'light' hoac 'dark'. */
+    public String getCurrentTheme() {
+        Object theme = executeScript("return document.documentElement.getAttribute('data-theme');");
+        return theme == null ? "" : String.valueOf(theme);
+    }
+
+    /** Bam nut chuyen doi dark/light mode o header; tra ve theme sau khi doi. */
+    public String toggleTheme() {
+        String before = getCurrentTheme();
+        clickToElement(HomePageUI.THEME_TOGGLE_BTN);
+        sleepInSecond(1); // cho App ghi localStorage + doi data-theme
+        String after = getCurrentTheme();
+        if (after.equals(before)) {
+            sleepInSecond(1);
+            after = getCurrentTheme();
+        }
+        return after;
+    }
 }

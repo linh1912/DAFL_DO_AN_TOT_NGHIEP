@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="DAFL Admin Suite" verbose="1">
+    <parameter name="browser" value="chrome"/>
+
+    <listeners>
+        <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
+    </listeners>
+
+    <!-- Chi chay test admin: 3 lop, 31 test -->
+    <test name="Admin">
+        <classes>
+            <class name="vn.dafl.tests.admin.AdminAndNewsletterTest"/>
+            <class name="vn.dafl.tests.admin.AdminDetailTest"/>
+            <class name="vn.dafl.tests.admin.AdminCrudTest"/>
+        </classes>
+    </test>
+</suite>

@@ -61,4 +61,15 @@ public class CheckoutPageUI {
     public static final String SIMULATE_PAYOS_SUCCESS_BTN = "css=[data-testid='simulate-payos-success-btn']";
     public static final String ORDER_PAID_VIEW = "css=[data-testid='order-paid-view']";
     public static final String ORDER_EXPIRED_VIEW = "css=[data-testid='order-expired-view']";
+
+    // Trang thanh toan PayOS (dot 8): chi con quet VietQR tai cho + mo tab moi,
+    // tab 'Nhúng Cổng PayOS' (iframe) da bi xoa han - khong duoc con iframe nao.
+    public static final String PAYOS_QR_OPTION_TEXT =
+            "xpath=//span[contains(text(),'Quét mã VietQR tại chỗ')]";
+    public static final String PAYOS_ANY_IFRAME = "xpath=//iframe";
+    public static final String PAYOS_EMBED_TAB_TEXT =
+            "xpath=//*[contains(text(),'Nhúng Cổng PayOS')]";
+    // Link mo tab moi chi hien khi dung key PayOS that (isRealPayOS); o che do demo khong co.
+    public static final String PAYOS_OPEN_NEW_TAB_LINK =
+            "xpath=//a[contains(text(),'Mở PayOS ở Tab Mới')]";
 }

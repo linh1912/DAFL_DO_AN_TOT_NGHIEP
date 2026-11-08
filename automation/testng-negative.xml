@@ -9,7 +9,7 @@
 
     <test name="All Negative and Exception Scenarios">
         <classes>
-            <class name="vn.dafl.tests.NegativeAndExceptionScenariosTest"/>
+            <class name="vn.dafl.tests.web.NegativeAndExceptionScenariosTest"/>
         </classes>
     </test>
 </suite>

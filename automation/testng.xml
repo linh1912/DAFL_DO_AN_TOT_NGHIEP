@@ -7,30 +7,29 @@
         <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
     </listeners>
 
-    <test name="E2E Customer Journey Flow">
+    <!-- Khoi 1: Web ban hang (11 lop, 99 test) -->
+    <test name="Web - Shop">
         <classes>
-            <class name="vn.dafl.tests.EndToEndShoppingFlowTest"/>
+            <class name="vn.dafl.tests.web.AuthTest"/>
+            <class name="vn.dafl.tests.web.CatalogAndSearchTest"/>
+            <class name="vn.dafl.tests.web.ProductDetailTest"/>
+            <class name="vn.dafl.tests.web.CartManagementTest"/>
+            <class name="vn.dafl.tests.web.CheckoutAndOrderTest"/>
+            <class name="vn.dafl.tests.web.OrderCancellationTest"/>
+            <class name="vn.dafl.tests.web.ProfileAndAddressTest"/>
+            <class name="vn.dafl.tests.web.HomeHeroTest"/>
+            <class name="vn.dafl.tests.web.NotFoundPageTest"/>
+            <class name="vn.dafl.tests.web.EndToEndShoppingFlowTest"/>
+            <class name="vn.dafl.tests.web.NegativeAndExceptionScenariosTest"/>
         </classes>
     </test>
 
-    <test name="Negative &amp; Exception Scenarios">
+    <!-- Khoi 2: Admin (3 lop, 31 test) -->
+    <test name="Admin">
         <classes>
-            <class name="vn.dafl.tests.NegativeAndExceptionScenariosTest"/>
-        </classes>
-    </test>
-
-    <test name="Regression - DAFL E-Commerce Modules">
-        <classes>
-            <class name="vn.dafl.tests.AuthTest"/>
-            <class name="vn.dafl.tests.CatalogAndSearchTest"/>
-            <class name="vn.dafl.tests.ProductDetailTest"/>
-            <class name="vn.dafl.tests.CartManagementTest"/>
-            <class name="vn.dafl.tests.CheckoutAndOrderTest"/>
-            <class name="vn.dafl.tests.OrderCancellationTest"/>
-            <class name="vn.dafl.tests.ProfileAndAddressTest"/>
-            <class name="vn.dafl.tests.HomeHeroTest"/>
-            <class name="vn.dafl.tests.NotFoundPageTest"/>
-            <class name="vn.dafl.tests.AdminAndNewsletterTest"/>
+            <class name="vn.dafl.tests.admin.AdminAndNewsletterTest"/>
+            <class name="vn.dafl.tests.admin.AdminDetailTest"/>
+            <class name="vn.dafl.tests.admin.AdminCrudTest"/>
         </classes>
     </test>
 </suite>
