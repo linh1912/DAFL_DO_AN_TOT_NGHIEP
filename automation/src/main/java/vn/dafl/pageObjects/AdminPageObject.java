@@ -24,7 +24,7 @@ public class AdminPageObject extends BasePage {
     };
 
     /** Mo thang /admin tren app Admin rieng :3001 (khong qua menu header).
-     *  KHONG dung /admin o :3000 nua (dot 10: test admin chi chay :3001). */
+     *  KHONG dung /admin o web ban hang nua (test admin chi chay app Admin rieng). */
     public void openAdminPage() {
         openPageUrl(GlobalConstants.ADMIN_APP_URL + "/admin");
     }
@@ -322,7 +322,7 @@ public class AdminPageObject extends BasePage {
 
     /** Dang nhap Super Admin tren trang Admin rieng (localhost:3001, build
      *  VITE_ADMIN_ONLY=true). Token JWT luu theo origin nen phai dang nhap o :3001
-     *  va o lai :3001 (khong dung /admin o :3000 sau khi dang nhap :3001).
+     *  va o lai :3001 (khong dung /admin o web ban hang sau khi dang nhap).
      *  Bo qua test (SkipException) khi service :3001 chua chay hoac tai khoan
      *  admin@dafl.vn chua duoc seed tren DB nay. */
     public void loginAsAdminOnAdminAppOrSkip() {

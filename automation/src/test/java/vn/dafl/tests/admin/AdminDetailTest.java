@@ -14,7 +14,7 @@ import vn.dafl.pageUIs.AdminPageUI;
  * KHONG kich hoat/tat khuyen mai, KHONG duyet/tu choi tra hang, KHONG khoa tai khoan.
  * Test nao can du lieu (don hang, yeu cau tra hang) thi tu skip co ly do ro rang
  * neu DB do khong co du lieu do.
- * Toan bo lop nay chi chay tren app Admin rieng :3001, khong mo :3000 (dot 10).
+ * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
 public class AdminDetailTest extends BaseTest {
 

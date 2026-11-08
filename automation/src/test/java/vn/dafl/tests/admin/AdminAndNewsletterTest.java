@@ -17,7 +17,7 @@ import java.util.List;
  * neu suite dung giua chung - da loai bo khoi bo test).
  * 3 test dang ky ban tin NL-01..03 truoc day o day da chuyen sang lop web
  * vn.dafl.tests.web.NewsletterTest (dot 10) vi chung test footer cua web ban hang.
- * Toan bo lop nay chi chay tren :3001, khong mo :3000 (dot 10).
+ * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
 public class AdminAndNewsletterTest extends BaseTest {
 
@@ -48,7 +48,7 @@ public class AdminAndNewsletterTest extends BaseTest {
     @Test(description = "ADM-02: Tai khoan thuong mo /admin -> trang 403 kem huong dan cap quyen Super Admin")
     public void customerOpeningAdminSeesForbiddenPageWithGuidance() {
         // Dang nhap bang tai khoan thuong ngay tren trang dang nhap Admin rieng :3001
-        // (khong qua web ban hang :3000 - dot 10).
+        // (khong qua web ban hang).
         AdminPageObject adminPage = new AdminPageObject();
         adminPage.loginAsUserOnAdminAppOrSkip(GlobalConstants.DEMO_EMAIL, GlobalConstants.DEMO_PASSWORD);
         adminPage.openAdminPage();

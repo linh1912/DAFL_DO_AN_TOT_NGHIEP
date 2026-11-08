@@ -15,8 +15,8 @@ import vn.dafl.pageObjects.AdminPageObject;
  * - Voucher: giao dien KHONG co nut sua/xoa nen chi tao -> kich hoat -> tat co ly do;
  *   voucher o trang thai Da tat la vo hieu nen de lai an toan, khong don dep duoc.
  * - Don hang (dot 10): ACR-06/07 KHONG dat don moi qua web ban hang nua ma doi
- *   trang thai / huy 1 don 'Chờ xử lý' CO SAN trong DB (theo yeu cau bo :3000 khoi
- *   test admin). Don do la du lieu that, khong phai do test tao, va trang thai cu
+ *   trang thai / huy 1 don 'Chờ xử lý' CO SAN trong DB (theo yeu cau bo web ban hang
+ *   khoi test admin). Don do la du lieu that, khong phai do test tao, va trang thai cu
  *   khong khoi phuc lai duoc sau test; neu DB khong co don cho xu ly thi test tu
  *   bo qua (skip, khong tinh fail).
  * - Diem hoi vien: cong 5 diem cho tai khoan demo roi hoan tac -5 trong finally
@@ -26,7 +26,7 @@ import vn.dafl.pageObjects.AdminPageObject;
  * duyet/tu choi yeu cau tra hang cua nguoi khac.
  * Test tu bo qua (skip, khong tinh fail) khi service admin :3001 chua chay hoac
  * tai khoan admin@dafl.vn chua duoc seed tren DB nay.
- * Toan bo lop nay chi chay tren :3001, khong mo :3000 (dot 10).
+ * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
 public class AdminCrudTest extends BaseTest {
 
@@ -306,7 +306,7 @@ public class AdminCrudTest extends BaseTest {
 
     @Test(description = "ACR-06: Doi trang thai 1 don 'Chờ xử lý' có sẵn sang 'Đã xác nhận' tren Admin (skip neu khong co don cho xu ly)")
     public void adminChangePendingOrderStatusToConfirmed() {
-        // LUU Y (dot 10, theo yeu cau bo :3000 khoi test admin): test nay KHONG dat don
+        // LUU Y (dot 10): test nay KHONG dat don
         // moi qua web ban hang nua ma doi trang thai 1 don 'Chờ xử lý' CO SAN trong DB.
         // Don do la du lieu that (khong phai do test tao) va trang thai cu khong khoi
         // phuc lai duoc sau test. Neu DB khong co don cho xu ly thi test tu bo qua.
