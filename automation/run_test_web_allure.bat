@@ -12,7 +12,7 @@ rem ===== Buoc 0: Kiem tra SUT web :3000 co dang chay khong =====
 set HTTP_CODE=
 for /f %%i in ('curl -s -o nul -w "%%{http_code}" http://localhost:3000 2^>nul') do set HTTP_CODE=%%i
 if not "%HTTP_CODE%"=="200" (
-    echo [LOI] Web :3000 khong tra ve 200 (ma hien tai: %HTTP_CODE%).
+    echo [LOI] Web :3000 khong tra ve 200 - ma hien tai: %HTTP_CODE%.
     echo Hay chay Docker truoc:  cd C:\Users\Acer\DAFL ^&^& docker compose up -d
     echo Sau do chay lai file nay.
     pause

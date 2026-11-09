@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="DAFL Single Class Suite" verbose="1">
+    <parameter name="browser" value="chrome"/>
+
+    <listeners>
+        <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
+    </listeners>
+
+    <!-- File mau cho run_test_single.bat: file bat se tu ghi de ten lop o dong class ben duoi -->
+    <test name="Single">
+        <classes>
+            <class name="vn.dafl.tests.web.AuthTest"/>
+        </classes>
+    </test>
+</suite>
