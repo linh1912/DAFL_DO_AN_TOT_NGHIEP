@@ -26,6 +26,12 @@ import vn.dafl.pageObjects.AdminPageObject;
  * Dot 12: form them/sua San pham / Danh muc / Khuyen mai mo trong modal
  * (admin-*-form-modal) nen test tao SP phai mo modal truoc roi moi doc duoc danh
  * muc trong select cua form; nut them/sua/xoa van dung testid/aria-label cu.
+ * Dot redesign form admin + upload anh: form san pham la DRAWER (van testid
+ * admin-product-form-modal), dropdown danh muc la custom (chon theo text, khong
+ * con <select>), o gia tu dinh dang dau cham nghin, thong bao sau luu la toast
+ * admin-toast, hang moi highlight (sa-row-highlight); xoa SP/danh muc qua hop
+ * xac nhan chung; form danh muc co slug tu sinh + toggle; form khuyen mai co nut
+ * tao ma ngau nhien + segmented loai giam + ngay het han (input date).
  * TUYET DOI KHONG xoa/sua du lieu seed co san, KHONG doi mat khau admin, KHONG
  * duyet/tu choi yeu cau tra hang cua nguoi khac.
  * Test tu bo qua (skip, khong tinh fail) khi service admin :3001 chua chay hoac
@@ -141,21 +147,22 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- San pham ----------
 
-    @Test(description = "ACR-01: Tao san pham moi o Admin -> hien trong bang + tim theo ten thay ngay")
+    @Test(description = "ACR-01 (dot redesign form admin): Tao san pham moi o Admin (gia goc + mo ta) -> toast + hien trong bang + tim theo ten thay ngay + dong moi highlight")
     public void adminCreateProductShowsInTableAndSearchable() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
         try {
             adminPage.clickAdminNav("products");
-            // Form them/sua gio nam trong modal (dot 12): mo modal truoc roi moi doc
-            // duoc danh muc trong select cua form, sau do dien + luu luon trong modal.
+            // Form them/sua gio la drawer (admin-product-form-modal, van testid cu):
+            // mo drawer truoc roi moi doc duoc danh muc trong dropdown custom.
             adminPage.openProductFormModal();
             String categoryName = adminPage.getFirstRealCategoryName();
             Assert.assertNotNull(categoryName, "Phai co it nhat 1 danh muc that de chon khi tao san pham");
 
-            adminPage.fillProductFormAndSave(productName, categoryName, "99000", "10");
+            adminPage.fillProductFormFullAndSave(productName, categoryName, "99000", "120000", "10",
+                    "Mo ta san pham test ACR-01");
             createdProductName = productName;
-            Assert.assertTrue(adminPage.isNoticeDisplayed(), "Tao san pham xong phai hien thong bao thanh cong");
+            Assert.assertTrue(adminPage.isToastDisplayed(), "Tao san pham xong phai hien toast thanh cong (admin-toast)");
 
             adminPage.searchProducts(productName);
             Assert.assertTrue(adminPage.isRowWithTextDisplayed(productName),
@@ -163,41 +170,59 @@ public class AdminCrudTest extends BaseTest {
             String row = getRowContaining(adminPage, productName);
             Assert.assertTrue(row.contains("99.000đ"),
                     "Dong san pham vua tao phai hien dung gia 99.000đ, dang thay: " + row);
+            Assert.assertTrue(row.contains("120.000đ"),
+                    "Dong san pham vua tao phai hien gia goc 120.000đ (gach ngang), dang thay: " + row);
+            Assert.assertTrue(adminPage.isRowHighlighted(productName),
+                    "Dong san pham vua tao phai duoc highlight (class sa-row-highlight)");
         } finally {
             deleteProductIfPresent(createdProductName);
             createdProductName = null;
         }
     }
 
-    @Test(description = "ACR-02: Sua san pham vua tao (doi ten + gia) -> bang cap nhat, tim ten cu khong thay")
+    @Test(description = "ACR-02 (dot redesign form admin): Sua san pham vua tao (doi ten + gia + gia goc) -> bang cap nhat, tim ten cu khong thay; badge % giam + o gia chuan hoa bo dau cham")
     public void adminEditProductChangesNameAndPrice() {
         String productName = uniqueProductName();
         String editedName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
         try {
             adminPage.clickAdminNav("products");
-            // Form them/sua gio nam trong modal (dot 12): mo modal truoc roi moi doc
-            // duoc danh muc trong select cua form, sau do dien + luu luon trong modal.
+            // Form them/sua gio la drawer (dot redesign): mo drawer truoc roi moi doc
+            // duoc danh muc trong dropdown custom cua form.
             adminPage.openProductFormModal();
             String categoryName = adminPage.getFirstRealCategoryName();
             Assert.assertNotNull(categoryName, "Phai co it nhat 1 danh muc that de chon khi tao san pham");
 
-            adminPage.fillProductFormAndSave(productName, categoryName, "99000", "10");
+            adminPage.fillProductFormFullAndSave(productName, categoryName, "99000", "120000", "10",
+                    "Mo ta san pham test ACR-02");
             createdProductName = productName;
             adminPage.searchProducts(productName);
             Assert.assertTrue(adminPage.isRowWithTextDisplayed(productName),
                     "San pham goc phai ton tai truoc khi sua");
 
-            adminPage.editProduct(productName, editedName, "149000");
+            // Doi ten + gia 150.000đ + gia goc 200.000đ -> giam dung 25%.
+            adminPage.editProductFull(productName, editedName, "150000", "200000");
             createdProductName = editedName;
-            Assert.assertTrue(adminPage.isNoticeDisplayed(), "Sua san pham xong phai hien thong bao thanh cong");
+            Assert.assertTrue(adminPage.isToastDisplayed(), "Sua san pham xong phai hien toast thanh cong (admin-toast)");
 
             adminPage.searchProducts(editedName);
             Assert.assertTrue(adminPage.isRowWithTextDisplayed(editedName),
                     "Tim theo ten moi sau khi sua phai thay 1 dong trong bang");
             String row = getRowContaining(adminPage, editedName);
-            Assert.assertTrue(row.contains("149.000đ"),
-                    "Sau khi sua, dong san pham phai hien gia moi 149.000đ, dang thay: " + row);
+            Assert.assertTrue(row.contains("150.000đ"),
+                    "Sau khi sua, dong san pham phai hien gia moi 150.000đ, dang thay: " + row);
+
+            // Mo lai form sua: badge % giam phai hien 25%; o gia tu dinh dang dau
+            // cham nghin ("150.000") nen assert sau khi chuan hoa bo dau ".".
+            adminPage.openProductEditForm(editedName);
+            Assert.assertTrue(adminPage.isDiscountBadgeDisplayed(),
+                    "Mo form sua san pham co gia goc > gia ban phai thay badge % giam");
+            Assert.assertTrue(adminPage.getDiscountBadgeText().contains("25"),
+                    "Badge % giam phai hien 25% (gia 150.000đ / gia goc 200.000đ), dang thay: "
+                            + adminPage.getDiscountBadgeText());
+            Assert.assertEquals(adminPage.getProductPriceInputDigits(), "150000",
+                    "O gia ban hien '150.000' phai chuan hoa ve 150000 khi bo dau cham");
+            adminPage.cancelProductForm();
 
             adminPage.searchProducts(productName);
             Assert.assertFalse(adminPage.isRowWithTextDisplayed(productName),
@@ -228,7 +253,7 @@ public class AdminCrudTest extends BaseTest {
 
             adminPage.deleteProductByName(productName);
             createdProductName = null; // da xoa, khong can don dep nua
-            Assert.assertTrue(adminPage.isNoticeDisplayed(), "Xoa san pham xong phai hien thong bao thanh cong");
+            Assert.assertTrue(adminPage.isToastDisplayed(), "Xoa san pham xong phai hien toast thanh cong (admin-toast)");
 
             adminPage.searchProducts(productName);
             Assert.assertEquals(adminPage.getAdminTableRowCount(), 0,
@@ -243,7 +268,7 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- Danh muc ----------
 
-    @Test(description = "ACR-04: Tao danh muc moi -> sua ten -> xoa; moi buoc deu kiem tra qua tim kiem")
+    @Test(description = "ACR-04 (dot redesign form admin): Tao danh muc moi (slug tu sinh + mo ta + thu tu) -> sua ten (toggle trang thai hien) -> xoa qua hop xac nhan; moi buoc deu kiem tra qua tim kiem")
     public void adminCategoryCreateEditDelete() {
         String categoryName = uniqueCategoryName();
         String editedName = uniqueCategoryName();
@@ -251,16 +276,30 @@ public class AdminCrudTest extends BaseTest {
         try {
             adminPage.clickAdminNav("categories");
 
-            adminPage.createCategory(categoryName);
+            adminPage.createCategoryFull(categoryName, "", "Mo ta danh muc test ACR-04", "5");
             createdCategoryName = categoryName;
-            Assert.assertTrue(adminPage.isNoticeDisplayed(), "Tao danh muc xong phai hien thong bao thanh cong");
+            Assert.assertTrue(adminPage.isToastDisplayed(), "Tao danh muc xong phai hien toast thanh cong (admin-toast)");
             adminPage.searchCategories(categoryName);
             Assert.assertTrue(adminPage.isRowWithTextDisplayed(categoryName),
                     "Tim danh muc vua tao phai thay 1 dong trong bang");
+            String row = getRowContaining(adminPage, categoryName);
+            Assert.assertTrue(row.contains("Mo ta danh muc test ACR-04"),
+                    "Dong danh muc vua tao phai hien dung mo ta, dang thay: " + row);
+            // Slug tu sinh tu ten (chu thuong, khong dau, noi bang '-'): ten
+            // "TESTDM-<timestamp>" -> slug "testdm-<timestamp>".
+            String expectedSlug = categoryName.toLowerCase();
+            Assert.assertTrue(row.contains(expectedSlug),
+                    "Dong danh muc vua tao phai hien slug tu sinh '" + expectedSlug + "', dang thay: " + row);
+
+            // Mo form sua: toggle trang thai phai hien (khong doi gia tri toggle).
+            adminPage.openCategoryEditForm(categoryName);
+            Assert.assertTrue(adminPage.isCategoryStatusToggleDisplayed(),
+                    "Form sua danh muc phai co toggle trang thai (admin-category-status-toggle)");
+            adminPage.cancelCategoryForm();
 
             adminPage.editCategory(categoryName, editedName);
             createdCategoryName = editedName;
-            Assert.assertTrue(adminPage.isNoticeDisplayed(), "Sua danh muc xong phai hien thong bao thanh cong");
+            Assert.assertTrue(adminPage.isToastDisplayed(), "Sua danh muc xong phai hien toast thanh cong (admin-toast)");
             adminPage.searchCategories(editedName);
             Assert.assertTrue(adminPage.isRowWithTextDisplayed(editedName),
                     "Tim ten danh muc moi sau khi sua phai thay 1 dong trong bang");
@@ -270,7 +309,7 @@ public class AdminCrudTest extends BaseTest {
 
             adminPage.deleteCategoryByName(editedName);
             createdCategoryName = null; // da xoa, khong can don dep nua
-            Assert.assertTrue(adminPage.isNoticeDisplayed(), "Xoa danh muc xong phai hien thong bao thanh cong");
+            Assert.assertTrue(adminPage.isToastDisplayed(), "Xoa danh muc xong phai hien toast thanh cong (admin-toast)");
             adminPage.searchCategories(editedName);
             Assert.assertEquals(adminPage.getAdminTableRowCount(), 0,
                     "Tim danh muc vua xoa phai ra 0 dong");
@@ -284,28 +323,32 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- Khuyen mai / voucher ----------
 
-    @Test(description = "ACR-05 (dot 13): Tao voucher Draft -> sua mo ta/gia tri -> xoa qua hop xac nhan (khong con); voucher thu 2 tao -> kich hoat -> tat co ly do (luong cu)")
+    @Test(description = "ACR-05 (dot redesign form admin): Tao voucher Draft qua form moi (loai %, don toi thieu, han) -> sua mo ta/gia tri/don toi thieu/tran giam/han/luot dung -> xoa qua hop xac nhan; voucher thu 2 dung nut tao ma ngau nhien + loai giam tien co dinh -> kich hoat -> tat co ly do")
     public void adminPromoCreateActivateDisable() {
         String promoCode = uniquePromoCode();
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("promotions");
 
-        // (1) Tao voucher Draft moi.
-        adminPage.createPromo(promoCode, "10");
-        Assert.assertTrue(adminPage.isNoticeDisplayed(), "Tao voucher xong phai hien thong bao thanh cong");
+        // (1) Tao voucher Draft moi qua form moi (giam 10%, don toi thieu 0, han 31/12/2027).
+        adminPage.createPromoFull(promoCode, "Voucher test ACR-05", "Percentage", "10",
+                "0", "", "", "2027-12-31");
+        Assert.assertTrue(adminPage.isToastDisplayed(), "Tao voucher xong phai hien toast thanh cong (admin-toast)");
         adminPage.searchPromos(promoCode);
         String row = getRowContaining(adminPage, promoCode);
         Assert.assertTrue(row.contains("Draft"),
                 "Voucher vua tao phai o trang thai Nháp (Draft), dang thay: " + row);
+        Assert.assertTrue(row.contains("10%"),
+                "Voucher vua tao phai hien gia tri giam 10%, dang thay: " + row);
         Assert.assertTrue(adminPage.isPromoEditButtonDisplayedFor(promoCode),
                 "Voucher Draft phai co nut sua (admin-promo-edit-btn)");
         Assert.assertTrue(adminPage.isPromoDeleteButtonDisplayedFor(promoCode),
                 "Voucher Draft phai co nut xoa (admin-promo-delete-btn)");
 
-        // (2) Sua voucher Draft: doi mo ta + gia tri giam 10% -> 15%.
+        // (2) Sua voucher Draft: doi mo ta + gia tri giam 10% -> 15% + don toi thieu
+        // 100.000đ + tran giam 50.000đ + han 30/06/2028 + tong luot 100.
         String editedDescription = "Voucher test ACR-05 da sua";
-        adminPage.editPromo(promoCode, editedDescription, "15");
-        Assert.assertTrue(adminPage.isNoticeDisplayed(), "Sua voucher xong phai hien thong bao thanh cong");
+        adminPage.editPromoFull(promoCode, editedDescription, "15", "100000", "50000", "2028-06-30", "100");
+        Assert.assertTrue(adminPage.isToastDisplayed(), "Sua voucher xong phai hien toast thanh cong (admin-toast)");
         adminPage.searchPromos(promoCode);
         row = getRowContaining(adminPage, promoCode);
         Assert.assertTrue(row.contains(editedDescription),
@@ -317,22 +360,26 @@ public class AdminCrudTest extends BaseTest {
 
         // (3) Xoa voucher Draft qua hop xac nhan chung -> khong con trong bang.
         adminPage.deletePromoByCode(promoCode);
-        Assert.assertTrue(adminPage.isNoticeDisplayed(), "Xoa voucher xong phai hien thong bao thanh cong");
+        Assert.assertTrue(adminPage.isToastDisplayed(), "Xoa voucher xong phai hien toast thanh cong (admin-toast)");
         adminPage.searchPromos(promoCode);
         Assert.assertEquals(adminPage.getAdminTableRowCount(), 0,
                 "Tim voucher vua xoa phai ra 0 dong");
         Assert.assertTrue(adminPage.isEmptyPromosMessageDisplayed(),
                 "Tim voucher vua xoa phai hien dong 'Chưa có khuyến mãi.'");
 
-        // (4) Luong cu: voucher thu 2 tao -> kich hoat -> tat co ly do (de lai o
-        // trang thai Disabled la vo hieu, khong ap dung duoc khi dat hang).
-        String secondCode = uniquePromoCode();
-        adminPage.createPromo(secondCode, "10");
-        Assert.assertTrue(adminPage.isNoticeDisplayed(), "Tao voucher thu 2 xong phai hien thong bao thanh cong");
+        // (4) Voucher thu 2: dung nut tao ma ngau nhien (admin-promo-generate-code-btn)
+        // + loai giam tien co dinh 50.000đ, don toi thieu 100.000đ -> kich hoat -> tat co ly do.
+        String secondCode = adminPage.createPromoFull(null, "Voucher test ACR-05 thu 2",
+                "Fixed", "50000", "100000", "", "", "");
+        Assert.assertFalse(secondCode == null || secondCode.isEmpty(),
+                "Nut tao ma ngau nhien phai sinh ra ma voucher khong rong");
+        Assert.assertTrue(adminPage.isToastDisplayed(), "Tao voucher thu 2 xong phai hien toast thanh cong (admin-toast)");
         adminPage.searchPromos(secondCode);
         row = getRowContaining(adminPage, secondCode);
         Assert.assertTrue(row.contains("Draft"),
                 "Voucher thu 2 vua tao phai o trang thai Nháp (Draft), dang thay: " + row);
+        Assert.assertTrue(row.contains("50.000đ"),
+                "Voucher giam tien co dinh phai hien gia tri 50.000đ, dang thay: " + row);
 
         adminPage.activatePromo(secondCode);
         Assert.assertTrue(adminPage.isNoticeDisplayed(), "Kich hoat voucher xong phai hien thong bao thanh cong");

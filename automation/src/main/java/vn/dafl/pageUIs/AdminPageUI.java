@@ -143,12 +143,12 @@ public class AdminPageUI {
     public static final String DYNAMIC_PRODUCT_DELETE_BTN = "xpath=//button[@aria-label='Xóa sản phẩm %s']";
 
     // Danh muc: o tim (aria-label, khong testid) + form them/sua; nut 'Lưu' cua form
-    // khong co testid nen dinh vi theo text trong pham vi form.
+    // co testid admin-category-save-btn (FE them dot redesign) nen dinh vi theo testid.
     public static final String ADMIN_CATEGORY_SEARCH = "css=[aria-label='Tìm danh mục']";
     public static final String ADMIN_CATEGORY_FORM = "css=[data-testid='admin-category-form']";
     public static final String ADMIN_CATEGORY_NAME_INPUT = "css=[data-testid='admin-category-name-input']";
     public static final String ADMIN_CATEGORY_SAVE_BTN =
-            "xpath=//*[@data-testid='admin-category-form']//button[text()='Lưu']";
+            "css=[data-testid='admin-category-save-btn']";
     public static final String DYNAMIC_CATEGORY_EDIT_BTN = "xpath=//button[@aria-label='Sửa danh mục %s']";
     public static final String DYNAMIC_CATEGORY_DELETE_BTN = "xpath=//button[@aria-label='Xóa danh mục %s']";
     public static final String ADMIN_EMPTY_CATEGORIES_MSG =
@@ -237,4 +237,90 @@ public class AdminPageUI {
     public static final String ADMIN_LOG_DATE_TO = "css=[data-testid='admin-log-date-to']";
     public static final String ADMIN_LOG_FILTER_BTN = "css=[data-testid='admin-log-filter-btn']";
     public static final String ADMIN_LOG_EXPORT_BTN = "css=[data-testid='admin-log-export-btn']";
+
+    // ---------- Dot redesign form admin + upload anh (drawer/modal form moi) ----------
+    // Hop dong testid FE phai dung (xem TEST-MAPPING.md muc "Dot redesign form
+    // admin + upload anh"). Form san pham gio la DRAWER (van testid
+    // admin-product-form-modal); dropdown danh muc la custom (nut trigger, KHONG
+    // con <select>) nen option khong co testid rieng — dinh vi theo text hien thi
+    // trong pham vi modal (xem AdminPageObject.selectProductCategory).
+    // Toast moi: admin-toast (thay the .sa-notice o cac luong form moi); hang moi
+    // tao duoc highlight bang class sa-row-highlight (khong phai testid).
+    public static final String ADMIN_TOAST = "css=[data-testid='admin-toast']";
+
+    // ----- Form san pham (drawer) -----
+    public static final String ADMIN_PRODUCT_ORIGINAL_PRICE_INPUT = "css=[data-testid='admin-product-original-price-input']";
+    public static final String ADMIN_PRODUCT_DESCRIPTION_INPUT = "css=[data-testid='admin-product-description-input']";
+    public static final String ADMIN_PRODUCT_NAME_COUNT = "css=[data-testid='admin-product-name-count']";
+    public static final String ADMIN_PRODUCT_DESCRIPTION_COUNT = "css=[data-testid='admin-product-description-count']";
+    public static final String ADMIN_PRODUCT_DISCOUNT_BADGE = "css=[data-testid='admin-product-discount-badge']";
+    public static final String ADMIN_PRODUCT_STATUS_TOGGLE = "css=[data-testid='admin-product-status-toggle']";
+    public static final String ADMIN_PRODUCT_PREVIEW = "css=[data-testid='admin-product-preview']";
+    public static final String ADMIN_PRODUCT_STOCK_MINUS_BTN = "css=[data-testid='admin-product-stock-minus-btn']";
+    public static final String ADMIN_PRODUCT_STOCK_PLUS_BTN = "css=[data-testid='admin-product-stock-plus-btn']";
+    public static final String ADMIN_PRODUCT_CANCEL_BTN = "css=[data-testid='admin-product-cancel-btn']";
+    // Loi tung truong trong form san pham (field = name/price/stock/category/...).
+    public static final String DYNAMIC_PRODUCT_FIELD_ERROR = "css=[data-testid='admin-product-%s-error']";
+    // Hang moi tao duoc highlight (class, khong phai testid).
+    public static final String ADMIN_HIGHLIGHTED_ROWS = "xpath=//tr[contains(@class,'sa-row-highlight')]";
+    // O gia ban gio tu dinh dang dau cham nghin khi go (go 150000 hien "150.000"):
+    // khi assert gia tri o phai chuan hoa bang cach bo dau "." (AdminPageObject).
+    // ----- Dropdown danh muc custom (nut trigger + option theo text) -----
+    // O tim trong dropdown (neu FE co); option uu tien role='option', du phong
+    // <li> hoac <button> co dung text — vi hop dong khong quy dinh testid option.
+    public static final String ADMIN_PRODUCT_CATEGORY_SEARCH =
+            "xpath=//*[@data-testid='admin-product-form-modal']//input[contains(@placeholder,'Tìm')]";
+    public static final String ADMIN_PRODUCT_CATEGORY_OPTIONS = "xpath=//*[@data-testid='admin-product-form-modal']//*[@role='option']";
+    public static final String DYNAMIC_PRODUCT_CATEGORY_OPTION =
+            "xpath=//*[@data-testid='admin-product-form-modal']//*[@role='option' and normalize-space(text())='%s']";
+    public static final String DYNAMIC_PRODUCT_CATEGORY_OPTION_LI =
+            "xpath=//*[@data-testid='admin-product-form-modal']//li[normalize-space(.)='%s']";
+    public static final String DYNAMIC_PRODUCT_CATEGORY_OPTION_BTN =
+            "xpath=//*[@data-testid='admin-product-form-modal']//button[normalize-space(text())='%s']";
+
+    // ----- Upload anh san pham (nhieu anh, anh chinh, tien trinh, loi) -----
+    public static final String ADMIN_PRODUCT_IMAGE_DROPZONE = "css=[data-testid='admin-product-image-dropzone']";
+    public static final String ADMIN_PRODUCT_IMAGE_INPUT = "css=[data-testid='admin-product-image-input']";
+    public static final String ADMIN_PRODUCT_IMAGE_LINK_TOGGLE = "css=[data-testid='admin-product-image-link-toggle']";
+    public static final String ADMIN_PRODUCT_IMAGE_URL_INPUT = "css=[data-testid='admin-product-image-url-input']";
+    public static final String ADMIN_PRODUCT_IMAGE_ERROR = "css=[data-testid='admin-product-image-error']";
+    public static final String DYNAMIC_PRODUCT_IMAGE_THUMB = "css=[data-testid='admin-product-image-thumb-%s']";
+    public static final String DYNAMIC_PRODUCT_IMAGE_THUMB_IMG = "css=[data-testid='admin-product-image-thumb-%s'] img";
+    public static final String DYNAMIC_PRODUCT_IMAGE_THUMB_MAIN_BADGE = "css=[data-testid='admin-product-image-thumb-%s'] .sa-thumb-main";
+    public static final String DYNAMIC_PRODUCT_IMAGE_SET_MAIN_BTN = "css=[data-testid='admin-product-image-set-main-btn-%s']";
+    public static final String DYNAMIC_PRODUCT_IMAGE_REMOVE_BTN = "css=[data-testid='admin-product-image-remove-btn-%s']";
+    public static final String DYNAMIC_PRODUCT_IMAGE_PROGRESS = "css=[data-testid='admin-product-image-progress-%s']";
+    // Anh trong modal chi tiet san pham (dung de khang dinh SP vua tao co anh that).
+    public static final String ADMIN_PRODUCT_DETAIL_IMG = "css=[data-testid='admin-product-detail'] img";
+    // Anh thumbnail trong dong bang san pham (dong chua ten SP).
+    public static final String DYNAMIC_PRODUCT_ROW_IMG = "xpath=//tr[td[contains(.,'%s')]]//img";
+
+    // ----- Form danh muc -----
+    // Nut 'Lưu' cua form danh muc da co testid admin-category-save-btn (FE them dot
+    // redesign) — dung ADMIN_CATEGORY_SAVE_BTN o tren.
+    public static final String ADMIN_CATEGORY_SLUG_INPUT = "css=[data-testid='admin-category-slug-input']";
+    public static final String ADMIN_CATEGORY_DESCRIPTION_INPUT = "css=[data-testid='admin-category-description-input']";
+    public static final String ADMIN_CATEGORY_SORT_ORDER_INPUT = "css=[data-testid='admin-category-sort-order-input']";
+    public static final String ADMIN_CATEGORY_STATUS_TOGGLE = "css=[data-testid='admin-category-status-toggle']";
+    public static final String ADMIN_CATEGORY_CANCEL_BTN = "css=[data-testid='admin-category-cancel-btn']";
+    // Anh danh muc: chi 1 anh (IconUrl).
+    public static final String ADMIN_CATEGORY_IMAGE_DROPZONE = "css=[data-testid='admin-category-image-dropzone']";
+    public static final String ADMIN_CATEGORY_IMAGE_INPUT = "css=[data-testid='admin-category-image-input']";
+    public static final String ADMIN_CATEGORY_IMAGE_THUMB = "css=[data-testid='admin-category-image-thumb']";
+    public static final String ADMIN_CATEGORY_IMAGE_REMOVE_BTN = "css=[data-testid='admin-category-image-remove-btn']";
+
+    // ----- Form khuyen mai -----
+    // Mo ta voucher KHONG co testid trong hop dong nen giu locator theo nhan
+    // <span> (ADMIN_PROMO_DESCRIPTION_INPUT). Nut submit dung chung cho ca tao
+    // moi ('Tạo khuyến mãi') va sua ('Lưu thay đổi'): ADMIN_PROMO_SAVE_BTN.
+    public static final String ADMIN_PROMO_GENERATE_CODE_BTN = "css=[data-testid='admin-promo-generate-code-btn']";
+    public static final String ADMIN_PROMO_DISCOUNT_TYPE_FIXED = "css=[data-testid='admin-promo-discount-type-fixed']";
+    public static final String ADMIN_PROMO_DISCOUNT_TYPE_PERCENT = "css=[data-testid='admin-promo-discount-type-percent']";
+    public static final String ADMIN_PROMO_VALUE_INPUT = "css=[data-testid='admin-promo-value-input']";
+    public static final String ADMIN_PROMO_MIN_ORDER_INPUT = "css=[data-testid='admin-promo-min-order-input']";
+    public static final String ADMIN_PROMO_MAX_DISCOUNT_INPUT = "css=[data-testid='admin-promo-max-discount-input']";
+    public static final String ADMIN_PROMO_MAX_USES_INPUT = "css=[data-testid='admin-promo-max-uses-input']";
+    public static final String ADMIN_PROMO_EXPIRY_INPUT = "css=[data-testid='admin-promo-expiry-input']";
+    public static final String ADMIN_PROMO_STATUS_TOGGLE = "css=[data-testid='admin-promo-status-toggle']";
+    // Khuyen mai KHONG co upload anh (backend khong co field anh) — khong viet test upload cho khuyen mai.
 }

@@ -285,7 +285,7 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Ve trang 1 phai thay lai dong dau nhu ban dau");
     }
 
-    @Test(description = "ADM-13 (dot 12): Bam '+ Thêm sản phẩm' o toolbar mo form trong modal (admin-product-form-modal); dong modal quay lai bang, khong tao du lieu")
+    @Test(description = "ADM-13 (dot redesign form admin, viet lai): Bam '+ Thêm sản phẩm' o toolbar mo form trong DRAWER (admin-product-form-modal, van testid cu) — co dropzone upload anh + nut Hủy/Lưu o footer; dong bang nut Hủy quay lai bang, khong tao du lieu")
     public void adminAddProductOpensFormModalAndCloseReturnsToTable() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -294,19 +294,25 @@ public class AdminAndNewsletterTest extends BaseTest {
 
         adminPage.openProductFormModal();
         Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
-                "Bam '+ Thêm sản phẩm' phai mo modal form san pham");
+                "Bam '+ Thêm sản phẩm' phai mo drawer form san pham (admin-product-form-modal)");
         Assert.assertTrue(adminPage.isProductFormDisplayed(),
-                "Modal form san pham phai hien form");
+                "Drawer form san pham phai hien form (admin-product-form)");
         String modalText = adminPage.getProductFormModalText();
         Assert.assertTrue(modalText.contains("Thêm sản phẩm"),
-                "Modal mo ra phai co tieu de 'Thêm sản phẩm', dang thay: " + modalText);
+                "Drawer mo ra phai co tieu de 'Thêm sản phẩm', dang thay: " + modalText);
+        Assert.assertTrue(adminPage.isProductImageDropzoneDisplayed(),
+                "Drawer them san pham phai co dropzone upload anh (admin-product-image-dropzone)");
+        Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='admin-product-cancel-btn']"),
+                "Drawer them san pham phai co nut 'Hủy' o footer (admin-product-cancel-btn)");
+        Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='admin-product-save-btn']"),
+                "Drawer them san pham phai co nut 'Lưu' o footer (admin-product-save-btn)");
 
-        // Dong modal bang nut X, KHONG bam Luu (khong tao du lieu).
-        adminPage.closeFormModal("admin-product-form-modal");
+        // Dong drawer bang nut 'Hủy' (khong bam Luu, khong tao du lieu).
+        adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
-                "Dong modal xong khong duoc con thay modal form san pham");
+                "Dong drawer bang nut Hủy xong khong duoc con thay drawer form san pham");
         Assert.assertTrue(adminPage.getAdminTableRowCount() > 0,
-                "Dong modal xong phai quay lai bang san pham co du lieu");
+                "Dong drawer xong phai quay lai bang san pham co du lieu");
     }
 
     @Test(description = "ADM-14 (dot 12): Toolbar chuan muc San pham — nut '+ Thêm sản phẩm' o trai, nut icon 'Đặt lại'/'Làm mới' o phai; bam 'Đặt lại' xoa tu khoa va ve trang 1")

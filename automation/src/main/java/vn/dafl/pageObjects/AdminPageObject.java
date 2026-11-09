@@ -1,5 +1,6 @@
 package vn.dafl.pageObjects;
 
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.testng.SkipException;
 import vn.dafl.commons.BasePage;
@@ -225,9 +226,20 @@ public class AdminPageObject extends BasePage {
         return getElementText(AdminPageUI.ADMIN_PRODUCT_FORM);
     }
 
-    /** Dong form them/sua san pham bang nut 'Đóng' (khong luu, khong doi du lieu). */
+    /** Dong form them/sua san pham KHONG luu: uu tien nut 'Hủy' (admin-product-
+     *  cancel-btn) o footer drawer moi; neu chua co (form cu) thi dung nut 'Đóng'. */
     public void closeProductForm() {
-        clickToElement(AdminPageUI.ADMIN_PRODUCT_FORM_CLOSE_BTN);
+        if (isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_CANCEL_BTN)) {
+            clickToElement(AdminPageUI.ADMIN_PRODUCT_CANCEL_BTN);
+        } else {
+            clickToElement(AdminPageUI.ADMIN_PRODUCT_FORM_CLOSE_BTN);
+        }
+        waitForElementInvisible(AdminPageUI.ADMIN_PRODUCT_FORM);
+    }
+
+    /** Dong form san pham bang nut 'Hủy' (khong luu, khong doi du lieu). */
+    public void cancelProductForm() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_CANCEL_BTN);
         waitForElementInvisible(AdminPageUI.ADMIN_PRODUCT_FORM);
     }
 
@@ -492,6 +504,45 @@ public class AdminPageObject extends BasePage {
         return isElementDisplayedWithWait(AdminPageUI.ADMIN_NOTICE, 10);
     }
 
+    // ---------- Toast moi (dot redesign form admin): admin-toast ----------
+    // Hop dong: thong bao sau luu/xoa o form moi dung testid admin-toast. Ham
+    // waitForFeedback chap nhan ca admin-toast (moi) lan .sa-notice (cu) de ham
+    // luu khong treo khi FE chua gan xong testid; test thi khang dinh chat
+    // isToastDisplayed() de bat FE thieu testid.
+    public boolean isToastDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_TOAST, 10);
+    }
+
+    public String getToastText() {
+        waitForElementVisible(AdminPageUI.ADMIN_TOAST);
+        return getElementText(AdminPageUI.ADMIN_TOAST);
+    }
+
+    public String waitForToast() {
+        waitForElementVisible(AdminPageUI.ADMIN_TOAST);
+        return getElementText(AdminPageUI.ADMIN_TOAST);
+    }
+
+    /** Cho toi da 10 giay toi khi co thong bao (admin-toast hoac .sa-notice), tra ve noi dung. */
+    public String waitForFeedback() {
+        long deadline = System.currentTimeMillis() + 10000;
+        while (System.currentTimeMillis() < deadline) {
+            if (isElementDisplayed(AdminPageUI.ADMIN_TOAST)) {
+                return getElementText(AdminPageUI.ADMIN_TOAST);
+            }
+            if (isElementDisplayed(AdminPageUI.ADMIN_NOTICE)) {
+                return getElementText(AdminPageUI.ADMIN_NOTICE);
+            }
+            sleepInSecond(1);
+        }
+        throw new AssertionError("Khong thay thong bao (admin-toast hoac .sa-notice) sau 10 giay");
+    }
+
+    /** Bo dau cham nghin + khoang trang khoi gia tri o nhap gia (vd "150.000" -> "150000"). */
+    public static String normalizePriceInput(String rawValue) {
+        return rawValue == null ? "" : rawValue.replace(".", "").replace(",", "").replace(" ", "").trim();
+    }
+
     /** Co dong nao trong bang cua muc dang mo chua chuoi cho truoc khong. */
     public boolean isRowWithTextDisplayed(String text) {
         return getAdminTableRowTexts().stream().anyMatch(t -> t.contains(text));
@@ -504,59 +555,295 @@ public class AdminPageObject extends BasePage {
         clickOrderFilterSearch();
     }
 
-    // ----- San pham -----
-    /** Ten danh muc that dau tien trong select cua form them/sua san pham
-     *  (bo qua option placeholder '— Chọn danh mục —'); null neu khong co danh muc nao.
-     *  CHI GOI KHI FORM DA MO (form gio nam trong modal - dot 12): mo modal truoc
-     *  bang openProductFormModal() roi moi doc duoc danh muc trong select. */
+    // ----- San pham (dot redesign: drawer + dropdown danh muc custom + upload anh) -----
+    /** Ten danh muc that dau tien trong dropdown custom cua form them/sua san pham
+     *  (bo qua option placeholder); null neu khong co danh muc nao. CHI GOI KHI
+     *  FORM DA MO. Dropdown mo ra de doc option roi dong lai bang cach bam trigger
+     *  them 1 lan (toggle) de form ve trang thai dong dropdown truoc khi dien tiep. */
     public String getFirstRealCategoryName() {
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT);
-        for (WebElement option : getListWebElements(
-                "css=[data-testid='admin-product-category-select'] option")) {
-            String value = option.getAttribute("value");
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT);
+        sleepInSecond(1); // cho dropdown custom render option
+        List<WebElement> options = getListWebElements(AdminPageUI.ADMIN_PRODUCT_CATEGORY_OPTIONS);
+        if (options.isEmpty()) {
+            options = getListWebElements(
+                    "xpath=//*[@data-testid='admin-product-form-modal']//li");
+        }
+        String first = null;
+        for (WebElement option : options) {
             String text = option.getText().trim();
-            if (value != null && !value.isEmpty() && !text.isEmpty()) {
-                return text;
+            if (!text.isEmpty() && !text.startsWith("—")) {
+                first = text;
+                break;
             }
         }
-        return null;
+        // Dong dropdown lai (bam trigger them 1 lan) de form ve trang thai ban dau.
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT);
+        sleepInSecond(1);
+        return first;
+    }
+
+    /** Chon danh muc trong dropdown custom cua form san pham: bam trigger -> go
+     *  tim kiem neu co o search -> bam option theo text hien thi. Hop dong KHONG
+     *  quy dinh testid cho option nen locator theo text (role='option', du phong
+     *  <li> / <button>); neu FE doi kieu render option thi cap nhat locator o
+     *  AdminPageUI.DYNAMIC_PRODUCT_CATEGORY_OPTION*. */
+    public void selectProductCategory(String categoryName) {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT);
+        sleepInSecond(1); // cho dropdown custom render option
+        if (isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SEARCH)) {
+            sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SEARCH, categoryName);
+            sleepInSecond(1); // cho loc option theo tu khoa
+        }
+        if (getListWebElements(AdminPageUI.DYNAMIC_PRODUCT_CATEGORY_OPTION, categoryName).size() > 0) {
+            clickToElement(AdminPageUI.DYNAMIC_PRODUCT_CATEGORY_OPTION, categoryName);
+        } else if (getListWebElements(AdminPageUI.DYNAMIC_PRODUCT_CATEGORY_OPTION_LI, categoryName).size() > 0) {
+            clickToElement(AdminPageUI.DYNAMIC_PRODUCT_CATEGORY_OPTION_LI, categoryName);
+        } else {
+            clickToElement(AdminPageUI.DYNAMIC_PRODUCT_CATEGORY_OPTION_BTN, categoryName);
+        }
+        sleepInSecond(1); // cho dropdown dong + gia tri duoc chon
     }
 
     /** Tao san pham moi (ten 3-120 ky tu, gia > 0, ton kho >= 0, phai chon danh muc);
-     *  thanh cong thi modal form tu dong va hien thong bao. */
+     *  thanh cong thi drawer tu dong va hien toast. */
     public void createProduct(String name, String categoryName, String price, String stock) {
         openProductFormModal();
         fillProductFormAndSave(name, categoryName, price, stock);
     }
 
-    /** Dien cac truong cua form san pham (form da mo trong modal) roi bam Luu;
-     *  thanh cong thi modal form tu dong va hien thong bao. */
+    /** Dien cac truong cua form san pham (form da mo trong drawer) roi bam Luu;
+     *  thanh cong thi drawer tu dong va hien toast. Giu nguyen chu ky cu de test
+     *  cu khong vo; truong moi (gia goc, mo ta) de trong. */
     public void fillProductFormAndSave(String name, String categoryName, String price, String stock) {
+        fillProductFormFullAndSave(name, categoryName, price, "", stock, "");
+    }
+
+    /** Dien DU cac truong cua form san pham moi (gia goc + mo ta) roi bam Luu.
+     *  Gia goc/mo ta de trong ("") thi bo qua o do. */
+    public void fillProductFormFullAndSave(String name, String categoryName, String price,
+                                           String originalPrice, String stock, String description) {
+        fillProductForm(name, categoryName, price, originalPrice, stock, description);
+        saveProductForm();
+    }
+
+    /** Dien DU cac truong cua form san pham (form da mo trong drawer) NHUNG KHONG
+     *  bam Luu — dung khi test can thao tac them truoc khi luu (vd upload anh). */
+    public void fillProductForm(String name, String categoryName, String price,
+                                String originalPrice, String stock, String description) {
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_NAME_INPUT, name);
-        selectByVisibleText(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT, categoryName);
+        selectProductCategory(categoryName);
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_PRICE_INPUT, price);
+        if (originalPrice != null && !originalPrice.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_ORIGINAL_PRICE_INPUT, originalPrice);
+        }
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_STOCK_INPUT, stock);
+        if (description != null && !description.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_DESCRIPTION_INPUT, description);
+        }
+    }
+
+    /** Bam Luu trong form san pham dang mo; thanh cong thi drawer tu dong va hien toast. */
+    public void saveProductForm() {
         clickToElement(AdminPageUI.ADMIN_PRODUCT_SAVE_BTN);
-        waitForNotice();
+        waitForFeedback();
         waitForElementInvisible(AdminPageUI.ADMIN_PRODUCT_FORM);
+    }
+
+    /** Gia tri dang dien trong o gia ban, da chuan hoa bo dau cham nghin
+     *  (vd hien "150.000" -> tra "150000"). */
+    public String getProductPriceInputDigits() {
+        return normalizePriceInput(getElementValue(AdminPageUI.ADMIN_PRODUCT_PRICE_INPUT));
+    }
+
+    /** So ky tu ten san pham dang hien o bo dem (admin-product-name-count). */
+    public String getProductNameCountText() {
+        return getElementText(AdminPageUI.ADMIN_PRODUCT_NAME_COUNT);
+    }
+
+    /** So ky tu mo ta dang hien o bo dem (admin-product-description-count). */
+    public String getProductDescriptionCountText() {
+        return getElementText(AdminPageUI.ADMIN_PRODUCT_DESCRIPTION_COUNT);
+    }
+
+    /** Badge % giam trong form (chi hien khi co gia goc > gia ban); "" neu khong co. */
+    public boolean isDiscountBadgeDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_DISCOUNT_BADGE);
+    }
+
+    public String getDiscountBadgeText() {
+        if (!isDiscountBadgeDisplayed()) {
+            return "";
+        }
+        return getElementText(AdminPageUI.ADMIN_PRODUCT_DISCOUNT_BADGE);
+    }
+
+    /** Toggle trang thai hien thi cua san pham trong form co dang hien khong. */
+    public boolean isProductStatusToggleDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_STATUS_TOGGLE);
+    }
+
+    public void clickProductStatusToggle() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_STATUS_TOGGLE);
+        sleepInSecond(1);
+    }
+
+    /** Khoi xem truoc (preview) cua san pham trong drawer co dang hien khong. */
+    public boolean isProductPreviewDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_PREVIEW);
+    }
+
+    /** Tang/giam ton kho bang nut +/- trong form (moi lan bam doi 1 don vi). */
+    public void clickProductStockPlus() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_STOCK_PLUS_BTN);
+        sleepInSecond(1);
+    }
+
+    public void clickProductStockMinus() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_STOCK_MINUS_BTN);
+        sleepInSecond(1);
+    }
+
+    /** Noi dung loi cua 1 truong trong form san pham (field = name/price/stock/
+     *  category/...); "" neu truong do khong co loi. */
+    public String getProductFieldErrorText(String field) {
+        if (!isElementDisplayed(getDynamicLocator(AdminPageUI.DYNAMIC_PRODUCT_FIELD_ERROR, field))) {
+            return "";
+        }
+        return getElementText(getDynamicLocator(AdminPageUI.DYNAMIC_PRODUCT_FIELD_ERROR, field));
+    }
+
+    /** Dong trong bang vua tao co duoc highlight (class sa-row-highlight) khong. */
+    public boolean isRowHighlighted(String rowText) {
+        return getListWebElements(AdminPageUI.ADMIN_HIGHLIGHTED_ROWS).stream()
+                .anyMatch(row -> row.getText().contains(rowText));
+    }
+
+    // ----- Upload anh san pham (dot redesign) -----
+    /** Gui file anh vao input file THAT (admin-product-image-input) bang sendKeys
+     *  duong dan tuyet doi — KHONG click truoc (click input file se mo hop thoai
+     *  chon file cua he dieu hanh). Input co the bi an (display:none) nen ep hien
+     *  bang JS truoc khi gui. */
+    public void uploadProductImage(String absoluteFilePath) {
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_IMAGE_DROPZONE);
+        List<WebElement> inputs = getListWebElements(AdminPageUI.ADMIN_PRODUCT_IMAGE_INPUT);
+        if (inputs.isEmpty()) {
+            throw new AssertionError("Khong tim thay input file anh san pham (admin-product-image-input)");
+        }
+        WebElement input = inputs.get(0);
+        executeScript("arguments[0].style.display='block'; arguments[0].style.visibility='visible';"
+                + " arguments[0].style.opacity='1'; arguments[0].style.height='1px';", input);
+        input.sendKeys(absoluteFilePath);
+        sleepInSecond(2); // cho FE doc file + bat dau upload (POST /api/admin/upload)
+    }
+
+    /** Dropzone upload anh co dang hien khong (trong drawer san pham). */
+    public boolean isProductImageDropzoneDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_PRODUCT_IMAGE_DROPZONE, 10);
+    }
+
+    /** Thumbnail anh thu <index> (0-based) co dang hien khong. */
+    public boolean isProductImageThumbDisplayed(int index) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(AdminPageUI.DYNAMIC_PRODUCT_IMAGE_THUMB, String.valueOf(index)), 10);
+    }
+
+    /** Src cua anh thumbnail thu <index> (dung de so sanh URL anh chinh sau khi luu). */
+    public String getProductImageThumbSrc(int index) {
+        return getElementAttribute(
+                getDynamicLocator(AdminPageUI.DYNAMIC_PRODUCT_IMAGE_THUMB_IMG, String.valueOf(index)), "src");
+    }
+
+    /** Nhan "Anh chinh" co dang hien tren thumbnail thu <index> khong. */
+    public boolean isProductImageMainBadgeDisplayed(int index) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(AdminPageUI.DYNAMIC_PRODUCT_IMAGE_THUMB_MAIN_BADGE, String.valueOf(index)), 10);
+    }
+
+    /** So thumbnail anh dang co trong form (dem theo testid admin-product-image-thumb-<index>). */
+    public int getProductImageThumbCount() {
+        int count = 0;
+        while (isElementDisplayed(getDynamicLocator(
+                AdminPageUI.DYNAMIC_PRODUCT_IMAGE_THUMB, String.valueOf(count)))) {
+            count++;
+        }
+        return count;
+    }
+
+    /** Dat anh thu <index> lam anh chinh. */
+    public void setMainProductImage(int index) {
+        clickToElement(AdminPageUI.DYNAMIC_PRODUCT_IMAGE_SET_MAIN_BTN, String.valueOf(index));
+        sleepInSecond(1); // cho FE doi anh chinh
+    }
+
+    /** Xoa anh thu <index> khoi form. */
+    public void removeProductImage(int index) {
+        clickToElement(AdminPageUI.DYNAMIC_PRODUCT_IMAGE_REMOVE_BTN, String.valueOf(index));
+        sleepInSecond(1);
+    }
+
+    /** Loi upload anh inline co dang hien khong + noi dung loi. */
+    public boolean isProductImageErrorDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_IMAGE_ERROR);
+    }
+
+    public String getProductImageErrorText() {
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_IMAGE_ERROR);
+        return getElementText(AdminPageUI.ADMIN_PRODUCT_IMAGE_ERROR);
+    }
+
+    /** Them anh bang URL: bat che do nhap link roi dien URL (khong upload file). */
+    public void setProductImageByUrl(String imageUrl) {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE);
+        sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT, imageUrl);
+        sleepInSecond(1);
+    }
+
+    /** Modal chi tiet san pham co hien anh (<img>) khong. */
+    public boolean isProductDetailImageDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_PRODUCT_DETAIL_IMG, 10);
+    }
+
+    /** Dong san pham trong bang co hien thumbnail <img> khong. */
+    public boolean isProductRowImageDisplayed(String productName) {
+        return getListWebElements(AdminPageUI.DYNAMIC_PRODUCT_ROW_IMG, productName).size() > 0;
+    }
+
+    /** Mo form sua san pham theo ten (chi mo, khong dien gi ca) — dung khi test
+     *  can doc trang thai form (vd badge % giam, gia tri o nhap) truoc khi luu. */
+    public void openProductEditForm(String name) {
+        clickToElement(AdminPageUI.DYNAMIC_PRODUCT_EDIT_BTN, name);
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM);
     }
 
     /** Sua san pham co san (tim theo ten cu): doi ten + gia, luu lai. */
     public void editProduct(String oldName, String newName, String newPrice) {
+        editProductFull(oldName, newName, newPrice, "");
+    }
+
+    /** Sua san pham: doi ten + gia + gia goc (de trong "" thi giu nguyen gia goc cu). */
+    public void editProductFull(String oldName, String newName, String newPrice, String newOriginalPrice) {
         clickToElement(AdminPageUI.DYNAMIC_PRODUCT_EDIT_BTN, oldName);
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_NAME_INPUT, newName);
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_PRICE_INPUT, newPrice);
+        if (newOriginalPrice != null && !newOriginalPrice.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_ORIGINAL_PRICE_INPUT, newOriginalPrice);
+        }
         clickToElement(AdminPageUI.ADMIN_PRODUCT_SAVE_BTN);
-        waitForNotice();
+        waitForFeedback();
         waitForElementInvisible(AdminPageUI.ADMIN_PRODUCT_FORM);
     }
 
-    /** Xoa san pham theo ten (khong co hop thoai xac nhan - xoa ngay khi bam nut thung rac). */
+    /** Xoa san pham theo ten: bam nut thung rac -> hop xac nhan chung hien ra ->
+     *  bam 'Xóa sản phẩm' -> hien toast. (FE da co hop xac nhan cho xoa SP tu dot 13.) */
     public void deleteProductByName(String name) {
         clickToElement(AdminPageUI.DYNAMIC_PRODUCT_DELETE_BTN, name);
-        waitForNotice();
+        waitForElementVisible(AdminPageUI.ADMIN_CONFIRM_MODAL);
+        clickToElement(AdminPageUI.ADMIN_CONFIRM_YES_BTN);
+        waitForFeedback();
         sleepInSecond(2); // cho loadProducts tai lai danh sach
     }
 
@@ -566,32 +853,117 @@ public class AdminPageObject extends BasePage {
         sleepInSecond(2); // cho loc client-side ap dung
     }
 
-    /** Tao danh muc moi (ten 2-150 ky tu); thanh cong thi modal form tu dong va hien thong bao. */
+    /** Tao danh muc moi (ten 2-150 ky tu); thanh cong thi modal form tu dong va hien toast. */
     public void createCategory(String name) {
+        createCategoryFull(name, "", "", "");
+    }
+
+    /** Tao danh muc moi dien DU truong: ten + slug + mo ta + thu tu (de trong "" thi bo qua o do). */
+    public void createCategoryFull(String name, String slug, String description, String sortOrder) {
         clickToElement(AdminPageUI.ADMIN_CATEGORY_ADD_BTN);
         waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_NAME_INPUT, name);
+        sleepInSecond(1); // cho FE tu sinh slug tu ten (neu co)
+        if (slug != null && !slug.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_SLUG_INPUT, slug);
+        }
+        if (description != null && !description.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_DESCRIPTION_INPUT, description);
+        }
+        if (sortOrder != null && !sortOrder.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_SORT_ORDER_INPUT, sortOrder);
+        }
         clickToElement(AdminPageUI.ADMIN_CATEGORY_SAVE_BTN);
-        waitForNotice();
+        waitForFeedback();
         waitForElementInvisible(AdminPageUI.ADMIN_CATEGORY_FORM);
+    }
+
+    /** Gia tri slug dang hien trong form danh muc (tu sinh tu ten neu FE co). */
+    public String getCategorySlugValue() {
+        return getElementValue(AdminPageUI.ADMIN_CATEGORY_SLUG_INPUT);
+    }
+
+    /** Toggle trang thai hien thi cua danh muc trong form co dang hien khong. */
+    public boolean isCategoryStatusToggleDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_STATUS_TOGGLE);
+    }
+
+    public void clickCategoryStatusToggle() {
+        clickToElement(AdminPageUI.ADMIN_CATEGORY_STATUS_TOGGLE);
+        sleepInSecond(1);
+    }
+
+    /** Dong form danh muc bang nut 'Hủy' (khong luu). */
+    public void cancelCategoryForm() {
+        clickToElement(AdminPageUI.ADMIN_CATEGORY_CANCEL_BTN);
+        waitForElementInvisible(AdminPageUI.ADMIN_CATEGORY_FORM);
+    }
+
+    // ----- Upload anh danh muc (chi 1 anh — IconUrl) -----
+    /** Gui file anh vao input file THAT cua form danh muc (giong uploadProductImage). */
+    public void uploadCategoryImage(String absoluteFilePath) {
+        waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_IMAGE_DROPZONE);
+        List<WebElement> inputs = getListWebElements(AdminPageUI.ADMIN_CATEGORY_IMAGE_INPUT);
+        if (inputs.isEmpty()) {
+            throw new AssertionError("Khong tim thay input file anh danh muc (admin-category-image-input)");
+        }
+        WebElement input = inputs.get(0);
+        executeScript("arguments[0].style.display='block'; arguments[0].style.visibility='visible';"
+                + " arguments[0].style.opacity='1'; arguments[0].style.height='1px';", input);
+        input.sendKeys(absoluteFilePath);
+        sleepInSecond(2); // cho FE doc file + bat dau upload
+    }
+
+    public boolean isCategoryImageThumbDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_CATEGORY_IMAGE_THUMB, 10);
+    }
+
+    public void removeCategoryImage() {
+        clickToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_REMOVE_BTN);
+        sleepInSecond(1);
+    }
+
+    /** Mo form sua danh muc theo ten (chi mo, khong dien gi ca) — dung khi test
+     *  can doc trang thai form (vd toggle trang thai) truoc khi luu. */
+    public void openCategoryEditForm(String name) {
+        clickToElement(AdminPageUI.DYNAMIC_CATEGORY_EDIT_BTN, name);
+        waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM_MODAL);
+        waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM);
     }
 
     /** Sua danh muc co san (tim theo ten cu): doi ten, luu lai. */
     public void editCategory(String oldName, String newName) {
+        editCategoryFull(oldName, newName, "", "", "");
+    }
+
+    /** Sua danh muc: doi ten + slug + mo ta + thu tu (de trong "" thi giu nguyen). */
+    public void editCategoryFull(String oldName, String newName, String newSlug,
+                                 String newDescription, String newSortOrder) {
         clickToElement(AdminPageUI.DYNAMIC_CATEGORY_EDIT_BTN, oldName);
         waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_NAME_INPUT, newName);
+        if (newSlug != null && !newSlug.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_SLUG_INPUT, newSlug);
+        }
+        if (newDescription != null && !newDescription.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_DESCRIPTION_INPUT, newDescription);
+        }
+        if (newSortOrder != null && !newSortOrder.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_SORT_ORDER_INPUT, newSortOrder);
+        }
         clickToElement(AdminPageUI.ADMIN_CATEGORY_SAVE_BTN);
-        waitForNotice();
+        waitForFeedback();
         waitForElementInvisible(AdminPageUI.ADMIN_CATEGORY_FORM);
     }
 
-    /** Xoa danh muc theo ten (khong co hop thoai xac nhan). */
+    /** Xoa danh muc theo ten: bam nut xoa -> hop xac nhan chung -> bam xac nhan -> toast. */
     public void deleteCategoryByName(String name) {
         clickToElement(AdminPageUI.DYNAMIC_CATEGORY_DELETE_BTN, name);
-        waitForNotice();
+        waitForElementVisible(AdminPageUI.ADMIN_CONFIRM_MODAL);
+        clickToElement(AdminPageUI.ADMIN_CONFIRM_YES_BTN);
+        waitForFeedback();
         sleepInSecond(2); // cho loadCategories tai lai danh sach
     }
 
@@ -609,16 +981,96 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Tao voucher moi (ma 3-50 ky tu, giam % 1-100, mac dinh toan san, khong gioi han
-     *  ngay); tao xong o trang thai Nhap, modal form tu dong va hien thong bao. */
+     *  ngay); tao xong o trang thai Nhap, modal form tu dong va hien toast. */
     public void createPromo(String code, String discountValue) {
         clickToElement(AdminPageUI.ADMIN_PROMO_ADD_BTN);
         waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_PROMO_CODE_INPUT, code);
-        sendKeyToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_VALUE_INPUT, discountValue);
-        clickToElement(AdminPageUI.ADMIN_PROMO_CREATE_BTN);
-        waitForNotice();
+        clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_PERCENT);
+        sendKeyToElement(AdminPageUI.ADMIN_PROMO_VALUE_INPUT, discountValue);
+        clickToElement(AdminPageUI.ADMIN_PROMO_SAVE_BTN);
+        waitForFeedback();
         waitForElementInvisible(AdminPageUI.ADMIN_PROMO_FORM);
+    }
+
+    /** Tao voucher moi dien DU truong form moi: ma, mo ta, loai giam (Percentage/
+     *  Fixed), gia tri, don toi thieu, tran giam, tong luot dung, ngay het han
+     *  (yyyy-MM-dd). De trong ("") thi bo qua o do. Truyen code = null hoac "" de
+     *  dung nut tao ma ngau nhien; tra ve ma voucher da dung (de test tiep tuc
+     *  thao tac tren voucher do). */
+    public String createPromoFull(String code, String description, String discountType,
+                                  String discountValue, String minOrder, String maxDiscount,
+                                  String maxUses, String expiryDate) {
+        clickToElement(AdminPageUI.ADMIN_PROMO_ADD_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM_MODAL);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM);
+        String codeUsed = code;
+        if (codeUsed == null || codeUsed.isEmpty()) {
+            codeUsed = clickGeneratePromoCode();
+        } else {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_CODE_INPUT, codeUsed);
+        }
+        if (description != null && !description.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_DESCRIPTION_INPUT, description);
+        }
+        if ("Fixed".equalsIgnoreCase(discountType)) {
+            clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FIXED);
+        } else {
+            clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_PERCENT);
+        }
+        sendKeyToElement(AdminPageUI.ADMIN_PROMO_VALUE_INPUT, discountValue);
+        if (minOrder != null && !minOrder.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_MIN_ORDER_INPUT, minOrder);
+        }
+        if (maxDiscount != null && !maxDiscount.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_MAX_DISCOUNT_INPUT, maxDiscount);
+        }
+        if (maxUses != null && !maxUses.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_MAX_USES_INPUT, maxUses);
+        }
+        if (expiryDate != null && !expiryDate.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_EXPIRY_INPUT, expiryDate);
+        }
+        clickToElement(AdminPageUI.ADMIN_PROMO_SAVE_BTN);
+        waitForFeedback();
+        waitForElementInvisible(AdminPageUI.ADMIN_PROMO_FORM);
+        return codeUsed;
+    }
+
+    /** Bam nut tao ma ngau nhien trong form khuyen mai; tra ve ma vua sinh. */
+    public String clickGeneratePromoCode() {
+        clickToElement(AdminPageUI.ADMIN_PROMO_GENERATE_CODE_BTN);
+        sleepInSecond(1); // cho FE sinh ma vao o nhap
+        return getElementValue(AdminPageUI.ADMIN_PROMO_CODE_INPUT);
+    }
+
+    /** Gia tri ma dang hien trong o ma khuyen mai. */
+    public String getPromoCodeValue() {
+        return getElementValue(AdminPageUI.ADMIN_PROMO_CODE_INPUT);
+    }
+
+    /** Chon loai giam 'Giảm tiền cố định' (segmented). */
+    public void clickPromoDiscountTypeFixed() {
+        clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FIXED);
+        sleepInSecond(1);
+    }
+
+    /** Chon loai giam 'Giảm theo %' (segmented). */
+    public void clickPromoDiscountTypePercent() {
+        clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_PERCENT);
+        sleepInSecond(1);
+    }
+
+    /** Nhap ngay het han khuyen mai (input type="date", dinh dang yyyy-MM-dd). */
+    public void setPromoExpiryDate(String yyyyMmDd) {
+        sendKeyToElement(AdminPageUI.ADMIN_PROMO_EXPIRY_INPUT, yyyyMmDd);
+        sleepInSecond(1);
+    }
+
+    /** Toggle trang thai khuyen mai trong form co dang hien khong. */
+    public boolean isPromoStatusToggleDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PROMO_STATUS_TOGGLE);
     }
 
     /** Kich hoat voucher dang o trang thai Nhap (Nhap -> Dang chay). */
@@ -656,25 +1108,56 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Sua voucher Draft: doi mo ta + gia tri giam (ma, loai giam, pham vi khong
-     *  doi); luu xong modal form tu dong va hien thong bao. */
+     *  doi); luu xong modal form tu dong va hien toast. */
     public void editPromo(String code, String newDescription, String newDiscountValue) {
         clickToElement(AdminPageUI.DYNAMIC_PROMO_EDIT_BTN, code);
         waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_PROMO_DESCRIPTION_INPUT, newDescription);
-        sendKeyToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_VALUE_INPUT, newDiscountValue);
+        sendKeyToElement(AdminPageUI.ADMIN_PROMO_VALUE_INPUT, newDiscountValue);
         clickToElement(AdminPageUI.ADMIN_PROMO_SAVE_BTN);
-        waitForNotice();
+        waitForFeedback();
+        waitForElementInvisible(AdminPageUI.ADMIN_PROMO_FORM);
+    }
+
+    /** Sua voucher Draft dien DU truong cho phep sua: mo ta, gia tri, don toi
+     *  thieu, tran giam, ngay het han, tong luot dung (de trong "" thi giu nguyen). */
+    public void editPromoFull(String code, String newDescription, String newDiscountValue,
+                              String newMinOrder, String newMaxDiscount,
+                              String newExpiryDate, String newMaxUses) {
+        clickToElement(AdminPageUI.DYNAMIC_PROMO_EDIT_BTN, code);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM_MODAL);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM);
+        if (newDescription != null && !newDescription.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_DESCRIPTION_INPUT, newDescription);
+        }
+        if (newDiscountValue != null && !newDiscountValue.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_VALUE_INPUT, newDiscountValue);
+        }
+        if (newMinOrder != null && !newMinOrder.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_MIN_ORDER_INPUT, newMinOrder);
+        }
+        if (newMaxDiscount != null && !newMaxDiscount.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_MAX_DISCOUNT_INPUT, newMaxDiscount);
+        }
+        if (newExpiryDate != null && !newExpiryDate.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_EXPIRY_INPUT, newExpiryDate);
+        }
+        if (newMaxUses != null && !newMaxUses.isEmpty()) {
+            sendKeyToElement(AdminPageUI.ADMIN_PROMO_MAX_USES_INPUT, newMaxUses);
+        }
+        clickToElement(AdminPageUI.ADMIN_PROMO_SAVE_BTN);
+        waitForFeedback();
         waitForElementInvisible(AdminPageUI.ADMIN_PROMO_FORM);
     }
 
     /** Xoa voucher Draft: bam nut xoa tren dong -> hop xac nhan chung hien ra ->
-     *  bam 'Xóa khuyến mãi' -> hien thong bao. */
+     *  bam 'Xóa khuyến mãi' -> hien toast. */
     public void deletePromoByCode(String code) {
         clickToElement(AdminPageUI.DYNAMIC_PROMO_DELETE_BTN, code);
         waitForElementVisible(AdminPageUI.ADMIN_CONFIRM_MODAL);
         clickToElement(AdminPageUI.ADMIN_CONFIRM_YES_BTN);
-        waitForNotice();
+        waitForFeedback();
         sleepInSecond(2); // cho loadPromos tai lai danh sach
     }
 
