@@ -1,6 +1,7 @@
 package vn.dafl.tests.admin;
 
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
@@ -17,6 +18,9 @@ import java.util.List;
  * neu suite dung giua chung - da loai bo khoi bo test).
  * 3 test dang ky ban tin NL-01..03 truoc day o day da chuyen sang lop web
  * vn.dafl.tests.web.NewsletterTest (dot 10) vi chung test footer cua web ban hang.
+ * Dot 12: o search tren topbar + breadcrumb da bo han; tim kiem gio nam trong
+ * toolbar rieng cua tung muc; form them/sua mo trong modal; bang phan trang
+ * client-side 10 dong/trang (ADM-11 viet lai, ADM-12..ADM-14 moi).
  * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
 public class AdminAndNewsletterTest extends BaseTest {
@@ -218,20 +222,127 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Bam Export xong muc Don hang phai van hien o tim kiem don");
     }
 
-    @Test(description = "ADM-11: O search tren topbar loc that theo muc dang mo (muc San pham)")
-    public void adminTopbarSearchFiltersCurrentTab() {
+    @Test(description = "ADM-11 (dot 12, viet lai): O search tren topbar da bo — tim kiem o toolbar cua muc San pham van loc dung ('Mặt nạ' ra dong); topbar khong duoc con o tim kiem")
+    public void adminToolbarSearchFiltersProductsAndTopbarSearchRemoved() {
+        AdminPageObject adminPage = loginAsAdminOrSkip();
+        adminPage.waitForAdminGateResolved();
+        Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
+
+        // Topbar moi khong con o tim kiem (bo dot 12) - khang dinh no khong hien.
+        Assert.assertFalse(adminPage.isTopbarSearchDisplayed(),
+                "Topbar admin moi khong duoc con o tim kiem (da bo dot 12)");
+
+        adminPage.clickAdminNav("products");
+        Assert.assertTrue(adminPage.isProductSearchDisplayed(),
+                "Muc San pham phai co o tim kiem rieng o toolbar");
+        adminPage.searchProducts("Mặt nạ");
+        Assert.assertTrue(adminPage.getAdminTableRowCount() > 0,
+                "Tim 'Mặt nạ' bang o tim kiem cua muc San pham phai ra it nhat 1 dong san pham");
+        boolean found = adminPage.getAdminTableRowTexts().stream()
+                .anyMatch(text -> text.contains("Mặt nạ"));
+        Assert.assertTrue(found, "Cac dong sau khi loc bang toolbar phai chua 'Mặt nạ'");
+    }
+
+    // ---------- Toolbar chuan / phan trang / form modal (dot 12, chi doc) ----------
+
+    @Test(description = "ADM-12 (dot 12): Phan trang bang San pham — trang 1 toi da 10 dong, bam 'Sau' sang trang 2 roi 'Truoc' ve trang 1, 'Trang X / Y' doi theo (skip neu <= 10 dong)")
+    public void adminProductsPaginationNextPrevChangesPage() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("products");
 
-        Assert.assertTrue(adminPage.isTopbarSearchEnabled(),
-                "O search tren topbar phai bat duoc o muc San pham");
-        adminPage.topbarSearch("Mặt nạ");
+        int total = adminPage.getPaginationTotalRows("products");
+        if (total <= 10) {
+            throw new SkipException("Bo qua: muc San pham chi co " + total
+                    + " dong (<= 10) nen khong co trang 2 de kiem tra phan trang");
+        }
+        Assert.assertTrue(adminPage.isPaginationDisplayed("products"),
+                "Muc San pham co > 10 dong thi phai hien khoi phan trang");
+        Assert.assertEquals(adminPage.getPaginationCurrentPage("products"), 1,
+                "Mac dinh phai o trang 1");
+        Assert.assertTrue(adminPage.getAdminTableRowCount() <= 10,
+                "Trang 1 chi hien toi da 10 dong");
+        String firstRowPage1 = adminPage.getAdminTableRowTexts().get(0);
+        Assert.assertFalse(adminPage.isPaginationPrevEnabled("products"),
+                "O trang 1 nut 'Trước' phai bi tat");
+        Assert.assertTrue(adminPage.isPaginationNextEnabled("products"),
+                "Con trang sau thi nut 'Sau' phai bat duoc");
+
+        adminPage.clickPaginationNext("products");
+        Assert.assertEquals(adminPage.getPaginationCurrentPage("products"), 2,
+                "Bam 'Sau' phai sang trang 2");
+        Assert.assertTrue(adminPage.getAdminTableRowCount() <= 10,
+                "Trang 2 chi hien toi da 10 dong");
+        String firstRowPage2 = adminPage.getAdminTableRowTexts().get(0);
+        Assert.assertNotEquals(firstRowPage2, firstRowPage1,
+                "Trang 2 phai hien cac dong khac trang 1");
+
+        adminPage.clickPaginationPrev("products");
+        Assert.assertEquals(adminPage.getPaginationCurrentPage("products"), 1,
+                "Bam 'Trước' phai ve lai trang 1");
+        Assert.assertEquals(adminPage.getAdminTableRowTexts().get(0), firstRowPage1,
+                "Ve trang 1 phai thay lai dong dau nhu ban dau");
+    }
+
+    @Test(description = "ADM-13 (dot 12): Bam '+ Thêm sản phẩm' o toolbar mo form trong modal (admin-product-form-modal); dong modal quay lai bang, khong tao du lieu")
+    public void adminAddProductOpensFormModalAndCloseReturnsToTable() {
+        AdminPageObject adminPage = loginAsAdminOrSkip();
+        adminPage.waitForAdminGateResolved();
+        Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
+        adminPage.clickAdminNav("products");
+
+        adminPage.openProductFormModal();
+        Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
+                "Bam '+ Thêm sản phẩm' phai mo modal form san pham");
+        Assert.assertTrue(adminPage.isProductFormDisplayed(),
+                "Modal form san pham phai hien form");
+        String modalText = adminPage.getProductFormModalText();
+        Assert.assertTrue(modalText.contains("Thêm sản phẩm"),
+                "Modal mo ra phai co tieu de 'Thêm sản phẩm', dang thay: " + modalText);
+
+        // Dong modal bang nut X, KHONG bam Luu (khong tao du lieu).
+        adminPage.closeFormModal("admin-product-form-modal");
+        Assert.assertFalse(adminPage.isProductFormModalPresent(),
+                "Dong modal xong khong duoc con thay modal form san pham");
         Assert.assertTrue(adminPage.getAdminTableRowCount() > 0,
-                "Tim 'Mặt nạ' bang topbar phai ra it nhat 1 dong san pham");
-        boolean found = adminPage.getAdminTableRowTexts().stream()
-                .anyMatch(text -> text.contains("Mặt nạ"));
-        Assert.assertTrue(found, "Cac dong sau khi loc bang topbar phai chua 'Mặt nạ'");
+                "Dong modal xong phai quay lai bang san pham co du lieu");
+    }
+
+    @Test(description = "ADM-14 (dot 12): Toolbar chuan muc San pham — nut '+ Thêm sản phẩm' o trai, nut icon 'Đặt lại'/'Làm mới' o phai; bam 'Đặt lại' xoa tu khoa va ve trang 1")
+    public void adminProductsToolbarHasAddResetRefreshButtons() {
+        AdminPageObject adminPage = loginAsAdminOrSkip();
+        adminPage.waitForAdminGateResolved();
+        Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
+        adminPage.clickAdminNav("products");
+
+        Assert.assertTrue(adminPage.isProductAddButtonDisplayed(),
+                "Toolbar muc San pham phai co nut '+ Thêm sản phẩm' o ben trai");
+        Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("products"),
+                "Toolbar muc San pham phai co nut icon 'Đặt lại' o ben phai");
+        Assert.assertTrue(adminPage.isToolbarRefreshButtonDisplayed("products"),
+                "Toolbar muc San pham phai co nut icon 'Làm mới' o ben phai");
+
+        // Chuc nang nut "Dat lai": go tu khoa la (0 dong) roi bam Dat lai -> o tim
+        // duoc xoa trang, bang ve day du, ve trang 1.
+        adminPage.searchProducts("zzzzzz-khong-co-san-pham");
+        Assert.assertEquals(adminPage.getAdminTableRowCount(), 0,
+                "Tim tu khoa la phai ra 0 dong truoc khi bam 'Đặt lại'");
+        adminPage.clickToolbarReset("products");
+        Assert.assertTrue(adminPage.getProductSearchValue().isEmpty(),
+                "Bam 'Đặt lại' phai xoa trang o tim kiem");
+        Assert.assertTrue(adminPage.getAdminTableRowCount() > 0,
+                "Bam 'Đặt lại' xong bang san pham phai hien lai du lieu");
+        if (adminPage.isPaginationDisplayed("products")) {
+            Assert.assertEquals(adminPage.getPaginationCurrentPage("products"), 1,
+                    "Bam 'Đặt lại' phai ve trang 1");
+        }
+
+        // Nut "Dat lai" / "Lam moi" o muc Danh muc cung phai ton tai (toolbar chuan ap cho moi muc).
+        adminPage.clickAdminNav("categories");
+        Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("categories"),
+                "Toolbar muc Danh muc phai co nut icon 'Đặt lại'");
+        Assert.assertTrue(adminPage.isToolbarRefreshButtonDisplayed("categories"),
+                "Toolbar muc Danh muc phai co nut icon 'Làm mới'");
     }
 }

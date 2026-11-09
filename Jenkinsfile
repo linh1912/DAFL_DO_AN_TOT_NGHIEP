@@ -13,7 +13,7 @@ pipeline {
     }
 
     environment {
-        REPO_URL        = 'https://github.com/xuanlepham/DAFL_DO_AN_TOT_NGHIEP.git'
+        REPO_URL        = 'https://github.com/linh1912/DAFL_DO_AN_TOT_NGHIEP.git'
         TARGET_BRANCH   = 'main'
         PROJECT_NAME    = 'dafl'
         DOCKER_NETWORK  = 'dafl_dafl-network'
@@ -29,7 +29,7 @@ pipeline {
                 echo "=== Stage 1: Lấy mã nguồn mới nhất từ GitHub (${TARGET_BRANCH}) ==="
                 git branch: TARGET_BRANCH, url: REPO_URL
                 // SUT la repo ngoai (hop den): clone rieng vao thu muc sut/ de dung FE/BE
-                sh "rm -rf sut && git clone --depth 1 -b develop https://github.com/sonismyname/DAFL.git sut"
+                sh "rm -rf sut && git clone --depth 1 -b develop https://github.com/linh1912/DAFL.git sut"
 
             }
         }
@@ -39,8 +39,8 @@ pipeline {
                 echo "=== Build và khởi chạy SUT (System Under Test) trên Docker ==="
                 dir('sut') {
                     sh """
-                        # Build container backend và frontend phiên bản mới nhất
-                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml build backend frontend
+                        # Build container backend và 2 app frontend (shop + admin) phiên bản mới nhất
+                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml build backend frontend admin
 
                         # Chạy toàn bộ services (Postgres, Kafka, Backend, Frontend)
                         docker compose -p ${PROJECT_NAME} -f docker-compose.yml up -d
@@ -67,9 +67,15 @@ pipeline {
             }
         }
 
-        stage('Stage 2: Functional Regression') {
+        // Tách web/admin (nối tiếp, KHÔNG song song): 2 stage chạy chung 1 workspace
+        // nên chạy song song sẽ đụng nhau ở target/surefire-reports. Stage Web dọn
+        // sạch rồi chạy testng-web.xml; stage Admin chạy NỐI TIẾP, KHÔNG `mvn clean`
+        // và không xóa target/ — để target/surefire-reports giữ kết quả của CẢ 2
+        // suite cho stage 'Functional Quality Gate' phía sau kiểm tra (nếu Admin
+        // clean thì kết quả web bị xóa và Quality Gate chỉ còn thấy admin).
+        stage('Functional Regression - Web') {
             steps {
-                echo "=== Stage 2: Chạy Maven Selenium Headless (RAM Limit: 1.2GB) ==="
+                echo "=== Functional Regression - Web: Chạy Maven Selenium Headless, suite web (RAM Limit: 1.2GB) ==="
                 dir("automation") {
                     sh """
                         # Dọn dẹp kết quả test cũ
@@ -85,7 +91,59 @@ pipeline {
                             --cpus=1.5 \
                             -e APP_URL="http://dafl-frontend:80" \
                             markhobson/maven-chrome:jdk-17 \
-                            mvn clean test -DsuiteXmlFile=testng.xml || true
+                            mvn clean test -DsuiteXmlFile=testng-web.xml || true
+                    """
+                }
+            }
+            post {
+                always {
+                    // 1. Luôn thu thập báo cáo Surefire để Jenkins hiển thị biểu đồ Test Result (Pass/Fail)
+                    junit testResults: "automation/target/surefire-reports/*.xml", allowEmptyResults: true
+
+                    // 2. Lưu trữ file XML kết quả làm Artifact
+                    archiveArtifacts artifacts: "automation/target/surefire-reports/*.xml", allowEmptyArchive: true
+
+                    // 3. Render Allure Test Report nếu Jenkins đã cài đặt Allure Plugin
+                    script {
+                        def allureDir = "automation/target/allure-results"
+                        if (fileExists(allureDir)) {
+                            try {
+                                allure([
+                                    includeProperties: false,
+                                    jdk: '',
+                                    properties: [],
+                                    reportBuildPolicy: 'ALWAYS',
+                                    results: [[path: allureDir]]
+                                ])
+                            } catch (Throwable err) {
+                                echo "Allure Report warning: Chưa cấu hình Allure Commandline trong Jenkins Tools. Chi tiết: ${err}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Functional Regression - Admin') {
+            steps {
+                echo "=== Functional Regression - Admin: Chạy Maven Selenium Headless, suite admin (RAM Limit: 1.2GB) ==="
+                dir("automation") {
+                    sh """
+                        # KHÔNG dọn target/ và KHÔNG `mvn clean` ở stage này: giữ lại kết
+                        # quả suite web vừa chạy để Quality Gate phía sau kiểm tra cả 2.
+
+                        # Chạy container Maven + Chrome Headless chia sẻ volume với dafl-jenkins
+                        docker run --rm \
+                            --name dafl-selenium-runner \
+                            --network ${DOCKER_NETWORK} \
+                            --volumes-from dafl-jenkins \
+                            -w \$(pwd) \
+                            --memory=1.2g \
+                            --cpus=1.5 \
+                            -e APP_URL="http://dafl-frontend:80" \
+                            -e ADMIN_APP_URL="http://dafl-admin:80" \
+                            markhobson/maven-chrome:jdk-17 \
+                            mvn test -DsuiteXmlFile=testng-admin.xml || true
                     """
                 }
             }
@@ -208,9 +266,9 @@ pipeline {
                 echo "=== Tất cả các Test & Quality Gate đã PASSED! Tiến hành cập nhật Container ==="
                 dir('sut') {
                     sh """
-                        # 1. Dừng và gỡ bỏ container backend/frontend cũ
-                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml stop backend frontend || true
-                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml rm -f backend frontend || true
+                        # 1. Dừng và gỡ bỏ container backend/frontend/admin cũ
+                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml stop backend frontend admin || true
+                        docker compose -p ${PROJECT_NAME} -f docker-compose.yml rm -f backend frontend admin || true
 
                         # 2. Khởi tạo container mới từ image vừa build và pass test
                         docker compose -p ${PROJECT_NAME} -f docker-compose.yml up -d --remove-orphans
@@ -242,6 +300,7 @@ pipeline {
             echo "=========================================================="
             echo "🎉 Pipeline thành công: Functional & Performance Quality Gates PASSED!"
             echo "👉 Frontend : http://localhost:3000"
+            echo "👉 Admin    : http://localhost:3001"
             echo "👉 Backend  : http://localhost:5000"
             echo "=========================================================="
         }

@@ -13,4 +13,10 @@ public class SiteFooterUI {
     public static final String NEWSLETTER_SUCCESS_MSG = "css=.newsletter-success";
     public static final String NEWSLETTER_ERROR_MSG = "css=.newsletter-error";
     public static final String NEWSLETTER_FORM = "css=.newsletter-form";
+
+    // Lien ket o chan trang (dot 13, muc 9): 15 link footer-link-* trong
+    // SiteFooter.tsx, deu la <a> toi route co that ("/", "/cart", "/orders",
+    // "/membership"). %s = phan sau 'footer-link-' (vd 'track-order').
+    public static final String DYNAMIC_FOOTER_LINK = "css=[data-testid='footer-link-%s']";
+    public static final String ANY_FOOTER_LINK = "css=[data-testid^='footer-link-']";
 }

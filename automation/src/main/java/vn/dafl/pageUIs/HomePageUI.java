@@ -27,6 +27,7 @@ public class HomePageUI {
     public static final String DROPDOWN_LOGOUT_BTN = "css=[data-testid='dropdown-logout-btn']";
     public static final String DROPDOWN_ORDERS_BTN = "css=[data-testid='dropdown-orders-btn']";
     public static final String DROPDOWN_PROFILE_BTN = "css=[data-testid='dropdown-profile-btn']";
+    public static final String DROPDOWN_MEMBERSHIP_BTN = "css=[data-testid='dropdown-membership-btn']";
     public static final String CART_BTN = "css=[data-testid='cart-btn']";
     public static final String CART_BADGE_COUNT = "css=[data-testid='cart-badge-count']";
 

@@ -80,6 +80,21 @@ public class GlobalConstants {
     private GlobalConstants() {
     }
 
+    /** URL trang Admin rieng: uu tien -Dadmin.url, sau do bien moi truong ADMIN_APP_URL,
+     *  cuoi cung la mac dinh (localhost:3001). Can cho Jenkins: trong mang Docker, admin
+     *  chay o http://dafl-admin:80 chu khong phai localhost:3001. */
+    public static String getAdminAppUrl() {
+        String propUrl = System.getProperty("admin.url");
+        if (propUrl != null && !propUrl.trim().isEmpty()) {
+            return propUrl.trim();
+        }
+        String envUrl = System.getenv("ADMIN_APP_URL");
+        if (envUrl != null && !envUrl.trim().isEmpty()) {
+            return envUrl.trim();
+        }
+        return ADMIN_APP_URL;
+    }
+
     /** URL cua SUT: uu tien -Dapp.url, sau do bien moi truong APP_URL, cuoi cung la mac dinh. */
     public static String getAppUrl() {
         String propUrl = System.getProperty("app.url");

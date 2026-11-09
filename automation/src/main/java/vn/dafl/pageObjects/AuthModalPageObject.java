@@ -181,4 +181,53 @@ public class AuthModalPageObject extends BasePage {
         clickToElement(AuthModalPageUI.AUTH_CLOSE_BTN);
         waitForElementInvisible(AuthModalPageUI.AUTH_MODAL);
     }
+
+    // ---------- Quen mat khau (dot 13, muc 1) — CHI kiem tra UI ----------
+    // Test Selenium khong gui mail that, khong nhap ma reset that: chi khang dinh
+    // link hien o form dang nhap, bam vao mo duoc form xin ma, nut quay lai dua
+    // ve lai form dang nhap. Gui mail that qua SMTP chi kiem bang tay.
+    public boolean isForgotPasswordLinkDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.FORGOT_PASSWORD_LINK, 10);
+    }
+
+    public String getForgotPasswordLinkText() {
+        waitForElementVisible(AuthModalPageUI.FORGOT_PASSWORD_LINK);
+        return getElementText(AuthModalPageUI.FORGOT_PASSWORD_LINK);
+    }
+
+    public void clickForgotPasswordLink() {
+        clickToElement(AuthModalPageUI.FORGOT_PASSWORD_LINK);
+        waitForElementVisible(AuthModalPageUI.FORGOT_PASSWORD_FORM);
+    }
+
+    /** Form xin ma dat lai hien du: form + o email + nut gui ma. */
+    public boolean isForgotPasswordFormDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.FORGOT_PASSWORD_FORM, 10)
+                && isElementDisplayed(AuthModalPageUI.FORGOT_PASSWORD_EMAIL_INPUT)
+                && isElementDisplayed(AuthModalPageUI.FORGOT_PASSWORD_SUBMIT_BTN);
+    }
+
+    /** Bam 'Quay lai dang nhap' trong luong quen mat khau -> ve form dang nhap. */
+    public void clickForgotPasswordBackButton() {
+        clickToElement(AuthModalPageUI.FORGOT_PASSWORD_BACK_BTN);
+        waitForElementVisible(AuthModalPageUI.LOGIN_FORM);
+    }
+
+    // ---------- Trang dang nhap dang page (dot 13, muc 10) ----------
+    /** Nut quay lai / nut dong 'auth-close-btn' co dang hien khong. O trang
+     *  dang nhap admin rieng no phai VANG MAT (khong co nut quay lai ve shop). */
+    public boolean isBackButtonDisplayed() {
+        return getListWebElements(AuthModalPageUI.AUTH_CLOSE_BTN).size() > 0;
+    }
+
+    /** Khung trang dang nhap .auth-page-wrapper (can giua man hinh) co hien khong. */
+    public boolean isAuthPageWrapperDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.AUTH_PAGE, 10);
+    }
+
+    /** Class cua khung trang dang nhap (ky vong chua 'auth-page-wrapper'). */
+    public String getAuthPageWrapperClass() {
+        waitForElementVisible(AuthModalPageUI.AUTH_PAGE);
+        return getElementAttribute(AuthModalPageUI.AUTH_PAGE, "class");
+    }
 }

@@ -269,4 +269,24 @@ public class AuthTest extends BaseTest {
                 "xpath=//*[contains(text(),'Đăng nhập bằng Facebook')]").size(), 0,
                 "Form dang nhap khong duoc con dong chu 'Đăng nhập bằng Facebook'");
     }
+
+    @Test(description = "FP-01 (dot 13, muc 1): Link 'Quên mật khẩu' hien o form dang nhap shop; bam vao mo form xin ma, quay lai duoc (chi kiem UI, khong gui mail that)")
+    public void shopLoginShowsForgotPasswordLinkAndOpensForm() {
+        HomePageObject homePage = openHomePage();
+        AuthModalPageObject authModal = homePage.openLoginModal();
+
+        Assert.assertTrue(authModal.isLoginFormDisplayed(), "Phai mo duoc form dang nhap truoc");
+        Assert.assertTrue(authModal.isForgotPasswordLinkDisplayed(),
+                "Form dang nhap shop phai co link 'Quên mật khẩu?' (forgot-password-link)");
+        Assert.assertEquals(authModal.getForgotPasswordLinkText(), "Quên mật khẩu?",
+                "Link quen mat khau phai ghi dung 'Quên mật khẩu?'");
+
+        authModal.clickForgotPasswordLink();
+        Assert.assertTrue(authModal.isForgotPasswordFormDisplayed(),
+                "Bam link phai mo form quen mat khau (forgot-password-form + o email + nut gui ma)");
+
+        authModal.clickForgotPasswordBackButton();
+        Assert.assertTrue(authModal.isLoginFormDisplayed(),
+                "Bam 'Quay lai dang nhap' phai ve lai form dang nhap");
+    }
 }

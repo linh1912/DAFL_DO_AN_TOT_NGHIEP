@@ -3,7 +3,7 @@ chcp 65001 > nul
 echo ========================================================
 echo   DAFL AUTOMATION - DO AN CONTINUOUS TESTING
 echo   Che do: Co giao dien Chrome - chi chay test ADMIN (testng-admin.xml)
-echo   Target SUT: http://localhost:3001 (chi can service admin dang chay, tai khoan admin@dafl.vn da duoc seed) - chi 3 lop admin, 28 test
+echo   Target SUT: http://localhost:3001 (chi can service admin dang chay, tai khoan admin@dafl.vn da duoc seed) - chi 4 lop admin, 35 test
 echo ========================================================
 cd /d "%~dp0"
 

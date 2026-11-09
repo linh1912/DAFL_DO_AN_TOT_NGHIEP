@@ -14,6 +14,8 @@ import vn.dafl.pageUIs.AdminPageUI;
  * KHONG kich hoat/tat khuyen mai, KHONG duyet/tu choi tra hang, KHONG khoa tai khoan.
  * Test nao can du lieu (don hang, yeu cau tra hang) thi tu skip co ly do ro rang
  * neu DB do khong co du lieu do.
+ * Dot 12: form them/sua mo trong modal (admin-*-form-modal); tieu de form nam o
+ * tieu de modal, ten SP dien san trong o nhap (khong con trong text cua form).
  * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
 public class AdminDetailTest extends BaseTest {
@@ -187,7 +189,7 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet tra hang");
     }
 
-    @Test(description = "ADT-08: Tu modal chi tiet san pham, bam 'Sửa sản phẩm' -> mo form sua dung ten SP; dong form khong luu")
+    @Test(description = "ADT-08 (dot 12, sua): Tu modal chi tiet san pham, bam 'Sửa sản phẩm' -> form sua mo trong modal (admin-product-form-modal), tieu de 'Sửa sản phẩm' + o ten dien san ten SP; dong form khong luu")
     public void productDetailEditButtonOpensEditFormWithoutSaving() {
         AdminPageObject adminPage = openAdminTab("products");
         String productName = adminPage.getFirstDetailButtonLabel(
@@ -201,18 +203,20 @@ public class AdminDetailTest extends BaseTest {
                 "Phai mo duoc modal chi tiet san pham truoc");
 
         adminPage.openProductEditFormFromDetail();
+        Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
+                "Bam 'Sửa sản phẩm' phai mo modal form sua san pham");
         Assert.assertTrue(adminPage.isProductFormDisplayed(),
-                "Bam 'Sửa sản phẩm' phai mo form sua san pham");
-        String formText = adminPage.getProductFormText();
-        Assert.assertTrue(formText.contains("Sửa sản phẩm"),
-                "Form mo ra phai la form sua ('Sửa sản phẩm'), dang thay: " + formText);
-        Assert.assertTrue(formText.contains(productName),
-                "Form sua phai dien san ten san pham '" + productName + "', dang thay: " + formText);
+                "Modal form sua san pham phai hien form");
+        String modalText = adminPage.getProductFormModalText();
+        Assert.assertTrue(modalText.contains("Sửa sản phẩm"),
+                "Modal form mo ra phai co tieu de 'Sửa sản phẩm', dang thay: " + modalText);
+        Assert.assertEquals(adminPage.getProductNameInputValue(), productName,
+                "Form sua phai dien san ten san pham '" + productName + "' trong o ten");
 
         // Dong form bang nut 'Đóng', KHONG bam Luu (khong doi du lieu).
         adminPage.closeProductForm();
-        Assert.assertFalse(adminPage.isProductFormDisplayed(),
-                "Dong form xong khong duoc con thay form sua san pham");
+        Assert.assertFalse(adminPage.isProductFormModalPresent(),
+                "Dong form xong khong duoc con thay modal form sua san pham");
     }
 
     @Test(description = "ADT-09: Modal chi tiet danh muc dong bang nut 'Đóng' o footer (khong dung nut X)")

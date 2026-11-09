@@ -45,4 +45,28 @@ public class AuthModalPageUI {
     public static final String PASSWORD_RULE_DIGIT = "css=[data-testid='password-rule-digit']";
     public static final String PASSWORD_RULE_SPECIAL = "css=[data-testid='password-rule-special']";
 
+    // Quen mat khau (dot 13, muc 1) — AuthModal dung chung shop + admin
+    // (Shared/components/auth/AuthModal.tsx): link o form dang nhap, bam vao mo
+    // form xin ma 6 so (forgot-password-form), nhap ma + mat khau moi thi doi
+    // o form reset-password-form. Ten testid that trong code (khong viet tat):
+    // forgot-password-email-input / forgot-password-submit-btn /
+    // forgot-password-back-btn / forgot-password-success / forgot-password-notice.
+    public static final String FORGOT_PASSWORD_LINK = "css=[data-testid='forgot-password-link']";
+    public static final String FORGOT_PASSWORD_FORM = "css=[data-testid='forgot-password-form']";
+    public static final String FORGOT_PASSWORD_EMAIL_INPUT = "css=[data-testid='forgot-password-email-input']";
+    public static final String FORGOT_PASSWORD_SUBMIT_BTN = "css=[data-testid='forgot-password-submit-btn']";
+    public static final String FORGOT_PASSWORD_BACK_BTN = "css=[data-testid='forgot-password-back-btn']";
+    public static final String FORGOT_PASSWORD_SUCCESS = "css=[data-testid='forgot-password-success']";
+    public static final String FORGOT_PASSWORD_NOTICE = "css=[data-testid='forgot-password-notice']";
+    public static final String RESET_PASSWORD_FORM = "css=[data-testid='reset-password-form']";
+    public static final String RESET_CODE_INPUT = "css=[data-testid='reset-code-input']";
+    public static final String RESET_NEW_PASSWORD_INPUT = "css=[data-testid='reset-new-password-input']";
+    public static final String RESET_CONFIRM_PASSWORD_INPUT = "css=[data-testid='reset-confirm-password-input']";
+    public static final String RESET_PASSWORD_SUBMIT_BTN = "css=[data-testid='reset-password-submit-btn']";
+
+    // Trang dang nhap dang page (isModal=false): khung can giua .auth-page-wrapper
+    // (data-testid='auth-page'); nut quay lai 'auth-close-btn' CHI hien o shop
+    // (khong phai adminOnly) — o /login admin no phai VANG MAT (dot 13, muc 10).
+    public static final String AUTH_PAGE = "css=[data-testid='auth-page']";
+
 }

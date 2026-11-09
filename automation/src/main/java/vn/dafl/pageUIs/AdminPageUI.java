@@ -80,9 +80,10 @@ public class AdminPageUI {
     public static final String ADMIN_PRODUCT_FORM_CLOSE_BTN =
             "xpath=//*[@data-testid='admin-product-form']//button[text()='Đóng']";
 
-    // ---------- Toolbar bang chuan Spark: search tren topbar, loc, Export ----------
-    // O search tren topbar (chi ho tro o muc Don hang / San pham / Khach hang;
-    // o cac muc khac no bi disabled) - loc theo noi dung cua muc dang mo.
+    // ---------- Toolbar bang chuan Spark: search rieng cua muc, loc, Export ----------
+    // Dot 12: o search tren topbar DA BO HAN (ke ca loc theo muc dang mo) - chi con
+    // o tim kiem rieng cua tung muc trong toolbar ngay tren bang. Locator cu giu lai
+    // chi de khang dinh am (test ADM-11): topbar khong duoc con o tim kiem.
     public static final String ADMIN_TOPBAR_SEARCH_INPUT = "css=.sa-topbar-search input";
     // Nut '⬇ Export' (xuat CSV client-side tu du lieu dang hien thi) o cac muc co bang.
     public static final String ADMIN_EXPORT_BTN = "xpath=//button[contains(text(),'Export')]";
@@ -100,6 +101,30 @@ public class AdminPageUI {
     // Loc don hang theo trang thai (select) + nut 'Tìm' ap dung loc.
     public static final String ADMIN_ORDER_STATUS_FILTER = "css=[data-testid='admin-order-status-filter']";
     public static final String ADMIN_ORDER_FILTER_BTN = "xpath=//button[text()='Tìm']";
+
+    // ---------- Toolbar chuan + phan trang + form modal (dot 12, giao dien admin moi) ----------
+    // Toolbar moi ngay tren moi bang: ben TRAI nut "+ Them moi" (nen #051C12, GIU
+    // testid cu admin-product-add-btn / admin-category-add-btn / admin-promo-add-btn);
+    // ben PHAI o tim kiem cua muc + nut "Tim" + nut icon "Dat lai" + nut icon
+    // "Lam moi" + Export (muc nao co). Muc Tong quan KHONG co toolbar/phan trang;
+    // bang hang hoi vien chi 4 dong nen KHONG phan trang.
+    // Nut "Dat lai" / "Lam moi" cua tung muc (muc = orders/products/categories/
+    // customers/promos/members/returns; bang nhat ky tra hang dung 'returns-audit').
+    public static final String DYNAMIC_ADMIN_TOOLBAR_RESET_BTN = "css=[data-testid='admin-%s-reset-btn']";
+    public static final String DYNAMIC_ADMIN_TOOLBAR_REFRESH_BTN = "css=[data-testid='admin-%s-refresh-btn']";
+    // Form them/sua San pham / Danh muc / Khuyen mai gio mo trong MODAL (SparkModal,
+    // co nut X aria-label='Đóng' + nut 'Đóng' trong form); testid form + tung truong
+    // + nut Luu giu nguyen. Form dieu chinh diem hoi vien VAN inline (khong modal).
+    public static final String ADMIN_PRODUCT_FORM_MODAL = "css=[data-testid='admin-product-form-modal']";
+    public static final String ADMIN_CATEGORY_FORM_MODAL = "css=[data-testid='admin-category-form-modal']";
+    public static final String ADMIN_PROMO_FORM_MODAL = "css=[data-testid='admin-promo-form-modal']";
+    // Phan trang client-side 10 dong/trang (SaPagination): khoi "Trang X / Y — Tong
+    // N dong" + nut Truoc/Sau + nut so trang. API Don hang / Khach hang tra toi da
+    // 20 dong nen 2 muc nay phan trang toi da 2 trang.
+    public static final String DYNAMIC_ADMIN_PAGINATION = "css=[data-testid='admin-%s-pagination']";
+    public static final String DYNAMIC_ADMIN_PAGINATION_PREV = "css=[data-testid='admin-%s-pagination-prev']";
+    public static final String DYNAMIC_ADMIN_PAGINATION_NEXT = "css=[data-testid='admin-%s-pagination-next']";
+    public static final String DYNAMIC_ADMIN_PAGINATION_PAGE = "css=[data-testid='admin-%s-pagination-page-%s']";
 
     // ---------- CRUD (dot 9) - them/sua/xoa tren giao dien Admin ----------
     // Thong bao thanh cong (.sa-notice, khong co testid) hien sau moi thao tac luu /
@@ -130,8 +155,9 @@ public class AdminPageUI {
             "xpath=//p[contains(text(),'Chưa có danh mục.')]";
 
     // Khuyen mai: o tim (aria-label) + form tao; o 'Giá trị giảm' khong co testid nen
-    // dinh vi theo nhan <span> cua no trong form. Giao dien KHONG co nut sua/xoa
-    // voucher - chi co kich hoat (Draft) va tat co ly do (Active/Draft).
+    // dinh vi theo nhan <span> cua no trong form. Dot 13: giao dien DA CO nut
+    // sua/xoa voucher Draft (admin-promo-edit-btn / admin-promo-delete-btn) +
+    // hop xac nhan chung khi xoa; chi voucher Draft moi sua/xoa duoc.
     public static final String ADMIN_PROMO_SEARCH = "css=[aria-label='Tìm khuyến mãi']";
     public static final String ADMIN_PROMO_FORM = "css=[data-testid='admin-promo-form']";
     public static final String ADMIN_PROMO_CODE_INPUT = "css=[data-testid='admin-promo-code-input']";
@@ -162,4 +188,53 @@ public class AdminPageUI {
     public static final String ADMIN_ADJUST_POINTS_INPUT = "css=[data-testid='admin-adjust-points-input']";
     public static final String ADMIN_ADJUST_REASON_INPUT = "css=[data-testid='admin-adjust-reason-input']";
     public static final String ADMIN_ADJUST_POINTS_BTN = "css=[data-testid='admin-adjust-points-btn']";
+
+    // ---------- Dot 13 ----------
+    // Sua/xoa voucher Draft (muc 4): 2 nut chi hien o dong voucher Draft, testid
+    // 'admin-promo-edit-btn' / 'admin-promo-delete-btn' LAP LAI tren moi dong nen
+    // test phai dinh vi theo dong qua aria-label chua ma voucher (khong dung
+    // testid tran). Form sua dung lai admin-promo-form; o Mo ta khong co testid
+    // nen dinh vi theo nhan <span> trong form (giong o Gia tri giam); nut luu o
+    // che do sua ghi 'Lưu thay đổi' (submit) chu khong phai 'Tạo khuyến mãi'.
+    public static final String DYNAMIC_PROMO_EDIT_BTN = "xpath=//button[@aria-label='Sửa khuyến mãi %s']";
+    public static final String DYNAMIC_PROMO_DELETE_BTN = "xpath=//button[@aria-label='Xóa khuyến mãi %s']";
+    public static final String ADMIN_PROMO_DESCRIPTION_INPUT =
+            "xpath=//*[@data-testid='admin-promo-form']//label[span[contains(text(),'Mô tả')]]//input";
+    public static final String ADMIN_PROMO_SAVE_BTN =
+            "xpath=//*[@data-testid='admin-promo-form']//button[@type='submit']";
+
+    // Hop xac nhan dung chung (muc 5): SparkModal testid 'admin-confirm-modal',
+    // nut 'Hủy' (admin-confirm-no-btn) + nut xac nhan (admin-confirm-yes-btn,
+    // nhan thay doi theo hanh dong: 'Xóa khuyến mãi', 'Xóa sản phẩm'...).
+    public static final String ADMIN_CONFIRM_MODAL = "css=[data-testid='admin-confirm-modal']";
+    public static final String ADMIN_CONFIRM_YES_BTN = "css=[data-testid='admin-confirm-yes-btn']";
+    public static final String ADMIN_CONFIRM_NO_BTN = "css=[data-testid='admin-confirm-no-btn']";
+
+    // So du diem khach trong admin (muc 3): cot 'Điểm' o bang Khach hang dung
+    // testid 'admin-customer-points-<id>' (id khach, KHONG phai email); dong
+    // 'Số dư điểm: X điểm' trong modal chi tiet khach (admin-customer-detail-points).
+    // Nut dong X cua modal chi tiet khach: SparkModal nay khong co testid rieng
+    // nen dong bang nut X trong dialog cha cua khoi chi tiet (khong dung
+    // closeDetailModal('admin-customer-detail') — nut X nam ngoai khoi do).
+    public static final String ADMIN_CUSTOMER_DETAIL_POINTS = "css=[data-testid='admin-customer-detail-points']";
+    public static final String CUSTOMER_DETAIL_CLOSE_BTN =
+            "xpath=//*[@data-testid='admin-customer-detail']/ancestor::div[@role='dialog']//button[@aria-label='Đóng']";
+
+    // Ghi nhan da hoan tien o muc Tra hang (muc 7): nut chi hien khi yeu cau
+    // Approved + refundStatus PendingRefund + co refundId; modal nhap ma giao
+    // dich (3-100 ky tu) goi POST /api/admin/refunds/{id}/record.
+    public static final String ADMIN_RETURN_RECORD_REFUND_BTN = "css=[data-testid='admin-return-record-refund-btn']";
+    public static final String ADMIN_REFUND_RECORD_MODAL = "css=[data-testid='admin-refund-record-modal']";
+    public static final String ADMIN_REFUND_TRANSACTION_INPUT = "css=[data-testid='admin-refund-transaction-input']";
+    public static final String ADMIN_REFUND_RECORD_CONFIRM_BTN = "css=[data-testid='admin-refund-record-confirm-btn']";
+
+    // Loc ngay + Export nhat ky he thong (muc 10): nam duoi bang Tra hang, cung
+    // tab 'returns' (khong phai tab rieng). Nut Export o day co testid rieng
+    // (khac nut Export chung cua bang — khong dung ADMIN_EXPORT_BTN).
+    public static final String ADMIN_AUDIT_LOG_HEADING =
+            "xpath=//h2[contains(text(),'Nhật ký hệ thống')]";
+    public static final String ADMIN_LOG_DATE_FROM = "css=[data-testid='admin-log-date-from']";
+    public static final String ADMIN_LOG_DATE_TO = "css=[data-testid='admin-log-date-to']";
+    public static final String ADMIN_LOG_FILTER_BTN = "css=[data-testid='admin-log-filter-btn']";
+    public static final String ADMIN_LOG_EXPORT_BTN = "css=[data-testid='admin-log-export-btn']";
 }

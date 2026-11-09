@@ -15,7 +15,11 @@ import java.util.List;
  *  AdminCrudTest: them/sua/xoa QUA GIAO DIEN nhung CHI tren du lieu do chinh test
  *  tao (ten/ma kem timestamp) va test tu don dep sau khi chay. Khong doi trang thai
  *  don, khong them/sua/xoa san pham/khuyen mai, khong khoa tai khoan, khong doi
- *  mat khau admin - tru khi doi tuong do chinh test tao ra. */
+ *  mat khau admin - tru khi doi tuong do chinh test tao ra.
+ *  Dot 12: form them/sua San pham / Danh muc / Khuyen mai mo trong MODAL (testid
+ *  admin-*-form-modal); toolbar chuan tren moi bang (nut Them moi ben trai, o tim
+ *  + nut Tim/Dat lai/Lam moi/Export ben phai); phan trang client-side 10 dong/trang
+ *  (admin-*-pagination); o search tren topbar + breadcrumb da bo han. */
 public class AdminPageObject extends BasePage {
 
     public static final String[] ADMIN_NAV_KEYS = {
@@ -26,7 +30,7 @@ public class AdminPageObject extends BasePage {
     /** Mo thang /admin tren app Admin rieng :3001 (khong qua menu header).
      *  KHONG dung /admin o web ban hang nua (test admin chi chay app Admin rieng). */
     public void openAdminPage() {
-        openPageUrl(GlobalConstants.ADMIN_APP_URL + "/admin");
+        openPageUrl(GlobalConstants.getAdminAppUrl() + "/admin");
     }
 
     /** Cho toi khi trang admin quyet dinh xong quyen: hoac menu quan tri, hoac trang 403,
@@ -204,9 +208,11 @@ public class AdminPageObject extends BasePage {
         waitForElementInvisible("css=[data-testid='" + modalTestId + "']");
     }
 
-    /** Tu modal chi tiet san pham, bam 'Sửa sản phẩm' -> form sua mo ra (chi mo, khong luu). */
+    /** Tu modal chi tiet san pham, bam 'Sửa sản phẩm' -> form sua mo ra trong modal
+     *  (dot 12); modal chi tiet tu dong khi mo form sua (chi mo, khong luu). */
     public void openProductEditFormFromDetail() {
         clickToElement(AdminPageUI.PRODUCT_DETAIL_EDIT_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM);
     }
 
@@ -241,14 +247,10 @@ public class AdminPageObject extends BasePage {
         sleepInSecond(2);
     }
 
-    /** Tim bang o search tren topbar (chi ho tro muc Don hang / San pham / Khach hang). */
-    public void topbarSearch(String keyword) {
-        sendKeyToElement(AdminPageUI.ADMIN_TOPBAR_SEARCH_INPUT, keyword);
-        sleepInSecond(2);
-    }
-
-    public boolean isTopbarSearchEnabled() {
-        return isElementEnabled(AdminPageUI.ADMIN_TOPBAR_SEARCH_INPUT);
+    /** O search tren topbar DA BI BO (dot 12) - chi dung de khang dinh am: topbar
+     *  moi khong duoc con o tim kiem (tim kiem gio nam trong toolbar cua tung muc). */
+    public boolean isTopbarSearchDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_TOPBAR_SEARCH_INPUT);
     }
 
     /** So dong du lieu dang hien trong bang cua muc dang mo (0 neu bang rong). */
@@ -303,18 +305,156 @@ public class AdminPageObject extends BasePage {
         sleepInSecond(1);
     }
 
+    // ---------- Toolbar chuan + phan trang + form modal (dot 12) ----------
+    /** Nut "+ Them san pham" o ben trai toolbar muc San pham. */
+    public boolean isProductAddButtonDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_PRODUCT_ADD_BTN, 10);
+    }
+
+    /** Nut icon "Dat lai" (↺) o ben phai toolbar cua muc cho truoc
+     *  (sectionKey = orders/products/categories/customers/promos/members/returns;
+     *  bang nhat ky tra hang dung 'returns-audit'). */
+    public boolean isToolbarResetButtonDisplayed(String sectionKey) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey), 10);
+    }
+
+    /** Nut icon "Lam moi" (⟳) o ben phai toolbar cua muc cho truoc. */
+    public boolean isToolbarRefreshButtonDisplayed(String sectionKey) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_REFRESH_BTN, sectionKey), 10);
+    }
+
+    /** Bam nut icon "Dat lai" cua muc: xoa trang o tim/loc + ve trang 1. */
+    public void clickToolbarReset(String sectionKey) {
+        clickToElement(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey);
+        sleepInSecond(1); // cho loc client-side ap dung
+    }
+
+    /** Bam nut icon "Lam moi" cua muc: tai lai du lieu cua muc. */
+    public void clickToolbarRefresh(String sectionKey) {
+        clickToElement(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_REFRESH_BTN, sectionKey);
+        sleepInSecond(2); // cho GET tai lai
+    }
+
+    /** Khoi phan trang cua muc co hien khong (chi hien khi bang co du lieu). */
+    public boolean isPaginationDisplayed(String sectionKey) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_PAGINATION, sectionKey), 10);
+    }
+
+    /** Text "Trang X / Y — Tong N dong" cua khoi phan trang; "" neu muc khong co phan trang. */
+    public String getPaginationText(String sectionKey) {
+        if (!isPaginationDisplayed(sectionKey)) {
+            return "";
+        }
+        return getElementText(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_PAGINATION, sectionKey));
+    }
+
+    /** So trang hien tai (X trong "Trang X / Y"); -1 neu muc khong co phan trang. */
+    public int getPaginationCurrentPage(String sectionKey) {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("Trang\\s+(\\d+)\\s*/")
+                .matcher(getPaginationText(sectionKey));
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
+    }
+
+    /** Tong so dong cua bang (N trong "Tong N dong"); -1 neu muc khong co phan trang. */
+    public int getPaginationTotalRows(String sectionKey) {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("Tổng\\s+(\\d+)\\s+dòng")
+                .matcher(getPaginationText(sectionKey));
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
+    }
+
+    /** Nut "‹ Truoc" cua phan trang co bam duoc khong (bi tat o trang 1). */
+    public boolean isPaginationPrevEnabled(String sectionKey) {
+        return isElementEnabled(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_PAGINATION_PREV, sectionKey));
+    }
+
+    /** Nut "Sau ›" cua phan trang co bam duoc khong (bi tat o trang cuoi). */
+    public boolean isPaginationNextEnabled(String sectionKey) {
+        return isElementEnabled(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_PAGINATION_NEXT, sectionKey));
+    }
+
+    /** Bam nut "Sau ›" cua phan trang (sang trang ke). */
+    public void clickPaginationNext(String sectionKey) {
+        clickToElement(AdminPageUI.DYNAMIC_ADMIN_PAGINATION_NEXT, sectionKey);
+        sleepInSecond(1); // cho trang moi render
+    }
+
+    /** Bam nut "‹ Truoc" cua phan trang (ve trang truoc). */
+    public void clickPaginationPrev(String sectionKey) {
+        clickToElement(AdminPageUI.DYNAMIC_ADMIN_PAGINATION_PREV, sectionKey);
+        sleepInSecond(1);
+    }
+
+    /** Bam nut so trang N cua phan trang. */
+    public void clickPaginationPage(String sectionKey, int page) {
+        clickToElement(AdminPageUI.DYNAMIC_ADMIN_PAGINATION_PAGE, sectionKey, String.valueOf(page));
+        sleepInSecond(1);
+    }
+
+    /** Gia tri dang go trong o tim kiem cua muc San pham (dung de khang dinh nut "Dat lai" da xoa trang). */
+    public String getProductSearchValue() {
+        return getElementValue(AdminPageUI.ADMIN_PRODUCT_SEARCH);
+    }
+
+    // ----- Form modal (dot 12) -----
+    /** Modal form them/sua san pham co dang hien khong (cho doi toi da 10 giay). */
+    public boolean isProductFormModalDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL, 10);
+    }
+
+    /** Modal form them/sua san pham co dang hien khong (kiem tra ngay, khong cho doi -
+     *  dung cho khang dinh modal da dong). */
+    public boolean isProductFormModalPresent() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
+    }
+
+    /** Modal form them/sua danh muc co dang hien khong (cho doi toi da 10 giay). */
+    public boolean isCategoryFormModalDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_CATEGORY_FORM_MODAL, 10);
+    }
+
+    /** Modal form tao khuyen mai co dang hien khong (cho doi toi da 10 giay). */
+    public boolean isPromoFormModalDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_PROMO_FORM_MODAL, 10);
+    }
+
+    /** Text cua modal form san pham (gom ca tieu de modal 'Them/Sua san pham' + cac nhan truong). */
+    public String getProductFormModalText() {
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
+        return getElementText(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
+    }
+
+    /** Gia tri dang dien trong o ten san pham cua form (dung de khang dinh form sua da dien san ten). */
+    public String getProductNameInputValue() {
+        return getElementValue(AdminPageUI.ADMIN_PRODUCT_NAME_INPUT);
+    }
+
+    /** Mo modal them san pham moi bang nut "+ Them san pham" o toolbar (chi mo, khong dien gi ca). */
+    public void openProductFormModal() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_ADD_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM);
+    }
+
+    /** Dong modal form bat ky bang nut X (aria-label='Đóng'); doi modal bien mat. */
+    public void closeFormModal(String modalTestId) {
+        closeDetailModal(modalTestId);
+    }
+
     // ---------- Dang nhap Admin tren app rieng :3001 (dot 9, dung cho AdminCrudTest) ----------
     /** Dang nhap bang tai khoan bat ky tren trang dang nhap Admin rieng :3001
      *  (khong yeu cau phai la Super Admin - dung cho test 403 cua tai khoan thuong);
      *  bo qua test neu service :3001 chua chay. Sau khi dang nhap KHONG tu mo /admin
      *  (nguoi goi tu quyet dinh mo trang nao de kiem tra quyen). */
     public void loginAsUserOnAdminAppOrSkip(String usernameOrEmail, String password) {
-        openPageUrl(GlobalConstants.ADMIN_APP_URL + "/login");
+        openPageUrl(GlobalConstants.getAdminAppUrl() + "/login");
         AuthModalPageObject authModal = new AuthModalPageObject();
         try {
             authModal.waitForModalVisible();
         } catch (Exception e) {
-            throw new SkipException("Bo qua: trang Admin rieng " + GlobalConstants.ADMIN_APP_URL
+            throw new SkipException("Bo qua: trang Admin rieng " + GlobalConstants.getAdminAppUrl()
                     + " chua chay (can 'docker compose up -d --build' de service dafl-admin len cong 3001)");
         }
         authModal.loginAs(usernameOrEmail, password);
@@ -327,11 +467,11 @@ public class AdminPageObject extends BasePage {
      *  admin@dafl.vn chua duoc seed tren DB nay. */
     public void loginAsAdminOnAdminAppOrSkip() {
         loginAsUserOnAdminAppOrSkip("admin", GlobalConstants.ADMIN_PASSWORD);
-        openPageUrl(GlobalConstants.ADMIN_APP_URL + "/admin");
+        openPageUrl(GlobalConstants.getAdminAppUrl() + "/admin");
         try {
             waitForAdminGateResolved();
         } catch (AssertionError e) {
-            throw new SkipException("Bo qua: khong vao duoc trang Admin o " + GlobalConstants.ADMIN_APP_URL
+            throw new SkipException("Bo qua: khong vao duoc trang Admin o " + GlobalConstants.getAdminAppUrl()
                     + " (tai khoan admin chua duoc seed hoac dich vu admin chua san sang)");
         }
         if (!isAdminMenuDisplayed()) {
@@ -366,7 +506,9 @@ public class AdminPageObject extends BasePage {
 
     // ----- San pham -----
     /** Ten danh muc that dau tien trong select cua form them/sua san pham
-     *  (bo qua option placeholder '— Chọn danh mục —'); null neu khong co danh muc nao. */
+     *  (bo qua option placeholder '— Chọn danh mục —'); null neu khong co danh muc nao.
+     *  CHI GOI KHI FORM DA MO (form gio nam trong modal - dot 12): mo modal truoc
+     *  bang openProductFormModal() roi moi doc duoc danh muc trong select. */
     public String getFirstRealCategoryName() {
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT);
         for (WebElement option : getListWebElements(
@@ -381,10 +523,15 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Tao san pham moi (ten 3-120 ky tu, gia > 0, ton kho >= 0, phai chon danh muc);
-     *  thanh cong thi form tu dong va hien thong bao. */
+     *  thanh cong thi modal form tu dong va hien thong bao. */
     public void createProduct(String name, String categoryName, String price, String stock) {
-        clickToElement(AdminPageUI.ADMIN_PRODUCT_ADD_BTN);
-        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM);
+        openProductFormModal();
+        fillProductFormAndSave(name, categoryName, price, stock);
+    }
+
+    /** Dien cac truong cua form san pham (form da mo trong modal) roi bam Luu;
+     *  thanh cong thi modal form tu dong va hien thong bao. */
+    public void fillProductFormAndSave(String name, String categoryName, String price, String stock) {
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_NAME_INPUT, name);
         selectByVisibleText(AdminPageUI.ADMIN_PRODUCT_CATEGORY_SELECT, categoryName);
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_PRICE_INPUT, price);
@@ -397,6 +544,7 @@ public class AdminPageObject extends BasePage {
     /** Sua san pham co san (tim theo ten cu): doi ten + gia, luu lai. */
     public void editProduct(String oldName, String newName, String newPrice) {
         clickToElement(AdminPageUI.DYNAMIC_PRODUCT_EDIT_BTN, oldName);
+        waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_NAME_INPUT, newName);
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_PRICE_INPUT, newPrice);
@@ -418,9 +566,10 @@ public class AdminPageObject extends BasePage {
         sleepInSecond(2); // cho loc client-side ap dung
     }
 
-    /** Tao danh muc moi (ten 2-150 ky tu); thanh cong thi form tu dong va hien thong bao. */
+    /** Tao danh muc moi (ten 2-150 ky tu); thanh cong thi modal form tu dong va hien thong bao. */
     public void createCategory(String name) {
         clickToElement(AdminPageUI.ADMIN_CATEGORY_ADD_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_NAME_INPUT, name);
         clickToElement(AdminPageUI.ADMIN_CATEGORY_SAVE_BTN);
@@ -431,6 +580,7 @@ public class AdminPageObject extends BasePage {
     /** Sua danh muc co san (tim theo ten cu): doi ten, luu lai. */
     public void editCategory(String oldName, String newName) {
         clickToElement(AdminPageUI.DYNAMIC_CATEGORY_EDIT_BTN, oldName);
+        waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_CATEGORY_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_NAME_INPUT, newName);
         clickToElement(AdminPageUI.ADMIN_CATEGORY_SAVE_BTN);
@@ -450,17 +600,19 @@ public class AdminPageObject extends BasePage {
     }
 
     // ----- Khuyen mai / voucher -----
-    // Giao dien KHONG co nut sua/xoa voucher: chi tao moi (trang thai Nhap), kich hoat
-    // (Nhap -> Dang chay) va tat co ly do (Dang chay/Nhap -> Da tat).
+    // Dot 13: giao dien DA CO sua/xoa voucher Draft (nut sua/xoa chi hien o dong
+    // Draft) + hop xac nhan chung khi xoa; tao moi (trang thai Nhap), kich hoat
+    // (Nhap -> Dang chay) va tat co ly do (Dang chay/Nhap -> Da tat) giu nguyen.
     public void searchPromos(String keyword) {
         sendKeyToElement(AdminPageUI.ADMIN_PROMO_SEARCH, keyword);
         sleepInSecond(2); // cho loc client-side ap dung
     }
 
     /** Tao voucher moi (ma 3-50 ky tu, giam % 1-100, mac dinh toan san, khong gioi han
-     *  ngay); tao xong o trang thai Nhap, form tu dong va hien thong bao. */
+     *  ngay); tao xong o trang thai Nhap, modal form tu dong va hien thong bao. */
     public void createPromo(String code, String discountValue) {
         clickToElement(AdminPageUI.ADMIN_PROMO_ADD_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM_MODAL);
         waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM);
         sendKeyToElement(AdminPageUI.ADMIN_PROMO_CODE_INPUT, code);
         sendKeyToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_VALUE_INPUT, discountValue);
@@ -488,6 +640,155 @@ public class AdminPageObject extends BasePage {
 
     public boolean isEmptyPromosMessageDisplayed() {
         return isElementDisplayed(AdminPageUI.ADMIN_EMPTY_PROMOS_MSG);
+    }
+
+    // ----- Sua/xoa voucher Draft + hop xac nhan chung (dot 13, muc 4-5) -----
+    /** Nut 'Sua khuyen mai' cua dong voucher co ma cho truoc co hien khong
+     *  (chi voucher Draft moi co nut sua). */
+    public boolean isPromoEditButtonDisplayedFor(String code) {
+        return getListWebElements(AdminPageUI.DYNAMIC_PROMO_EDIT_BTN, code).size() > 0;
+    }
+
+    /** Nut 'Xoa khuyen mai' cua dong voucher co ma cho truoc co hien khong
+     *  (chi voucher Draft moi co nut xoa). */
+    public boolean isPromoDeleteButtonDisplayedFor(String code) {
+        return getListWebElements(AdminPageUI.DYNAMIC_PROMO_DELETE_BTN, code).size() > 0;
+    }
+
+    /** Sua voucher Draft: doi mo ta + gia tri giam (ma, loai giam, pham vi khong
+     *  doi); luu xong modal form tu dong va hien thong bao. */
+    public void editPromo(String code, String newDescription, String newDiscountValue) {
+        clickToElement(AdminPageUI.DYNAMIC_PROMO_EDIT_BTN, code);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM_MODAL);
+        waitForElementVisible(AdminPageUI.ADMIN_PROMO_FORM);
+        sendKeyToElement(AdminPageUI.ADMIN_PROMO_DESCRIPTION_INPUT, newDescription);
+        sendKeyToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_VALUE_INPUT, newDiscountValue);
+        clickToElement(AdminPageUI.ADMIN_PROMO_SAVE_BTN);
+        waitForNotice();
+        waitForElementInvisible(AdminPageUI.ADMIN_PROMO_FORM);
+    }
+
+    /** Xoa voucher Draft: bam nut xoa tren dong -> hop xac nhan chung hien ra ->
+     *  bam 'Xóa khuyến mãi' -> hien thong bao. */
+    public void deletePromoByCode(String code) {
+        clickToElement(AdminPageUI.DYNAMIC_PROMO_DELETE_BTN, code);
+        waitForElementVisible(AdminPageUI.ADMIN_CONFIRM_MODAL);
+        clickToElement(AdminPageUI.ADMIN_CONFIRM_YES_BTN);
+        waitForNotice();
+        sleepInSecond(2); // cho loadPromos tai lai danh sach
+    }
+
+    /** Hop xac nhan dung chung (admin-confirm-modal) co dang hien khong. */
+    public boolean isConfirmModalDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_CONFIRM_MODAL, 10);
+    }
+
+    /** Noi dung hop xac nhan (tieu de + thong diep). */
+    public String getConfirmModalText() {
+        waitForElementVisible(AdminPageUI.ADMIN_CONFIRM_MODAL);
+        return getElementText(AdminPageUI.ADMIN_CONFIRM_MODAL);
+    }
+
+    /** Bam nut xac nhan trong hop xac nhan chung (nhan thay doi theo hanh dong). */
+    public void clickConfirmYes() {
+        clickToElement(AdminPageUI.ADMIN_CONFIRM_YES_BTN);
+    }
+
+    /** Bam 'Hủy' trong hop xac nhan chung (khong thuc hien hanh dong). */
+    public void clickConfirmNo() {
+        clickToElement(AdminPageUI.ADMIN_CONFIRM_NO_BTN);
+    }
+
+    // ----- Hoi vien: doc so du diem khach (dot 13, muc 3) -----
+    /** Doc so du diem cua 1 khach qua modal chi tiet (tim theo email, mo nut mat,
+     *  doc dong 'Số dư điểm: X điểm' o admin-customer-detail-points); tra -1 neu
+     *  khong tim thay khach nao co email do trong bang Khach hang. */
+    public int getCustomerPointsByEmail(String email) {
+        clickAdminNav("customers");
+        searchCustomers(email);
+        if (getAdminTableRowCount() == 0) {
+            return -1;
+        }
+        clickFirstCustomerDetail();
+        String pointsText = getElementText(AdminPageUI.ADMIN_CUSTOMER_DETAIL_POINTS);
+        closeCustomerDetailModal();
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile("Số dư điểm:\\s*([\\d.,]+)").matcher(pointsText);
+        if (!matcher.find()) {
+            throw new AssertionError("Khong doc duoc so du diem tu dong '" + pointsText + "'");
+        }
+        return Integer.parseInt(matcher.group(1).replace(".", "").replace(",", ""));
+    }
+
+    /** Dong modal chi tiet khach bang nut X trong dialog cha (SparkModal cua
+     *  chi tiet khach khong co testid rieng nen khong dung closeDetailModal). */
+    public void closeCustomerDetailModal() {
+        clickToElement(AdminPageUI.CUSTOMER_DETAIL_CLOSE_BTN);
+        waitForElementInvisible(AdminPageUI.ADMIN_CUSTOMER_DETAIL);
+    }
+
+    // ----- Tra hang: nut 'Ghi nhan da hoan tien' (dot 13, muc 7) -----
+    /** Co yeu cau tra hang nao dang hien nut 'Ghi nhận đã hoàn tiền' khong
+     *  (nut chi hien khi Approved + PendingRefund + co refundId). */
+    public boolean isRefundRecordButtonDisplayed() {
+        return getListWebElements(AdminPageUI.ADMIN_RETURN_RECORD_REFUND_BTN).size() > 0;
+    }
+
+    /** Text cua dong tra hang chua nut 'Ghi nhận đã hoàn tiền' (dung de khang
+     *  dinh dong do that su o trang thai Approved + PendingRefund); "" neu khong co. */
+    public String getRefundRecordButtonRowText() {
+        return getAdminTableRowTexts().stream()
+                .filter(row -> row.contains("Ghi nhận đã hoàn tiền"))
+                .findFirst().orElse("");
+    }
+
+    /** Bam nut 'Ghi nhận đã hoàn tiền' dau tien -> mo modal nhap ma giao dich
+     *  (chi mo, khong nhap ma, khong xac nhan — khong tao giao dich that). */
+    public void clickFirstRefundRecordButton() {
+        clickToElement(AdminPageUI.ADMIN_RETURN_RECORD_REFUND_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_REFUND_RECORD_MODAL);
+    }
+
+    /** Modal ghi nhan hoan tien co dang hien khong + co du o ma giao dich va
+     *  nut xac nhan khong. */
+    public boolean isRefundRecordModalDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_REFUND_RECORD_MODAL, 10)
+                && isElementDisplayed(AdminPageUI.ADMIN_REFUND_TRANSACTION_INPUT)
+                && isElementDisplayed(AdminPageUI.ADMIN_REFUND_RECORD_CONFIRM_BTN);
+    }
+
+    /** Dong modal ghi nhan hoan tien bang nut X (khong ghi nhan gi ca). */
+    public void closeRefundRecordModal() {
+        closeDetailModal("admin-refund-record-modal");
+    }
+
+    // ----- Nhat ky he thong: loc ngay + Export (dot 13, muc 10) -----
+    /** Tieu de 'Nhật ký hệ thống (audit-log)' o cuoi tab Tra hang co hien khong. */
+    public boolean isAuditLogSectionDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_AUDIT_LOG_HEADING, 10);
+    }
+
+    /** Nhap khoang ngay loc nhat ky (dinh dang yyyy-MM-dd, vd 2026-01-01). */
+    public void setAuditDateFilter(String dateFrom, String dateTo) {
+        sendKeyToElement(AdminPageUI.ADMIN_LOG_DATE_FROM, dateFrom);
+        sendKeyToElement(AdminPageUI.ADMIN_LOG_DATE_TO, dateTo);
+    }
+
+    /** Bam nut 'Lọc' ap dung khoang ngay cho nhat ky. */
+    public void clickAuditFilter() {
+        clickToElement(AdminPageUI.ADMIN_LOG_FILTER_BTN);
+        sleepInSecond(2); // cho loc client-side ap dung
+    }
+
+    public boolean isAuditExportButtonDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_LOG_EXPORT_BTN, 10);
+    }
+
+    /** Bam nut 'Export' cua nhat ky (xuat CSV client-side — chi bam, khong
+     *  khang dinh file tai ve, giong clickExportButton cua cac bang khac). */
+    public void clickAuditExport() {
+        clickToElement(AdminPageUI.ADMIN_LOG_EXPORT_BTN);
+        sleepInSecond(1);
     }
 
     // ----- Don hang (dot 10: chi doi/huy 1 don 'Chờ xử lý' CO SAN trong DB;

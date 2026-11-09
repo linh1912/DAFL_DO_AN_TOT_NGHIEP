@@ -3,7 +3,7 @@ chcp 65001 > nul
 echo ========================================================
 echo   DAFL AUTOMATION - DO AN CONTINUOUS TESTING
 echo   Che do: Co giao dien Chrome - chi chay test WEB (testng-web.xml)
-echo   Target SUT: http://localhost:3000 (can SUT dang chay) - chi 11 lop web, 99 test
+echo   Target SUT: http://localhost:3000 (can SUT dang chay) - chi 13 lop web, 107 test
 echo ========================================================
 cd /d "%~dp0"
 

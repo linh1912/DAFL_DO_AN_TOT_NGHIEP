@@ -127,6 +127,20 @@ public class ProductCatalogPageObject extends BasePage {
         return isElementDisplayedWithWait(ProductCatalogPageUI.PRICE_APPLY_BTN, 10);
     }
 
+    /** Bam 1 khoang gia co san (dot 11): dien san Tu/Den + ap dung loc ngay. */
+    public void clickPricePreset(int index) {
+        clickToElement(String.format(ProductCatalogPageUI.DYNAMIC_PRICE_PRESET_BTN, index));
+        sleepInSecond(2); // cho loc ap dung + luoi tai lai
+    }
+
+    public String getPriceFromValue() {
+        return getElementAttribute(ProductCatalogPageUI.PRICE_FROM_INPUT, "value");
+    }
+
+    public String getPriceToValue() {
+        return getElementAttribute(ProductCatalogPageUI.PRICE_TO_INPUT, "value");
+    }
+
     public String getPriceFilterError() {
         waitForElementVisible(ProductCatalogPageUI.PRICE_FILTER_ERROR);
         return getElementText(ProductCatalogPageUI.PRICE_FILTER_ERROR);

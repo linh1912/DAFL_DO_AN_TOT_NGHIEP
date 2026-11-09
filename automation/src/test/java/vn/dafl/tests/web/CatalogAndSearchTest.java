@@ -172,6 +172,25 @@ public class CatalogAndSearchTest extends BaseTest {
                 "Khoang sai + bam 'Áp dụng' phai hien loi price-filter-error");
     }
 
+    @Test(description = "TC-CN04-05 (dot 11): Bam khoang gia co san '100K - 300K' thi dien san Tu/Den va loc dung khoang")
+    public void pricePresetAppliesRange() {
+        openHomePage();
+        ProductCatalogPageObject catalog = new ProductCatalogPageObject();
+        catalog.waitForProductsLoaded();
+
+        catalog.clickPricePreset(1);
+        Assert.assertEquals(catalog.getPriceFromValue(), "100000",
+                "Bam preset '100K - 300K' phai dien o Tu = 100000");
+        Assert.assertEquals(catalog.getPriceToValue(), "300000",
+                "Bam preset '100K - 300K' phai dien o Den = 300000");
+        List<Long> prices = catalog.getDisplayedProductPrices();
+        Assert.assertFalse(prices.isEmpty(), "Khoang gia 100k-300k phai co san pham (du lieu seed)");
+        for (Long price : prices) {
+            Assert.assertTrue(price >= 100_000 && price <= 300_000,
+                    "Sau khi bam preset, san pham ngoai khoang gia van bi hien: " + price);
+        }
+    }
+
     @Test(description = "CN-04/05: San pham het hang hien nhan 'Het hang' va nut them gio bi khoa (bo qua neu du lieu seed chua co)")
     public void outOfStockProductShowsBadge() {
         openHomePage();

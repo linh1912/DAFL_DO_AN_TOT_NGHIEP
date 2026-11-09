@@ -1,16 +1,17 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **130 test method / 15 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (12 lớp web bán hàng, 102 test) và `automation/src/test/java/vn/dafl/tests/admin/` (3 lớp admin, 28 test).
+> Bộ test tự động: **142 test method / 17 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (13 lớp web bán hàng, 107 test) và `automation/src/test/java/vn/dafl/tests/admin/` (4 lớp admin, 35 test).
 > Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
-> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 102 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 28 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
-> Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-11, ADT-01..ADT-09, ACR-01..ACR-08 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
+> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 107 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 35 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
+> Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-14, ADT-01..ADT-09, ACR-01..ACR-08, ADM-W13-01..ADM-W13-04 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
+> Đợt 13: xem mục "Tính năng mới đợt 13" ở cuối bảng ánh xạ (trang Hội viên, quên mật khẩu, sửa/xóa voucher Draft, điểm khách đọc lại được, ghi nhận hoàn tiền, lọc ngày + Export nhật ký, đăng nhập admin không nút quay lại).
 
 ## Tổng hợp theo lớp
 
 | Lớp test | Số test | Phạm vi |
 |---|---|---|
-| web/AuthTest | 18 | CN-01 đăng ký, CN-02 đăng nhập/JWT/đăng xuất + đăng nhập admin bằng tên `admin` ở :3001, không còn nút social |
-| web/CatalogAndSearchTest | 11 | CN-04 danh mục, tìm kiếm, lọc, sắp xếp, phân trang + nút 'Áp dụng' lọc giá |
+| web/AuthTest | 19 | CN-01 đăng ký, CN-02 đăng nhập/JWT/đăng xuất + đăng nhập admin bằng tên `admin` ở :3001, không còn nút social + link 'Quên mật khẩu' ở form đăng nhập shop (đợt 13, FP-01) |
+| web/CatalogAndSearchTest | 12 | CN-04 danh mục, tìm kiếm, lọc, sắp xếp, phân trang + nút 'Áp dụng' lọc giá |
 | web/ProductDetailTest | 9 | CN-05 chi tiết sản phẩm + đánh giá sao (đợt 4) |
 | web/CartManagementTest | 9 | CN-06 giỏ hàng khách + gộp giỏ + voucher |
 | web/CheckoutAndOrderTest | 10 | CN-07 thanh toán/đặt hàng, PayOS, phí ship + nút Đặt hàng sticky, tab đơn có số lượng + PayOS không còn tab nhúng/iframe |
@@ -21,10 +22,12 @@
 | web/HomeHeroTest | 10 | Banner hero + Flash Sale (đợt 2–4) + modal thông báo + dark mode (đợt 8) |
 | web/NotFoundPageTest | 2 | Trang 404 (đợt 3–4) |
 | web/NewsletterTest | 3 | Đăng ký bản tin ở footer web bán hàng NL-01..03 (chuyển từ admin/AdminAndNewsletterTest sang web đợt 10) |
-| admin/AdminAndNewsletterTest | 11 | Trang Admin chỉ đọc + biểu đồ doanh thu (đợt 3–4) + tìm kiếm/lọc/Export/topbar search (đợt 8); 3 test bản tin NL-01..03 đã chuyển sang web/NewsletterTest (đợt 10) |
+| web/MembershipTest | 3 | Trang Hội viên riêng /membership (MEM-01/02) + 15 link footer (FTR-01) — đợt 13 |
+| admin/AdminAndNewsletterTest | 14 | Trang Admin chỉ đọc + biểu đồ doanh thu (đợt 3–4) + tìm kiếm/lọc/Export (đợt 8); đợt 12: o search topbar đã bỏ (tìm kiếm ở toolbar của mục), toolbar chuẩn + phân trang 10 dòng/trang + form mở trong modal (ADM-11 viết lại, ADM-12..ADM-14 mới); 3 test bản tin NL-01..03 đã chuyển sang web/NewsletterTest (đợt 10) |
 | admin/AdminDetailTest | 9 | Modal xem chi tiết admin Spark: sản phẩm, danh mục, khuyến mãi, hạng, đơn, khách, trả hàng + mở form sửa từ modal (đợt 8, chỉ đọc) |
-| admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn (đợt 10 — không khôi phục được trạng thái cũ), điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy (trừ ACR-06/07) |
-| **Tổng** | **130** | **102 web + 28 admin** |
+| admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn (đợt 10 — không khôi phục được trạng thái cũ), điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy (trừ ACR-06/07); đợt 13: ACR-05 thêm sửa/xóa voucher Draft qua hộp xác nhận, ACR-08 đọc lại số dư điểm trước/sau và khẳng định tăng đúng +5 |
+| admin/AdminWave13Test | 4 | Tính năng mới đợt 13 trên Admin riêng (ADM-W13-01..04): đăng nhập admin không nút quay lại, link 'Quên mật khẩu' ở admin, nút 'Ghi nhận đã hoàn tiền' (chỉ mở modal xem), lọc ngày + Export nhật ký hệ thống |
+| **Tổng** | **142** | **107 web + 35 admin** |
 
 ## CN-01 — Đăng ký tài khoản
 
@@ -54,6 +57,7 @@
 | — | AuthTest.switchBetweenLoginAndRegisterTabs / closeModalAndReopen / toggleLoginPasswordVisibility / loginFailsThenSucceedsInSameModalSession | `auth-tab-login`, `auth-tab-register`, `auth-close-btn`, `toggle-login-password-btn` |
 | CN-02 (đợt 8) | AuthTest.adminLoginWithUsernameAdminOnAdminOnlyApp | trang Admin riêng `localhost:3001/login`, nhập `admin` → map `admin@dafl.vn`, tiêu đề `Đăng nhập quản trị`, vào được menu admin (skip nếu service :3001 chưa chạy) |
 | CN-02 (đợt 8) | AuthTest.shopLoginFormHasNoSocialLoginButtons | form đăng nhập shop không còn nút/chữ Google/Facebook (đã bỏ hẳn đăng nhập mạng xã hội) |
+| FP-01 (đợt 13) | AuthTest.shopLoginShowsForgotPasswordLinkAndOpensForm | link `forgot-password-link` ("Quên mật khẩu?") ở form đăng nhập shop → bấm mở `forgot-password-form` (ô `forgot-password-email-input` + nút `forgot-password-submit-btn`) → nút `forgot-password-back-btn` về lại form đăng nhập; chỉ kiểm UI, không gửi mail thật |
 
 ## CN-03 — Hồ sơ & sổ địa chỉ
 
@@ -82,6 +86,7 @@
 | TC-CN04-02 | CatalogAndSearchTest.sortByPriceAscendingAndDescending | `sort-select` (price-asc/price-desc) |
 | TC-CN04-03 | CatalogAndSearchTest.priceRangeFilterAndInvalidRangeError | `price-from-input`, `price-to-input`, `price-filter-error` |
 | TC-CN04-04 (đợt 8) | CatalogAndSearchTest.priceApplyButtonAppliesRange | nut `price-apply-btn` ap dung khoang gia da nhap; khoang sai + nut Ap dung thi bao loi |
+| TC-CN04-05 (đợt 11) | CatalogAndSearchTest.pricePresetAppliesRange | bam khoang gia co san `price-preset-1` (100K - 300K) dien san Tu/Den + loc dung khoang |
 | CN-04/05 | CatalogAndSearchTest.outOfStockProductShowsBadge | `product-stock-{id}` = "Hết hàng" + nút thêm bị khóa (Skip nếu seed chưa có) |
 | CN-05 | CatalogAndSearchTest.openProductDetailAndBack | `product-detail-page`, `product-detail-back-btn` |
 
@@ -170,7 +175,10 @@
 | ADM-08 (đợt 8) | AdminAndNewsletterTest.adminCustomerSearchFiltersRows | `admin-customer-search` loc dung (email demo ra dong, email la ra 0 dong + 'Không có khách hàng nào.') |
 | ADM-09 (đợt 8) | AdminAndNewsletterTest.adminOrderStatusFilterShowsOnlyCancelled | `admin-order-status-filter` chon 'Đã hủy' + nut 'Tìm' → chi don da huy hoac 'Không có đơn hàng nào.' |
 | ADM-10 (đợt 8) | AdminAndNewsletterTest.adminExportButtonIsClickableWithoutError | nut 'Export' bam duoc, trang admin van dung yen (xuat CSV client-side, khong khang dinh file tai ve) |
-| ADM-11 (đợt 8) | AdminAndNewsletterTest.adminTopbarSearchFiltersCurrentTab | o search topbar (`.sa-topbar-search input`) loc that theo muc San pham dang mo |
+| ADM-11 (đợt 12, viết lại) | AdminAndNewsletterTest.adminToolbarSearchFiltersProductsAndTopbarSearchRemoved | o search topbar đã bỏ (khẳng định âm: topbar không còn ô tìm kiếm) — tìm kiếm ở toolbar của mục Sản phẩm (`admin-product-search`) vẫn lọc đúng ('Mặt nạ' ra dòng) |
+| ADM-12 (đợt 12) | AdminAndNewsletterTest.adminProductsPaginationNextPrevChangesPage | phân trang bảng Sản phẩm (`admin-products-pagination`, 10 dòng/trang): trang 1 tối đa 10 dòng, bấm 'Sau' sang trang 2 rồi 'Trước' về trang 1, 'Trang X / Y' đổi theo (skip nếu ≤ 10 dòng) |
+| ADM-13 (đợt 12) | AdminAndNewsletterTest.adminAddProductOpensFormModalAndCloseReturnsToTable | bấm '+ Thêm sản phẩm' ở toolbar → form mở trong modal (`admin-product-form-modal`, tiêu đề 'Thêm sản phẩm'); đóng modal bằng nút X → quay lại bảng, không tạo dữ liệu |
+| ADM-14 (đợt 12) | AdminAndNewsletterTest.adminProductsToolbarHasAddResetRefreshButtons | toolbar chuẩn mục Sản phẩm: nút '+ Thêm sản phẩm' ở trái + nút icon 'Đặt lại' (`admin-products-reset-btn`) / 'Làm mới' (`admin-products-refresh-btn`) ở phải; bấm 'Đặt lại' xóa từ khóa và về trang 1; mục Danh mục cũng có đủ 2 nút icon |
 | ADT-01 (đợt 8) | AdminDetailTest.productDetailModalShowsCorrectProduct | nut mat `Xem chi tiết sản phẩm *` → `admin-product-detail` hien dung ten SP + 'Giá bán', dong duoc |
 | ADT-02 (đợt 8) | AdminDetailTest.categoryDetailModalShowsCorrectCategory | nut mat danh muc → `admin-category-detail` hien dung ten danh muc, dong duoc |
 | ADT-03 (đợt 8) | AdminDetailTest.promoDetailModalShowsCorrectCode | nut mat khuyen mai → `admin-promo-detail` hien dung ma voucher, dong duoc |
@@ -178,7 +186,7 @@
 | ADT-05 (đợt 8) | AdminDetailTest.orderDetailModalShowsOrderCode | nut mat don → `admin-order-detail` hien dung ma don (skip neu DB chua co don) |
 | ADT-06 (đợt 8) | AdminDetailTest.customerDetailModalShowsCorrectCustomer | nut mat khach → `admin-customer-detail` hien dung ten khach, dong duoc |
 | ADT-07 (đợt 8) | AdminDetailTest.returnDetailModalShowsOrderCode | nut 'Duyệt / Từ chối' → `admin-return-detail` hien ma don, chi dong (khong duyet/tu choi; skip neu chua co yeu cau tra hang) |
-| ADT-08 (đợt 8) | AdminDetailTest.productDetailEditButtonOpensEditFormWithoutSaving | tu modal chi tiet SP, nut 'Sửa sản phẩm' → `admin-product-form` hien 'Sửa sản phẩm' + ten SP; dong form khong luu |
+| ADT-08 (đợt 12, sửa) | AdminDetailTest.productDetailEditButtonOpensEditFormWithoutSaving | tu modal chi tiet SP, nut 'Sửa sản phẩm' → form sua mo trong modal (`admin-product-form-modal`, tieu de 'Sửa sản phẩm', o ten dien san ten SP — tieu de/ten khong con trong text cua form); dong form khong luu |
 | ADT-09 (đợt 8) | AdminDetailTest.categoryDetailModalClosesWithFooterButton | modal chi tiet danh muc dong duoc bang nut 'Đóng' o footer |
 | NL-01 | NewsletterTest.newsletterSubscribeSuccess | email mới → `.newsletter-success` "Cảm ơn bạn đã đăng ký nhận bản tin DAFL." |
 | NL-02 | NewsletterTest.newsletterInvalidEmailShowsError | email sai định dạng → `.newsletter-error` "Vui lòng nhập email đúng định dạng." |
@@ -187,16 +195,34 @@
 | ACR-02 (đợt 9) | AdminCrudTest.adminEditProductChangesNameAndPrice | tạo SP rồi sửa tên + giá 149.000đ → tìm tên mới thấy đúng giá mới, tìm tên cũ ra 0 dòng; tự xóa SP sau test |
 | ACR-03 (đợt 9) | AdminCrudTest.adminDeleteProductRemovesFromTable | tạo SP rồi xóa → tìm lại ra 0 dòng + 'Không có sản phẩm nào.' |
 | ACR-04 (đợt 9) | AdminCrudTest.adminCategoryCreateEditDelete | tạo danh mục `TESTDM-<timestamp>` → sửa tên → xóa; mỗi bước kiểm tra qua tìm kiếm (sau xóa: 0 dòng + 'Chưa có danh mục.') |
-| ACR-05 (đợt 9) | AdminCrudTest.adminPromoCreateActivateDisable | tạo voucher `TEST<timestamp>` giảm 10% → trạng thái Draft → kích hoạt thành Active → tắt có lý do thành Disabled; giao diện KHÔNG có sửa/xóa voucher nên voucher Disabled để lại (vô hiệu, không áp dụng được) |
-| ACR-06 (đợt 9) | AdminCrudTest.adminChangeOwnTestOrderStatusToConfirmed | đặt 1 đơn COD bằng demo → admin đổi Pending → 'Đã xác nhận' → bảng đơn hiện 'Đã xác nhận' (chỉ đổi đơn do test tạo) |
-| ACR-07 (đợt 9) | AdminCrudTest.adminCancelOwnTestOrder | đặt 1 đơn COD bằng demo → admin hủy có lý do → bảng đơn hiện 'Đã hủy' (chỉ hủy đơn do test tạo) |
-| ACR-08 (đợt 9) | AdminCrudTest.adminAdjustPointsForDemoCustomer | cộng 5 điểm cho demo@dafl.vn → thông báo thành công + ô điểm/lý do được xóa trắng; hoàn tác -5 sau test (tổng kết bằng 0). Lưu ý: giao diện không có chỗ đọc lại số dư điểm nên test không khẳng định được số dư mới |
+| ACR-05 (đợt 9, viết lại đợt 13) | AdminCrudTest.adminPromoCreateActivateDisable | voucher 1: tạo `TEST<timestamp>` giảm 10% → Draft (có nút `admin-promo-edit-btn`/`admin-promo-delete-btn`) → sửa mô tả + giá trị 15% → vẫn Draft → xóa qua hộp xác nhận `admin-confirm-modal` + nút `admin-confirm-yes-btn` → tìm lại 0 dòng + 'Chưa có khuyến mãi.'; voucher 2: tạo → kích hoạt thành Active (mất nút sửa/xóa) → tắt có lý do thành Disabled, để lại (vô hiệu) |
+| ACR-06 (đợt 10) | AdminCrudTest.adminChangePendingOrderStatusToConfirmed | đổi trạng thái 1 đơn 'Chờ xử lý' CÓ SẴN trong DB sang 'Đã xác nhận' → bảng đơn hiện 'Đã xác nhận' (không đặt đơn qua :3000; trạng thái cũ không khôi phục được; skip nếu DB không có đơn chờ xử lý) |
+| ACR-07 (đợt 10) | AdminCrudTest.adminCancelPendingOrder | hủy 1 đơn 'Chờ xử lý' CÓ SẴN trong DB, bắt buộc có lý do → bảng đơn hiện 'Đã hủy' (không đặt đơn qua :3000; trạng thái cũ không khôi phục được; skip nếu DB không có đơn chờ xử lý) |
+| ACR-08 (đợt 9, viết lại đợt 13) | AdminCrudTest.adminAdjustPointsForDemoCustomer | đọc số dư điểm demo TRƯỚC qua modal chi tiết khách (`admin-customer-detail-points`) → cộng 5 điểm → thông báo thành công + ô điểm/lý do được xóa trắng → đọc lại SAU, khẳng định tăng đúng +5; hoàn tác -5 sau test (tổng kết bằng 0). Lưu ý testid cột Điểm ở bảng Khách hàng là `admin-customer-points-<id>` (id khách, không phải email) |
 | CN-05 (đợt 4) | ProductDetailTest.productDetailShowsReviewsSection | `product-reviews-section` luôn hiện; có đánh giá → `product-rating-summary` + `product-review-item`, chưa có → "Chưa có đánh giá nào" |
 | CN-05 (đợt 4) | ProductDetailTest.seededProductShowsSampleReviewWithAverageRating | Son kem 3CE → 1 đánh giá mẫu, tóm tắt "5.0", Trần Hoàng Nam (skip nếu DB hiện tại không có đánh giá mẫu) |
 | CN-07 (đợt 3) | CheckoutAndOrderTest.checkoutSubmitButtonHasStickyClassAndOrderTotal | nút Đặt hàng có class `checkout-submit-btn` (sticky mobile), ghi "Đặt hàng" |
 | CN-08 (đợt 2–3) | CheckoutAndOrderTest.orderStatusTabsShowCountsAndFilterByTab | tab `order-status-tab-*` hiện số lượng "(n)"; bấm tab lọc đúng danh sách (đã sửa `filterByStatus` từ `<select>` sang tab) |
 
-> Không viết test đổi mật khẩu admin tự khôi phục (rủi ro kẹt mật khẩu tạm nếu suite dừng giữa chừng). Test CRUD (ACR-01..ACR-08) chỉ đụng dữ liệu do chính test tạo (tên/mã kèm timestamp, đơn COD đặt bằng demo trong test) và tự dọn sau khi chạy; không test khóa/mở khóa tài khoản người khác, không duyệt/từ chối yêu cầu trả hàng của người khác, không sửa/xóa voucher (giao diện admin không có 2 thao tác này — chỉ tạo/kích hoạt/tắt).
+> Không viết test đổi mật khẩu admin tự khôi phục (rủi ro kẹt mật khẩu tạm nếu suite dừng giữa chừng). Test CRUD (ACR-01..ACR-08) chỉ đụng dữ liệu do chính test tạo (tên/mã kèm timestamp) và tự dọn sau khi chạy — trừ ACR-06/07 đổi/hủy 1 đơn 'Chờ xử lý' có sẵn trong DB (không khôi phục được trạng thái cũ); không test khóa/mở khóa tài khoản người khác, không duyệt/từ chối yêu cầu trả hàng của người khác. Từ đợt 13, admin ĐÃ có sửa/xóa voucher Draft (chỉ Draft) qua hộp xác nhận chung `admin-confirm-modal` — xem ACR-05.
+
+## Tính năng mới đợt 13 (quên mật khẩu, hội viên, footer, hoàn tiền, nhật ký, đăng nhập admin)
+
+| Mã TC | Lớp.phương thức | Testid/khẳng định chính |
+|---|---|---|
+| FP-01 | AuthTest.shopLoginShowsForgotPasswordLinkAndOpensForm | xem dòng CN-02 ở trên: link `forgot-password-link` ở shop, chỉ kiểm UI, không gửi mail thật |
+| FP-02 | AdminWave13Test.adminLoginShowsForgotPasswordLinkAndOpensForm | link `forgot-password-link` ở form đăng nhập admin riêng → mở `forgot-password-form` → nút `forgot-password-back-btn` về lại form đăng nhập; chỉ kiểm UI, không gửi mail thật (mã 6 số gửi qua SMTP thật chỉ kiểm bằng tay) |
+| MEM-01 | MembershipTest.loggedInMembershipPageShowsTierPointsHistoryAndVouchers | đăng nhập demo → menu tài khoản `dropdown-membership-btn` → `/membership`: `membership-page`, `membership-tier`, `membership-points-balance`, `membership-benefits`, `membership-history`, `membership-vouchers`, `membership-refresh-btn` (bấm làm mới vẫn hiện đủ) |
+| MEM-02 | MembershipTest.membershipPageRedirectsToLoginWhenLoggedOut | chưa đăng nhập mở thẳng `/membership` → về `/login` (guard ở App.tsx; giống TC-CN02-03 cho /orders, /profile) |
+| FTR-01 | MembershipTest.footerLinksHaveRealHrefsAndTrackOrderGoesToOrders | đủ 15 link `footer-link-*` (skincare, makeup, hair, body, flash-sale, guide, shipping, returns, track-order, faq, about, shops, magazine, member, contact) đều có href thật cùng SUT, không phải `#`; `footer-link-member` → `/membership`; bấm `footer-link-track-order` → `/orders` |
+| ADM-W13-01 | AdminWave13Test.adminLoginPageHasNoBackButtonAndCenteredWrapper | trang đăng nhập admin riêng: `auth-close-btn` VẮNG MẶT, khung `auth-page-wrapper` (class `auth-page-wrapper`, căn giữa) hiện, tiêu đề 'Đăng nhập quản trị' |
+| ADM-W13-02 | AdminWave13Test.adminLoginShowsForgotPasswordLinkAndOpensForm | xem FP-02 ở trên |
+| ADM-W13-03 | AdminWave13Test.refundRecordButtonOnlyOnApprovedPendingRefundAndOpensModal | tab Trả hàng: nút `admin-return-record-refund-btn` chỉ xét khi có dữ liệu thật (skip nếu DB không có yêu cầu Approved + PendingRefund + refundId); dòng có nút phải chứa 'Approved' + 'PendingRefund'; bấm mở `admin-refund-record-modal` (ô `admin-refund-transaction-input` + nút `admin-refund-record-confirm-btn`) rồi đóng, KHÔNG nhập mã, KHÔNG xác nhận hoàn tiền thật |
+| ADM-W13-04 | AdminWave13Test.auditLogDateFilterAndExportControlsWork | cuối tab Trả hàng, mục 'Nhật ký hệ thống': ô `admin-log-date-from` / `admin-log-date-to` + nút `admin-log-filter-btn` (lọc khoảng 2026-01-01..2026-12-31, mục vẫn hiện) + nút `admin-log-export-btn` (bấm xong trang admin vẫn đứng yên; chỉ bấm, không khẳng định file tải về — giống ADM-10) |
+| ACR-05 (đợt 13) | AdminCrudTest.adminPromoCreateActivateDisable | xem dòng ACR-05 ở trên: sửa/xóa voucher Draft qua `admin-confirm-modal` |
+| ACR-08 (đợt 13) | AdminCrudTest.adminAdjustPointsForDemoCustomer | xem dòng ACR-08 ở trên: đọc điểm trước/sau qua `admin-customer-detail-points`, khẳng định +5 |
+
+> Lưu ý testid thật trong code đợt 13 (đừng dùng tên viết tắt): form quên mật khẩu dùng `forgot-password-email-input` / `forgot-password-submit-btn` / `forgot-password-back-btn` / `forgot-password-success` / `forgot-password-notice`; form đặt lại dùng `reset-password-form`, `reset-code-input`, `reset-new-password-input`, `reset-confirm-password-input`, `reset-password-submit-btn`. Cột Điểm ở bảng Khách hàng dùng `admin-customer-points-<id>` (id khách). Nút sửa/xóa voucher lặp lại theo dòng — test định vị theo dòng qua aria-label `Sửa khuyến mãi <mã>` / `Xóa khuyến mãi <mã>`, không dùng testid trần.
 
 ## Kiểm thử hiệu năng (JMeter) — đã đổi sang JWT
 

@@ -43,4 +43,33 @@ public class SiteFooterPageObject extends BasePage {
         waitForElementVisible(SiteFooterUI.NEWSLETTER_ERROR_MSG);
         return getElementText(SiteFooterUI.NEWSLETTER_ERROR_MSG);
     }
+
+    // ---------- Lien ket chan trang (dot 13, muc 9) ----------
+    /** 15 khoa link footer hien co trong SiteFooter.tsx (doi chieu du ca 15). */
+    public static final String[] FOOTER_LINK_KEYS = {
+            "category-skincare", "category-makeup", "category-hair", "category-body",
+            "flash-sale", "guide", "shipping", "returns", "track-order", "faq",
+            "about", "shops", "magazine", "member", "contact"
+    };
+
+    /** So link footer-link-* dang hien tren trang (ky vong 15). */
+    public int getFooterLinkCount() {
+        return getListWebElements(SiteFooterUI.ANY_FOOTER_LINK).size();
+    }
+
+    /** Gia tri href cua 1 link footer (URL tuyet doi do trinh duyet tra ve);
+     *  null neu link khong ton tai. */
+    public String getFooterLinkHref(String linkKey) {
+        if (!isElementDisplayedWithWait(getDynamicLocator(SiteFooterUI.DYNAMIC_FOOTER_LINK, linkKey), 10)) {
+            return null;
+        }
+        return getElementAttribute(getDynamicLocator(SiteFooterUI.DYNAMIC_FOOTER_LINK, linkKey), "href");
+    }
+
+    /** Cuon toi roi bam 1 link footer (chi dung cho link dan toi route can kiem tra). */
+    public void clickFooterLink(String linkKey) {
+        scrollToElement(SiteFooterUI.DYNAMIC_FOOTER_LINK, linkKey);
+        clickToElement(SiteFooterUI.DYNAMIC_FOOTER_LINK, linkKey);
+        sleepInSecond(2); // cho route moi tai xong
+    }
 }

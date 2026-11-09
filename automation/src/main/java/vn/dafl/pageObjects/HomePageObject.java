@@ -104,6 +104,15 @@ public class HomePageObject extends BasePage {
         return new ProfilePageObject();
     }
 
+    /** Mo trang Hoi vien rieng /membership tu menu tai khoan (dot 13, muc 2). */
+    public MembershipPageObject openMembershipPage() {
+        openAccountDropdown();
+        clickToElement(HomePageUI.DROPDOWN_MEMBERSHIP_BTN);
+        MembershipPageObject membershipPage = new MembershipPageObject();
+        membershipPage.waitForMembershipLoaded();
+        return membershipPage;
+    }
+
     /** Bam nut gio hang - SUT chuyen sang trang /cart (route "cart"). */
     public CartDrawerPageObject openCart() {
         try {
