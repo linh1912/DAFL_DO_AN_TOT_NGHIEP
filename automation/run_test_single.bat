@@ -111,15 +111,17 @@ if not exist "target\site\allure-maven-plugin\index.html" (
 )
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmmss"') do set TS=%%i
 xcopy /e /i /q "target\site\allure-maven-plugin" "..\bao-cao\allure-single-%TS%"
+xcopy /e /i /q "target\allure-results" "..\bao-cao\allure-results-single-%TS%"
 echo [OK] Bao cao Allure da tao xong:
 echo      %~dp0..\bao-cao\allure-single-%TS%\index.html
-start "" "..\bao-cao\allure-single-%TS%\index.html"
+echo [OK] Dang mo bao cao qua may chu local - xem xong bam Ctrl + C de dung.
+call "%~dp0mvnw.cmd" allure:serve
 pause
 exit /b 0
 
 :NOCLASS
 echo [LOI] Khong tim thay lop %CLASS_NAME% trong thu muc %SIDE%.
-echo Cac lop web (go ten lop, khong can thu muc con - script tu tim file): AuthTest, AuthExtendedTest, CatalogAndSearchTest, CatalogExtendedTest, ProductDetailTest, ProductDetailExtendedTest, CartManagementTest, CartExtendedTest, CheckoutAndOrderTest, CheckoutExtendedTest, CheckoutPaymentTest, OrderCancellationTest, OrdersExtendedTest, ProfileAndAddressTest, ProfileExtendedTest, MembershipTest, MembershipExtendedTest, HomeHeroTest, HomePageTest, HomeHeaderTest, NewsletterTest, NotFoundPageTest, NotificationsFooterTest, Wave15FeaturesTest, EndToEndShoppingFlowTest, NegativeAndExceptionScenariosTest
+echo Cac lop web (go ten lop, khong can thu muc con - script tu tim file): AuthTest, CatalogAndSearchTest, CatalogExtendedTest, ProductDetailTest, ProductDetailExtendedTest, CartManagementTest, CartExtendedTest, CheckoutAndOrderTest, CheckoutExtendedTest, CheckoutPaymentTest, OrderCancellationTest, OrdersExtendedTest, ProfileAndAddressTest, ProfileExtendedTest, MembershipTest, MembershipExtendedTest, HomeHeroTest, HomePageTest, HomeHeaderTest, NewsletterTest, NotFoundPageTest, NotificationsFooterTest, Wave15FeaturesTest, EndToEndShoppingFlowTest, NegativeAndExceptionScenariosTest
 echo Cac lop admin: AdminAndNewsletterTest, AdminCrudTest, AdminDetailTest, AdminUploadTest, AdminWave13Test, AdminReviewTest
 pause
 exit /b 1

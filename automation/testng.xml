@@ -24,7 +24,6 @@
             <class name="vn.dafl.tests.web.EndToEndShoppingFlowTest"/>
             <class name="vn.dafl.tests.web.NegativeAndExceptionScenariosTest"/>
             <class name="vn.dafl.tests.web.Wave15FeaturesTest"/>
-            <class name="vn.dafl.tests.web.auth.AuthExtendedTest"/>
             <class name="vn.dafl.tests.web.profile.ProfileExtendedTest"/>
             <class name="vn.dafl.tests.web.catalog.CatalogExtendedTest"/>
             <class name="vn.dafl.tests.web.home.HomePageTest"/>

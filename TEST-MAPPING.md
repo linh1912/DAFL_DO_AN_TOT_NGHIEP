@@ -1,13 +1,13 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **321 test method / 32 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (26 lớp web bán hàng, 275 test — chia thư mục con theo nhóm chức năng: `auth/` đăng nhập/đăng ký, `catalog/` danh mục + chi tiết SP, `cart/` giỏ hàng, `checkout/` đặt hàng/thanh toán, `orders/` đơn hàng, `profile/` hồ sơ/địa chỉ, `membership/` hội viên, `home/` trang chủ + bản tin + 404 + footer; 3 lớp xuyên chức năng giữ ở gốc `web/`: `EndToEndShoppingFlowTest`, `NegativeAndExceptionScenariosTest`, `Wave15FeaturesTest`) và `automation/src/test/java/vn/dafl/tests/admin/` (6 lớp admin, 46 test).
+> Bộ test tự động: **321 test method / 31 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (25 lớp web bán hàng, 275 test — chia thư mục con theo nhóm chức năng: `auth/` đăng nhập/đăng ký, `catalog/` danh mục + chi tiết SP, `cart/` giỏ hàng, `checkout/` đặt hàng/thanh toán, `orders/` đơn hàng, `profile/` hồ sơ/địa chỉ, `membership/` hội viên, `home/` trang chủ + bản tin + 404 + footer; 3 lớp xuyên chức năng giữ ở gốc `web/`: `EndToEndShoppingFlowTest`, `NegativeAndExceptionScenariosTest`, `Wave15FeaturesTest`) và `automation/src/test/java/vn/dafl/tests/admin/` (6 lớp admin, 46 test).
 > Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
 > Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 275 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 46 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
 > Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-14, ADT-01..ADT-09, ACR-01..ACR-08, ADM-W13-01..ADM-W13-04, UP-01..UP-03 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
 > Đợt 13: xem mục "Tính năng mới đợt 13" ở cuối bảng ánh xạ (trang Hội viên, quên mật khẩu, sửa/xóa voucher Draft, điểm khách đọc lại được, ghi nhận hoàn tiền, lọc ngày + Export nhật ký, đăng nhập admin không nút quay lại).
 > Đợt redesign form admin + upload ảnh: xem mục "Đợt redesign form admin + upload ảnh" ở cuối bảng ánh xạ (drawer form sản phẩm, dropdown danh mục custom, toast admin-toast, upload ảnh UP-01..UP-03).
 > Đợt 15: xem mục "Tính năng mới đợt 15" ở cuối bảng ánh xạ (gửi đánh giá sản phẩm RV-01..04, dùng điểm khi thanh toán PT-01..04, ngày sinh + voucher sinh nhật BD-01..04).
-> Đợt 15.1 (bước 3): xem mục "Đợt 15.1 — test auto từ file test case manual v15.1" ở cuối bảng ánh xạ (156 test mới / 12 lớp web, cover đủ 176 case loại (c) trong 338 case manual; mã RV-05..10, PT-05..08, BD-05..09 do nhóm viết test gán nối tiếp RV/PT/BD đợt 15 — file manual không ghi sẵn các mã này).
+> Đợt 15.1 (bước 3): xem mục "Đợt 15.1 — test auto từ file test case manual v15.1" ở cuối bảng ánh xạ (156 test mới / 12 lớp web (ngày 2026-11-10 gộp AuthExtendedTest vào AuthTest, còn 11 file riêng), cover đủ 176 case loại (c) trong 338 case manual; mã RV-05..10, PT-05..08, BD-05..09 do nhóm viết test gán nối tiếp RV/PT/BD đợt 15 — file manual không ghi sẵn các mã này).
 > Đợt 16: xem mục "Đợt 16 — Quản lý đánh giá admin (RVM-01..08)" ở cuối bảng ánh xạ (mục "Đánh giá" thứ 9 trên Admin riêng :3001 — bảng, lọc sao + tìm kiếm, Export, phân trang, modal chi tiết, xóa qua hộp xác nhận).
 > Ghi chú về báo cáo Allure: báo cáo Allure hiển thị tên test, nhóm chức năng (Feature/Story) và tên suite bằng tiếng Việt (tên suite lấy từ thuộc tính `name` trong các file `automation/testng-web.xml`, `testng-admin.xml`, `testng.xml`). Menu giao diện Allure (Overview/Suites/Graphs...) vẫn tiếng Anh vì Allure không có bản dịch tiếng Việt.
 
@@ -15,7 +15,7 @@
 
 | Lớp test | Số test | Phạm vi |
 |---|---|---|
-| web/AuthTest | 19 | CN-01 đăng ký, CN-02 đăng nhập/JWT/đăng xuất + đăng nhập admin bằng tên `admin` ở :3001, không còn nút social + link 'Quên mật khẩu' ở form đăng nhập shop (đợt 13, FP-01) |
+| web/AuthTest | 38 | CN-01 đăng ký, CN-02 đăng nhập/JWT/đăng xuất + đăng nhập admin bằng tên `admin` ở :3001, không còn nút social + link 'Quên mật khẩu' ở form đăng nhập shop (đợt 13, FP-01) + 19 test mở rộng gộp từ AuthExtendedTest (SCR_01 8 + SCR_02 11 case, BƯỚC 3) — 1 file duy nhất cho đăng nhập/đăng ký từ 2026-11-10 |
 | web/CatalogAndSearchTest | 12 | CN-04 danh mục, tìm kiếm, lọc, sắp xếp, phân trang + nút 'Áp dụng' lọc giá |
 | web/ProductDetailTest | 9 | CN-05 chi tiết sản phẩm + đánh giá sao (đợt 4) |
 | web/CartManagementTest | 9 | CN-06 giỏ hàng khách + gộp giỏ + voucher |
@@ -29,7 +29,6 @@
 | web/NewsletterTest | 3 | Đăng ký bản tin ở footer web bán hàng NL-01..03 (chuyển từ admin/AdminAndNewsletterTest sang web đợt 10) |
 | web/MembershipTest | 3 | Trang Hội viên riêng /membership (MEM-01/02) + 15 link footer (FTR-01) — đợt 13 |
 | web/Wave15FeaturesTest | 12 | Tính năng mới đợt 15: gửi đánh giá sản phẩm (RV-01..04), dùng điểm khi thanh toán (PT-01..04), ngày sinh + voucher sinh nhật (BD-01..04) |
-| web/AuthExtendedTest | 19 | Đăng ký/đăng nhập mở rộng: toggle mật khẩu, giữ dữ liệu khi trùng email, quên mật khẩu 3 bước (SCR_01 8 + SCR_02 11 case) — đợt 15.1 |
 | web/ProfileExtendedTest | 9 | Hồ sơ/sổ địa chỉ mở rộng (SCR_03 10 case) — đợt 15.1 |
 | web/CatalogExtendedTest | 15 | Danh mục/tìm kiếm/lọc/sắp xếp mở rộng (SCR_04 18 case) — đợt 15.1 |
 | web/HomePageTest | 12 | Trang chủ mở rộng: banner, danh mục nổi bật, bán chạy, gợi ý, Flash Sale (SCR_09 13 case) — đợt 15.1 |
@@ -303,25 +302,25 @@ Mã RV-05..10 / PT-05..08 / BD-05..09 **không có sẵn trong file manual** —
 
 | Mã TC (manual) | Lớp.phương thức | Mã test |
 |---|---|---|
-| TC_SCR1_UI_003 | AuthExtendedTest.registerPasswordTogglesWorkIndependently |  |
-| TC_SCR1_UI_004 | AuthExtendedTest.switchingTabsClearsPreviousErrors |  |
-| TC_SCR1_VAL_005 | AuthExtendedTest.registerWithAllFieldsEmptyShowsAllErrors |  |
-| TC_SCR1_VAL_006 | AuthExtendedTest.registerWithTooLongNameShowsError |  |
-| TC_SCR1_VAL_009 | AuthExtendedTest.registerWithInvalidPhoneVariantsShowsError |  |
-| TC_SCR1_VAL_016 | AuthExtendedTest.registerWithEmptyEmailShowsError |  |
-| TC_SCR1_VAL_017 | AuthExtendedTest.registerWithEmptyConfirmPasswordShowsError |  |
-| TC_SCR1_FUNC_019 | AuthExtendedTest.duplicateEmailKeepsEnteredDataExceptPasswords |  |
-| TC_SCR2_UI_002 | AuthExtendedTest.loginFormHasNoDemoOrOtpEntry |  |
-| TC_SCR2_SEC_015 | AuthExtendedTest.protectedPageReturnsAfterLogin |  |
-| TC_SCR2_VAL_017 | AuthExtendedTest.loginWithUsernameAdminOnShopShowsFormatError |  |
-| TC_SCR2_FUNC_018 | AuthExtendedTest.forgotPasswordStep1EmptyOrInvalidEmailShowsError |  |
-| TC_SCR2_FUNC_019 | AuthExtendedTest.forgotPasswordWithUnregisteredEmailShowsGenericMessage |  |
-| TC_SCR2_VAL_020 | AuthExtendedTest.resetPasswordWithShortCodeShowsError |  |
-| TC_SCR2_VAL_021 | AuthExtendedTest.resetPasswordWithWeakNewPasswordShowsError |  |
-| TC_SCR2_VAL_022 | AuthExtendedTest.resetPasswordWithMismatchedConfirmShowsError |  |
-| TC_SCR2_FUNC_023 | AuthExtendedTest.resetPasswordWithWrongCodeShowsErrorAndOldPasswordStillWorks |  |
-| TC_SCR2_FUNC_024 | AuthExtendedTest.resetPasswordWrongCodeFiveTimesDestroysCode |  |
-| TC_SCR2_FUNC_027 | AuthExtendedTest.forgotPasswordResendLimitExceedsThreePerHour |  |
+| TC_SCR1_UI_003 | AuthTest.registerPasswordTogglesWorkIndependently |  |
+| TC_SCR1_UI_004 | AuthTest.switchingTabsClearsPreviousErrors |  |
+| TC_SCR1_VAL_005 | AuthTest.registerWithAllFieldsEmptyShowsAllErrors |  |
+| TC_SCR1_VAL_006 | AuthTest.registerWithTooLongNameShowsError |  |
+| TC_SCR1_VAL_009 | AuthTest.registerWithInvalidPhoneVariantsShowsError |  |
+| TC_SCR1_VAL_016 | AuthTest.registerWithEmptyEmailShowsError |  |
+| TC_SCR1_VAL_017 | AuthTest.registerWithEmptyConfirmPasswordShowsError |  |
+| TC_SCR1_FUNC_019 | AuthTest.duplicateEmailKeepsEnteredDataExceptPasswords |  |
+| TC_SCR2_UI_002 | AuthTest.loginFormHasNoDemoOrOtpEntry |  |
+| TC_SCR2_SEC_015 | AuthTest.protectedPageReturnsAfterLogin |  |
+| TC_SCR2_VAL_017 | AuthTest.loginWithUsernameAdminOnShopShowsFormatError |  |
+| TC_SCR2_FUNC_018 | AuthTest.forgotPasswordStep1EmptyOrInvalidEmailShowsError |  |
+| TC_SCR2_FUNC_019 | AuthTest.forgotPasswordWithUnregisteredEmailShowsGenericMessage |  |
+| TC_SCR2_VAL_020 | AuthTest.resetPasswordWithShortCodeShowsError |  |
+| TC_SCR2_VAL_021 | AuthTest.resetPasswordWithWeakNewPasswordShowsError |  |
+| TC_SCR2_VAL_022 | AuthTest.resetPasswordWithMismatchedConfirmShowsError |  |
+| TC_SCR2_FUNC_023 | AuthTest.resetPasswordWithWrongCodeShowsErrorAndOldPasswordStillWorks |  |
+| TC_SCR2_FUNC_024 | AuthTest.resetPasswordWrongCodeFiveTimesDestroysCode |  |
+| TC_SCR2_FUNC_027 | AuthTest.forgotPasswordResendLimitExceedsThreePerHour |  |
 | TC_SCR6_UI_002 | CartExtendedTest.cartLineShowsAllComponentsAndTotals |  |
 | TC_SCR6_FUNC_008 | CartExtendedTest.directQuantityInputFiltersNonDigits |  |
 | TC_SCR6_FUNC_016, TC_SCR6_UI_014 | CartExtendedTest.cartTotalFormulaWithVoucherAndShipping |  |
@@ -479,4 +478,4 @@ Mục "Đánh giá" thứ 9 trên Admin riêng (`http://localhost:3001`, lớp `
 | RVM-07 | Nút Export bấm được, trang admin vẫn đứng yên | Chỉ kiểm tra nút bấm được, không assert nội dung file (xuất CSV client-side, giống ADM-10) |
 | RVM-08 | Phân trang 10 dòng/trang: trang 1 tối đa 10 dòng, bấm 'Sau' sang trang 2 rồi 'Trước' về trang 1 | Số trang theo tổng thật; skip nếu ≤ 10 dòng (giống ADM-12) |
 
-> **Tổng mới: web 275 / admin 46 / tổng 321 test / 32 lớp (web 26 + admin 6).** Lưu ý: RVM-06 là test duy nhất trong lớp đụng dữ liệu thật (xóa 1 đánh giá có sẵn, không khôi phục được — giống ACR-06/07 đổi/hủy đơn có sẵn); các test còn lại chỉ đọc. Tên phương thức trong `AdminReviewTest` map 1-1 theo mã RVM-01..08.
+> **Tổng mới: web 275 / admin 46 / tổng 321 test / 31 lớp (web 25 + admin 6).** Lưu ý: RVM-06 là test duy nhất trong lớp đụng dữ liệu thật (xóa 1 đánh giá có sẵn, không khôi phục được — giống ACR-06/07 đổi/hủy đơn có sẵn); các test còn lại chỉ đọc. Tên phương thức trong `AdminReviewTest` map 1-1 theo mã RVM-01..08.

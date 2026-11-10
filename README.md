@@ -18,8 +18,8 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 32 lớp test, 321 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
-│   │   ├── web/  ← 26 lớp web bán hàng, 275 test
+│   ├── src/test/java/vn/dafl/tests/  ← 31 lớp test, 321 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   │   ├── web/  ← 25 lớp web bán hàng, 275 test
 │   │   │   ├── AuthTest (19) · CatalogAndSearchTest (12) · ProductDetailTest (9)
 │   │   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (10) · OrderCancellationTest (3)
 │   │   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
