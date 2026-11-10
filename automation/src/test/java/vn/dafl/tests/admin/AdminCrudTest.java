@@ -3,6 +3,8 @@ package vn.dafl.tests.admin;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
@@ -38,6 +40,7 @@ import vn.dafl.pageObjects.AdminPageObject;
  * tai khoan admin@dafl.vn chua duoc seed tren DB nay.
  * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
+@Feature("Quản lý danh mục, sản phẩm và khuyến mãi")
 public class AdminCrudTest extends BaseTest {
 
     // Trang thai de don dep (chi du lieu do test tao); moi test method co browser moi
@@ -147,7 +150,8 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- San pham ----------
 
-    @Test(description = "ACR-01 (dot redesign form admin): Tao san pham moi o Admin (gia goc + mo ta) -> toast + hien trong bang + tim theo ten thay ngay + dong moi highlight")
+    @Story("Sản phẩm")
+    @Test(description = "ACR-01 (đợt redesign form admin): Tạo sản phẩm mới ở Admin (giá gốc + mô tả) → toast + hiện trong bảng + tìm theo tên thấy ngay + dòng mới highlight")
     public void adminCreateProductShowsInTableAndSearchable() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -180,7 +184,8 @@ public class AdminCrudTest extends BaseTest {
         }
     }
 
-    @Test(description = "ACR-02 (dot redesign form admin): Sua san pham vua tao (doi ten + gia + gia goc) -> bang cap nhat, tim ten cu khong thay; badge % giam + o gia chuan hoa bo dau cham")
+    @Story("Sản phẩm")
+    @Test(description = "ACR-02 (đợt redesign form admin): Sửa sản phẩm vừa tạo (đổi tên + giá + giá gốc) → bảng cập nhật, tìm tên cũ không thấy; badge % giảm + ô giá chuẩn hóa bỏ dấu chấm")
     public void adminEditProductChangesNameAndPrice() {
         String productName = uniqueProductName();
         String editedName = uniqueProductName();
@@ -233,7 +238,8 @@ public class AdminCrudTest extends BaseTest {
         }
     }
 
-    @Test(description = "ACR-03: Xoa san pham vua tao -> bien mat khoi bang, tim lai khong thay")
+    @Story("Sản phẩm")
+    @Test(description = "ACR-03: Xóa sản phẩm vừa tạo → biến mất khỏi bảng, tìm lại không thấy")
     public void adminDeleteProductRemovesFromTable() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -268,7 +274,8 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- Danh muc ----------
 
-    @Test(description = "ACR-04 (dot redesign form admin): Tao danh muc moi (slug tu sinh + mo ta + thu tu) -> sua ten (toggle trang thai hien) -> xoa qua hop xac nhan; moi buoc deu kiem tra qua tim kiem")
+    @Story("Danh mục")
+    @Test(description = "ACR-04 (đợt redesign form admin): Tạo danh mục mới (slug tự sinh + mô tả + thứ tự) → sửa tên (toggle trạng thái hiện) → xóa qua hộp xác nhận; mỗi bước đều kiểm tra qua tìm kiếm")
     public void adminCategoryCreateEditDelete() {
         String categoryName = uniqueCategoryName();
         String editedName = uniqueCategoryName();
@@ -323,7 +330,8 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- Khuyen mai / voucher ----------
 
-    @Test(description = "ACR-05 (dot redesign form admin): Tao voucher Draft qua form moi (loai %, don toi thieu, han) -> sua mo ta/gia tri/don toi thieu/tran giam/han/luot dung -> xoa qua hop xac nhan; voucher thu 2 dung nut tao ma ngau nhien + loai giam tien co dinh -> kich hoat -> tat co ly do")
+    @Story("Khuyến mãi")
+    @Test(description = "ACR-05 (đợt redesign form admin): Tạo voucher Draft qua form mới (loại %, đơn tối thiểu, hạn) → sửa mô tả/giá trị/đơn tối thiểu/trần giảm/hạn/lượt dùng → xóa qua hộp xác nhận; voucher thứ 2 dùng nút tạo mã ngẫu nhiên + loại giảm tiền cố định → kích hoạt → tắt có lý do")
     public void adminPromoCreateActivateDisable() {
         String promoCode = uniquePromoCode();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -402,7 +410,8 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- Don hang (dot 10: doi/huy 1 don 'Chờ xử lý' CO SAN trong DB) ----------
 
-    @Test(description = "ACR-06: Doi trang thai 1 don 'Chờ xử lý' có sẵn sang 'Đã xác nhận' tren Admin (skip neu khong co don cho xu ly)")
+    @Story("Đơn hàng")
+    @Test(description = "ACR-06: Đổi trạng thái 1 đơn 'Chờ xử lý' có sẵn sang 'Đã xác nhận' trên Admin (skip nếu không có đơn chờ xử lý)")
     public void adminChangePendingOrderStatusToConfirmed() {
         // LUU Y (dot 10): test nay KHONG dat don
         // moi qua web ban hang nua ma doi trang thai 1 don 'Chờ xử lý' CO SAN trong DB.
@@ -423,7 +432,8 @@ public class AdminCrudTest extends BaseTest {
                 "Don " + orderCode + " sau khi doi trang thai phai hien 'Đã xác nhận' trong bang don");
     }
 
-    @Test(description = "ACR-07: Huy 1 don 'Chờ xử lý' có sẵn tren Admin, bat buoc co ly do (skip neu khong co don cho xu ly)")
+    @Story("Đơn hàng")
+    @Test(description = "ACR-07: Hủy 1 đơn 'Chờ xử lý' có sẵn trên Admin, bắt buộc có lý do (skip nếu không có đơn chờ xử lý)")
     public void adminCancelPendingOrder() {
         // LUU Y (dot 10, giong ACR-06): huy 1 don 'Chờ xử lý' CO SAN trong DB, khong
         // phai don do test tao; trang thai cu khong khoi phuc lai duoc sau test.
@@ -444,7 +454,8 @@ public class AdminCrudTest extends BaseTest {
 
     // ---------- Hoi vien: dieu chinh diem ----------
 
-    @Test(description = "ACR-08 (dot 13): Doc so du diem demo TRUOC/SAU qua modal chi tiet khach -> cong 5 diem phai tang dung +5 (hoan tac -5 sau test)")
+    @Story("Hội viên")
+    @Test(description = "ACR-08 (đợt 13): Đọc số dư điểm demo TRƯỚC/SAU qua modal chi tiết khách → cộng 5 điểm phải tăng đúng +5 (hoàn tác -5 sau test)")
     public void adminAdjustPointsForDemoCustomer() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         int pointsBefore = adminPage.getCustomerPointsByEmail(GlobalConstants.DEMO_EMAIL);

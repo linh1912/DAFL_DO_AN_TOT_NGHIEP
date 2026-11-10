@@ -3,6 +3,8 @@ package vn.dafl.tests.admin;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.pageObjects.AdminPageObject;
 import vn.dafl.pageUIs.AdminPageUI;
@@ -18,6 +20,7 @@ import vn.dafl.pageUIs.AdminPageUI;
  * tieu de modal, ten SP dien san trong o nhap (khong con trong text cua form).
  * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
+@Feature("Chi tiết quản trị")
 public class AdminDetailTest extends BaseTest {
 
     /** Dang nhap bang tai khoan Super Admin tren app Admin rieng :3001; bo qua test
@@ -37,7 +40,8 @@ public class AdminDetailTest extends BaseTest {
         return adminPage;
     }
 
-    @Test(description = "ADT-01: Mo modal chi tiet san pham bang nut mat -> hien dung ten SP, dong duoc")
+    @Story("Sản phẩm")
+    @Test(description = "ADT-01: Mở modal chi tiết sản phẩm bằng nút mắt → hiện đúng tên SP, đóng được")
     public void productDetailModalShowsCorrectProduct() {
         AdminPageObject adminPage = openAdminTab("products");
         String productName = adminPage.getFirstDetailButtonLabel(
@@ -60,7 +64,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet san pham");
     }
 
-    @Test(description = "ADT-02: Mo modal chi tiet danh muc bang nut mat -> hien dung ten danh muc, dong duoc")
+    @Story("Danh mục")
+    @Test(description = "ADT-02: Mở modal chi tiết danh mục bằng nút mắt → hiện đúng tên danh mục, đóng được")
     public void categoryDetailModalShowsCorrectCategory() {
         AdminPageObject adminPage = openAdminTab("categories");
         String categoryName = adminPage.getFirstDetailButtonLabel(
@@ -81,7 +86,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet danh muc");
     }
 
-    @Test(description = "ADT-03: Mo modal chi tiet khuyen mai bang nut mat -> hien dung ma voucher, dong duoc")
+    @Story("Khuyến mãi")
+    @Test(description = "ADT-03: Mở modal chi tiết khuyến mãi bằng nút mắt → hiện đúng mã voucher, đóng được")
     public void promoDetailModalShowsCorrectCode() {
         AdminPageObject adminPage = openAdminTab("promotions");
         String promoCode = adminPage.getFirstDetailButtonLabel(
@@ -102,7 +108,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet khuyen mai");
     }
 
-    @Test(description = "ADT-04: Mo modal chi tiet hang hoi vien bang nut mat -> hien dung ten hang, dong duoc")
+    @Story("Hội viên")
+    @Test(description = "ADT-04: Mở modal chi tiết hạng hội viên bằng nút mắt → hiện đúng tên hạng, đóng được")
     public void tierDetailModalShowsCorrectTier() {
         AdminPageObject adminPage = openAdminTab("membership");
         String tierLabel = adminPage.getFirstDetailButtonLabel(
@@ -123,7 +130,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet hang hoi vien");
     }
 
-    @Test(description = "ADT-05: Mo modal chi tiet don hang bang nut mat -> hien ma don + tien, dong duoc (skip neu DB chua co don)")
+    @Story("Đơn hàng")
+    @Test(description = "ADT-05: Mở modal chi tiết đơn hàng bằng nút mắt → hiện mã đơn + tiền, đóng được (skip nếu DB chưa có đơn)")
     public void orderDetailModalShowsOrderCode() {
         AdminPageObject adminPage = openAdminTab("orders");
         if (!adminPage.isElementDisplayedWithWait(AdminPageUI.FIRST_ORDER_DETAIL_BTN, 10)) {
@@ -145,7 +153,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet don hang");
     }
 
-    @Test(description = "ADT-06: Mo modal chi tiet khach hang bang nut mat -> hien dung ten khach, dong duoc")
+    @Story("Khách hàng")
+    @Test(description = "ADT-06: Mở modal chi tiết khách hàng bằng nút mắt → hiện đúng tên khách, đóng được")
     public void customerDetailModalShowsCorrectCustomer() {
         AdminPageObject adminPage = openAdminTab("customers");
         String customerName = adminPage.getFirstDetailButtonLabel(
@@ -166,7 +175,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet khach hang");
     }
 
-    @Test(description = "ADT-07: Mo modal chi tiet yeu cau tra hang bang nut 'Duyệt / Từ chối' -> hien ma don, dong duoc (skip neu chua co yeu cau tra hang)")
+    @Story("Trả hàng")
+    @Test(description = "ADT-07: Mở modal chi tiết yêu cầu trả hàng bằng nút 'Duyệt / Từ chối' → hiện mã đơn, đóng được (skip nếu chưa có yêu cầu trả hàng)")
     public void returnDetailModalShowsOrderCode() {
         AdminPageObject adminPage = openAdminTab("returns");
         if (adminPage.isEmptyReturnsMessageDisplayed()) {
@@ -189,7 +199,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong modal xong khong duoc con thay modal chi tiet tra hang");
     }
 
-    @Test(description = "ADT-08 (dot 12, sua): Tu modal chi tiet san pham, bam 'Sửa sản phẩm' -> form sua mo trong modal (admin-product-form-modal), tieu de 'Sửa sản phẩm' + o ten dien san ten SP; dong form khong luu")
+    @Story("Sản phẩm")
+    @Test(description = "ADT-08 (đợt 12, sửa): Từ modal chi tiết sản phẩm, bấm 'Sửa sản phẩm' → form sửa mở trong modal (admin-product-form-modal), tiêu đề 'Sửa sản phẩm' + ô tên điền sẵn tên SP; đóng form không lưu")
     public void productDetailEditButtonOpensEditFormWithoutSaving() {
         AdminPageObject adminPage = openAdminTab("products");
         String productName = adminPage.getFirstDetailButtonLabel(
@@ -219,7 +230,8 @@ public class AdminDetailTest extends BaseTest {
                 "Dong form xong khong duoc con thay modal form sua san pham");
     }
 
-    @Test(description = "ADT-09: Modal chi tiet danh muc dong bang nut 'Đóng' o footer (khong dung nut X)")
+    @Story("Danh mục")
+    @Test(description = "ADT-09: Modal chi tiết danh mục đóng bằng nút 'Đóng' ở footer (không dùng nút X)")
     public void categoryDetailModalClosesWithFooterButton() {
         AdminPageObject adminPage = openAdminTab("categories");
         if (!adminPage.isElementDisplayedWithWait(AdminPageUI.FIRST_CATEGORY_DETAIL_BTN, 10)) {

@@ -2,6 +2,8 @@ package vn.dafl.tests.admin;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
@@ -30,6 +32,7 @@ import java.nio.file.Paths;
  * khoan admin@dafl.vn chua duoc seed tren DB nay.
  * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
+@Feature("Tải ảnh lên")
 public class AdminUploadTest extends BaseTest {
 
     private static final String IMAGE_1 = "upload/test-product-1.png";
@@ -98,7 +101,8 @@ public class AdminUploadTest extends BaseTest {
         }
     }
 
-    @Test(description = "UP-01 (dot redesign form admin): Tao SP moi upload 1 anh qua input file -> luu xong SP hien trong bang co thumbnail + mo chi tiet thay anh")
+    @Story("Sản phẩm")
+    @Test(description = "UP-01 (đợt redesign form admin): Tạo SP mới upload 1 ảnh qua input file → lưu xong SP hiện trong bảng có thumbnail + mở chi tiết thấy ảnh")
     public void adminCreateProductWithOneUploadedImage() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -140,7 +144,8 @@ public class AdminUploadTest extends BaseTest {
         }
     }
 
-    @Test(description = "UP-02 (dot redesign form admin): Upload file sai dinh dang (.txt) va file anh > 5MB -> bi tu choi inline (admin-product-image-error), khong tao thumbnail, khong luu kem anh loi")
+    @Story("Sản phẩm")
+    @Test(description = "UP-02 (đợt redesign form admin): Upload file sai định dạng (.txt) và file ảnh > 5MB → bị từ chối inline (admin-product-image-error), không tạo thumbnail, không lưu kèm ảnh lỗi")
     public void adminUploadInvalidAndOversizeImageIsRejectedInline() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("products");
@@ -175,7 +180,8 @@ public class AdminUploadTest extends BaseTest {
                 "Bam Hủy xong drawer form san pham phai dong (khong luu san pham loi)");
     }
 
-    @Test(description = "UP-03 (dot redesign form admin): Upload 2 anh -> dat anh thu 2 lam anh chinh -> luu -> mo lai thay du 2 anh, anh chinh la anh thu 2")
+    @Story("Sản phẩm")
+    @Test(description = "UP-03 (đợt redesign form admin): Upload 2 ảnh → đặt ảnh thứ 2 làm ảnh chính → lưu → mở lại thấy đủ 2 ảnh, ảnh chính là ảnh thứ 2")
     public void adminSecondUploadedImageCanBeSetAsMain() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();

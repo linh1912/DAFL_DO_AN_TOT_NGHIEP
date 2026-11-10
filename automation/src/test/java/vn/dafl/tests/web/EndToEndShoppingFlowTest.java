@@ -2,6 +2,7 @@ package vn.dafl.tests.web;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AuthModalPageObject;
@@ -19,9 +20,10 @@ import java.util.List;
  * dang nhap (gio khach tu gop vao tai khoan), dien thong tin giao hang, dat COD
  * va thay don o trang thai Cho xac nhan trong lich su don hang.
  */
+@Feature("Luồng mua hàng đầu cuối")
 public class EndToEndShoppingFlowTest extends BaseTest {
 
-    @Test(description = "E2E: Khach them gio -> thanh toan bi dua qua dang nhap -> quay lai dat COD thanh cong -> thay don Cho xac nhan")
+    @Test(description = "E2E: Khách thêm giỏ -> thanh toán bị đưa qua đăng nhập -> quay lại đặt COD thành công -> thấy đơn Chờ xác nhận")
     public void guestToCheckoutEndToEndFlow() {
         // 1. Khach duyet danh muc va them 2 san pham (khong can dang nhap)
         HomePageObject homePage = openHomePage();

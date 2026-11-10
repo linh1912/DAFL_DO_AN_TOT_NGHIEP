@@ -3,6 +3,8 @@ package vn.dafl.tests.admin;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
@@ -20,6 +22,7 @@ import vn.dafl.pageObjects.AuthModalPageObject;
  * Test tu bo qua (skip, khong tinh fail) khi service admin chua chay hoac tai
  * khoan admin@dafl.vn chua duoc seed tren DB nay.
  */
+@Feature("Tính năng đợt 13")
 public class AdminWave13Test extends BaseTest {
 
     /** Dang nhap Super Admin tren app Admin rieng; bo qua test neu chua san sang. */
@@ -42,7 +45,8 @@ public class AdminWave13Test extends BaseTest {
         return authModal;
     }
 
-    @Test(description = "ADM-W13-01 (dot 13, muc 10): Trang dang nhap admin KHONG co nut quay lai, khung dang nhap can giua man hinh")
+    @Story("Đăng nhập admin")
+    @Test(description = "ADM-W13-01 (đợt 13, mục 10): Trang đăng nhập admin KHÔNG có nút quay lại, khung đăng nhập căn giữa màn hình")
     public void adminLoginPageHasNoBackButtonAndCenteredWrapper() {
         AuthModalPageObject authModal = openAdminLoginOrSkip();
 
@@ -58,7 +62,8 @@ public class AdminWave13Test extends BaseTest {
                 "Trang dang nhap admin phai co tieu de 'Đăng nhập quản trị'");
     }
 
-    @Test(description = "ADM-W13-02 (dot 13, muc 1): Link 'Quên mật khẩu' hien o form dang nhap admin; bam vao mo form xin ma, quay lai duoc (chi kiem UI, khong gui mail that)")
+    @Story("Đăng nhập admin")
+    @Test(description = "ADM-W13-02 (đợt 13, mục 1): Link 'Quên mật khẩu' hiện ở form đăng nhập admin; bấm vào mở form xin mã, quay lại được (chỉ kiểm UI, không gửi mail thật)")
     public void adminLoginShowsForgotPasswordLinkAndOpensForm() {
         AuthModalPageObject authModal = openAdminLoginOrSkip();
 
@@ -77,7 +82,8 @@ public class AdminWave13Test extends BaseTest {
                 "Bam 'Quay lai dang nhap' phai ve lai form dang nhap");
     }
 
-    @Test(description = "ADM-W13-03 (dot 13, muc 7): Nut 'Ghi nhận đã hoàn tiền' chi hien o dong tra hang Approved + PendingRefund; bam vao mo modal nhap ma giao dich (skip neu khong co, khong ghi nhan that)")
+    @Story("Trả hàng")
+    @Test(description = "ADM-W13-03 (đợt 13, mục 7): Nút 'Ghi nhận đã hoàn tiền' chỉ hiện ở dòng trả hàng Approved + PendingRefund; bấm vào mở modal nhập mã giao dịch (skip nếu không có, không ghi nhận thật)")
     public void refundRecordButtonOnlyOnApprovedPendingRefundAndOpensModal() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("returns");
@@ -101,7 +107,8 @@ public class AdminWave13Test extends BaseTest {
                 "Dong modal xong khong duoc con thay modal ghi nhan hoan tien");
     }
 
-    @Test(description = "ADM-W13-04 (dot 13, muc 10): Nhat ky he thong co o loc Tu/den ngay + nut Loc + nut Export; loc khoang rong + bam Export khong loi trang")
+    @Story("Nhật ký hệ thống")
+    @Test(description = "ADM-W13-04 (đợt 13, mục 10): Nhật ký hệ thống có ô lọc Từ/đến ngày + nút Lọc + nút Export; lọc khoảng rộng + bấm Export không lỗi trang")
     public void auditLogDateFilterAndExportControlsWork() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("returns");

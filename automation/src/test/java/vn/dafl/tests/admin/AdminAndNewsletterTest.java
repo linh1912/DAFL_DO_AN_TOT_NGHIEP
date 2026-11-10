@@ -3,6 +3,8 @@ package vn.dafl.tests.admin;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
@@ -23,6 +25,7 @@ import java.util.List;
  * client-side 10 dong/trang (ADM-11 viet lai, ADM-12..ADM-14 moi).
  * Toan bo lop nay chi chay tren app Admin rieng, khong mo web ban hang.
  */
+@Feature("Tổng quan và bản tin")
 public class AdminAndNewsletterTest extends BaseTest {
 
     private static final List<String> EXPECTED_ADMIN_NAV_KEYS = Arrays.asList(
@@ -39,7 +42,8 @@ public class AdminAndNewsletterTest extends BaseTest {
         return adminPage;
     }
 
-    @Test(description = "ADM-01: Khach chua dang nhap mo /admin -> bi chuyen ve trang dang nhap")
+    @Story("Phân quyền truy cập")
+    @Test(description = "ADM-01: Khách chưa đăng nhập mở /admin → bị chuyển về trang đăng nhập")
     public void guestOpeningAdminIsRedirectedToLogin() {
         AdminPageObject adminPage = new AdminPageObject();
         adminPage.openAdminPage();
@@ -49,7 +53,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Khach mo /admin phai bi chuyen ve /login, dang o: " + getDriver().getCurrentUrl());
     }
 
-    @Test(description = "ADM-02: Tai khoan thuong mo /admin -> trang 403 kem huong dan cap quyen Super Admin")
+    @Story("Phân quyền truy cập")
+    @Test(description = "ADM-02: Tài khoản thường mở /admin → trang 403 kèm hướng dẫn cấp quyền Super Admin")
     public void customerOpeningAdminSeesForbiddenPageWithGuidance() {
         // Dang nhap bang tai khoan thuong ngay tren trang dang nhap Admin rieng :3001
         // (khong qua web ban hang).
@@ -70,7 +75,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Trang 403 phai hien email tai khoan dang dang nhap (" + GlobalConstants.DEMO_EMAIL + ")");
     }
 
-    @Test(description = "ADM-03: Super Admin mo /admin -> thay du 8 muc menu quan tri")
+    @Story("Tổng quan và điều hướng")
+    @Test(description = "ADM-03: Super Admin mở /admin → thấy đủ 8 mục menu quản trị")
     public void adminSeesEightMenuItems() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -81,7 +87,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Menu quan tri phai du 8 muc theo dung thu tu, dang thay: " + visible);
     }
 
-    @Test(description = "ADM-04: Super Admin mo /admin -> muc Tong quan tai duoc")
+    @Story("Tổng quan và điều hướng")
+    @Test(description = "ADM-04: Super Admin mở /admin → mục Tổng quan tải được")
     public void adminDashboardLoads() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -90,7 +97,8 @@ public class AdminAndNewsletterTest extends BaseTest {
         Assert.assertTrue(adminPage.isDashboardHeadingDisplayed(), "Muc Tong quan phai hien tieu de");
     }
 
-    @Test(description = "ADM-05 (chi doc): Super Admin chuyen muc Don hang / San pham / Khach hang thay duoc noi dung")
+    @Story("Tổng quan và điều hướng")
+    @Test(description = "ADM-05 (chỉ đọc): Super Admin chuyển mục Đơn hàng / Sản phẩm / Khách hàng thấy được nội dung")
     public void adminCanBrowseOrdersProductsCustomersReadOnly() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -106,7 +114,8 @@ public class AdminAndNewsletterTest extends BaseTest {
         Assert.assertTrue(adminPage.isCustomerSearchDisplayed(), "Muc Khach hang phai co o tim kiem khach hang");
     }
 
-    @Test(description = "ADM-06 (chi doc, dot 4): Bieu do doanh thu Admin hien (hoac bao chua co doanh thu) + 2 nut chon khoang 7/30 ngay hoat dong")
+    @Story("Biểu đồ doanh thu")
+    @Test(description = "ADM-06 (chỉ đọc, đợt 4): Biểu đồ doanh thu Admin hiện (hoặc báo chưa có doanh thu) + 2 nút chọn khoảng 7/30 ngày hoạt động")
     public void adminRevenueChartLoadsAndRangeButtonsWork() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -142,7 +151,8 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     // ---------- Tim kiem / loc / Export o bang Admin (dot 8, chi doc) ----------
 
-    @Test(description = "ADM-07: Tim kiem o muc San pham loc dung (tu khoa co -> thay dong, tu khoa la -> bao rong)")
+    @Story("Sản phẩm")
+    @Test(description = "ADM-07: Tìm kiếm ở mục Sản phẩm lọc đúng (từ khóa có → thấy dòng, từ khóa lạ → báo rỗng)")
     public void adminProductSearchFiltersRows() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -165,7 +175,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Tim tu khoa la phai hien dong 'Không có sản phẩm nào.'");
     }
 
-    @Test(description = "ADM-08: Tim kiem o muc Khach hang loc dung (email demo co -> thay dong, tu khoa la -> bao rong)")
+    @Story("Khách hàng")
+    @Test(description = "ADM-08: Tìm kiếm ở mục Khách hàng lọc đúng (email demo có → thấy dòng, từ khóa lạ → báo rỗng)")
     public void adminCustomerSearchFiltersRows() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -186,7 +197,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Tim email la phai hien dong 'Không có khách hàng nào.'");
     }
 
-    @Test(description = "ADM-09: Loc don hang theo trang thai 'Đã hủy' -> chi thay don da huy hoac bao rong")
+    @Story("Đơn hàng")
+    @Test(description = "ADM-09: Lọc đơn hàng theo trạng thái 'Đã hủy' → chỉ thấy đơn đã hủy hoặc báo rỗng")
     public void adminOrderStatusFilterShowsOnlyCancelled() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -207,7 +219,8 @@ public class AdminAndNewsletterTest extends BaseTest {
         }
     }
 
-    @Test(description = "ADM-10: Nut Export o muc Don hang bam duoc, trang admin van dung yen (chi tai CSV ve, khong doi du lieu)")
+    @Story("Đơn hàng")
+    @Test(description = "ADM-10: Nút Export ở mục Đơn hàng bấm được, trang admin vẫn đứng yên (chỉ tải CSV về, không đổi dữ liệu)")
     public void adminExportButtonIsClickableWithoutError() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -222,7 +235,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Bam Export xong muc Don hang phai van hien o tim kiem don");
     }
 
-    @Test(description = "ADM-11 (dot 12, viet lai): O search tren topbar da bo — tim kiem o toolbar cua muc San pham van loc dung ('Mặt nạ' ra dong); topbar khong duoc con o tim kiem")
+    @Story("Sản phẩm")
+    @Test(description = "ADM-11 (đợt 12, viết lại): Ô search trên topbar đã bỏ — tìm kiếm ở toolbar của mục Sản phẩm vẫn lọc đúng ('Mặt nạ' ra dòng); topbar không được còn ô tìm kiếm")
     public void adminToolbarSearchFiltersProductsAndTopbarSearchRemoved() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -245,7 +259,8 @@ public class AdminAndNewsletterTest extends BaseTest {
 
     // ---------- Toolbar chuan / phan trang / form modal (dot 12, chi doc) ----------
 
-    @Test(description = "ADM-12 (dot 12): Phan trang bang San pham — trang 1 toi da 10 dong, bam 'Sau' sang trang 2 roi 'Truoc' ve trang 1, 'Trang X / Y' doi theo (skip neu <= 10 dong)")
+    @Story("Sản phẩm")
+    @Test(description = "ADM-12 (đợt 12): Phân trang bảng Sản phẩm — trang 1 tối đa 10 dòng, bấm 'Sau' sang trang 2 rồi 'Trước' về trang 1, 'Trang X / Y' đổi theo (skip nếu <= 10 dòng)")
     public void adminProductsPaginationNextPrevChangesPage() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -285,7 +300,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Ve trang 1 phai thay lai dong dau nhu ban dau");
     }
 
-    @Test(description = "ADM-13 (dot redesign form admin, viet lai): Bam '+ Thêm sản phẩm' o toolbar mo form trong DRAWER (admin-product-form-modal, van testid cu) — co dropzone upload anh + nut Hủy/Lưu o footer; dong bang nut Hủy quay lai bang, khong tao du lieu")
+    @Story("Sản phẩm")
+    @Test(description = "ADM-13 (đợt redesign form admin, viết lại): Bấm '+ Thêm sản phẩm' ở toolbar mở form trong DRAWER (admin-product-form-modal, vẫn testid cũ) — có dropzone upload ảnh + nút Hủy/Lưu ở footer; đóng bằng nút Hủy quay lại bảng, không tạo dữ liệu")
     public void adminAddProductOpensFormModalAndCloseReturnsToTable() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -315,7 +331,8 @@ public class AdminAndNewsletterTest extends BaseTest {
                 "Dong drawer xong phai quay lai bang san pham co du lieu");
     }
 
-    @Test(description = "ADM-14 (dot 12): Toolbar chuan muc San pham — nut '+ Thêm sản phẩm' o trai, nut icon 'Đặt lại'/'Làm mới' o phai; bam 'Đặt lại' xoa tu khoa va ve trang 1")
+    @Story("Sản phẩm")
+    @Test(description = "ADM-14 (đợt 12): Toolbar chuẩn mục Sản phẩm — nút '+ Thêm sản phẩm' ở trái, nút icon 'Đặt lại'/'Làm mới' ở phải; bấm 'Đặt lại' xóa từ khóa và về trang 1")
     public void adminProductsToolbarHasAddResetRefreshButtons() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();

@@ -2,6 +2,8 @@ package vn.dafl.tests.web;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AuthModalPageObject;
@@ -17,11 +19,13 @@ import vn.dafl.pageObjects.ProductCatalogPageObject;
  * voucher sai/bi Backend tu choi luc dat hang, loi khoi giao hang shipping-*,
  * gio trong va rieng tu don hang giua cac tai khoan.
  */
+@Feature("Trường hợp ngoại lệ và tiêu cực")
 public class NegativeAndExceptionScenariosTest extends BaseTest {
 
     // ---------------- NEG-AUTH: dang nhap sai ----------------
 
-    @Test(description = "NEG-AUTH-01 (CN-02 E1): Dang nhap bang email chua dang ky -> 'Email hoac mat khau khong dung'")
+    @Story("Đăng nhập sai")
+    @Test(description = "NEG-AUTH-01 (CN-02 E1): Đăng nhập bằng email chưa đăng ký -> 'Email hoặc mật khẩu không đúng'")
     public void loginWithUnregisteredEmail() {
         HomePageObject homePage = openHomePage();
         AuthModalPageObject authModal = homePage.openLoginModal();
@@ -34,7 +38,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         Assert.assertTrue(authModal.isModalStillOpen(), "Dang nhap that bai thi modal van mo");
     }
 
-    @Test(description = "NEG-AUTH-02: Dang nhap de trong ca email va mat khau -> loi ngay duoi tung o, khong dang nhap")
+    @Story("Đăng nhập sai")
+    @Test(description = "NEG-AUTH-02: Đăng nhập để trống cả email và mật khẩu -> lỗi ngay dưới từng ô, không đăng nhập")
     public void loginWithEmptyFields() {
         HomePageObject homePage = openHomePage();
         AuthModalPageObject authModal = homePage.openLoginModal();
@@ -47,7 +52,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         Assert.assertTrue(getAuthToken() == null || getAuthToken().isEmpty(), "Khong duoc cap token");
     }
 
-    @Test(description = "NEG-AUTH-03: Dang nhap bang email sai dinh dang -> loi dinh dang duoi o email")
+    @Story("Đăng nhập sai")
+    @Test(description = "NEG-AUTH-03: Đăng nhập bằng email sai định dạng -> lỗi định dạng dưới ô email")
     public void loginWithInvalidEmailFormat() {
         HomePageObject homePage = openHomePage();
         AuthModalPageObject authModal = homePage.openLoginModal();
@@ -68,7 +74,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         return authModal;
     }
 
-    @Test(description = "NEG-REG-01: Dang ky mat khau qua ngan (< 8 ky tu) bi tu choi")
+    @Story("Đăng ký sai mật khẩu")
+    @Test(description = "NEG-REG-01: Đăng ký mật khẩu quá ngắn (< 8 ký tự) bị từ chối")
     public void registerWithTooShortPassword() {
         AuthModalPageObject authModal = openRegisterForm();
         authModal.register("Selenium Tester", randomEmail(), randomPhone(), "Pa1!", "Pa1!");
@@ -77,7 +84,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         Assert.assertFalse(authModal.isRegisterSuccessDisplayed(), "Khong duoc dang ky thanh cong");
     }
 
-    @Test(description = "NEG-REG-02: Dang ky mat khau thieu chu hoa bi tu choi")
+    @Story("Đăng ký sai mật khẩu")
+    @Test(description = "NEG-REG-02: Đăng ký mật khẩu thiếu chữ hoa bị từ chối")
     public void registerPasswordMissingUppercase() {
         AuthModalPageObject authModal = openRegisterForm();
         authModal.register("Selenium Tester", randomEmail(), randomPhone(), "password123!", "password123!");
@@ -86,7 +94,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
                 "Thieu chu hoa phai bao loi mat khau");
     }
 
-    @Test(description = "NEG-REG-03: Dang ky mat khau thieu ky tu dac biet bi tu choi")
+    @Story("Đăng ký sai mật khẩu")
+    @Test(description = "NEG-REG-03: Đăng ký mật khẩu thiếu ký tự đặc biệt bị từ chối")
     public void registerPasswordMissingSpecialChar() {
         AuthModalPageObject authModal = openRegisterForm();
         authModal.register("Selenium Tester", randomEmail(), randomPhone(), "Password123", "Password123");
@@ -95,7 +104,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
                 "Thieu ky tu dac biet phai bao loi mat khau");
     }
 
-    @Test(description = "NEG-REG-04: Dang ky mat khau thieu chu so bi tu choi")
+    @Story("Đăng ký sai mật khẩu")
+    @Test(description = "NEG-REG-04: Đăng ký mật khẩu thiếu chữ số bị từ chối")
     public void registerPasswordMissingDigit() {
         AuthModalPageObject authModal = openRegisterForm();
         authModal.register("Selenium Tester", randomEmail(), randomPhone(), "Password!", "Password!");
@@ -104,7 +114,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
                 "Thieu chu so phai bao loi mat khau");
     }
 
-    @Test(description = "NEG-REG-05 (CN-01 E5): Mat khau xac nhan khong khop -> loi duoi o xac nhan")
+    @Story("Đăng ký sai mật khẩu")
+    @Test(description = "NEG-REG-05 (CN-01 E5): Mật khẩu xác nhận không khớp -> lỗi dưới ô xác nhận")
     public void registerWithMismatchedConfirmPassword() {
         AuthModalPageObject authModal = openRegisterForm();
         authModal.register("Selenium Tester", randomEmail(), randomPhone(),
@@ -115,7 +126,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
                 "Noi dung loi xac nhan khong dung: " + authModal.getRegisterConfirmPasswordError());
     }
 
-    @Test(description = "NEG-REG-06: Dang ky SDT sai dinh dang (9 so) bi tu choi")
+    @Story("Đăng ký sai mật khẩu")
+    @Test(description = "NEG-REG-06: Đăng ký SĐT sai định dạng (9 số) bị từ chối")
     public void registerWithInvalidPhoneFormat() {
         AuthModalPageObject authModal = openRegisterForm();
         authModal.register("Selenium Tester", randomEmail(), "091234567",
@@ -127,7 +139,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
 
     // ---------------- NEG-VCH: voucher ----------------
 
-    @Test(description = "NEG-VCH-01: Ap ma giam gia khong ton tai -> thong bao loi dung cua SUT")
+    @Story("Voucher không hợp lệ")
+    @Test(description = "NEG-VCH-01: Áp mã giảm giá không tồn tại -> thông báo lỗi đúng của SUT")
     public void applyInvalidVoucherCode() {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -144,7 +157,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         Assert.assertFalse(cart.isVoucherAppliedBannerDisplayed(), "Ma sai khong duoc danh dau da ap dung");
     }
 
-    @Test(description = "NEG-VCH-02: Ap ma giam gia rong -> khong ap dung, khong bao thanh cong")
+    @Story("Voucher không hợp lệ")
+    @Test(description = "NEG-VCH-02: Áp mã giảm giá rỗng -> không áp dụng, không báo thành công")
     public void applyEmptyVoucherCode() {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -159,7 +173,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
                 "Ma rong khong duoc coi la ap dung thanh cong");
     }
 
-    @Test(description = "NEG-VCH-03 (TC-CN07-04): Gio tut xuong duoi muc toi thieu sau khi ap ma -> Backend TU CHOI dat hang kem thong diep rieng")
+    @Story("Voucher không hợp lệ")
+    @Test(description = "NEG-VCH-03 (TC-CN07-04): Giỏ tụt xuống dưới mức tối thiểu sau khi áp mã -> Backend TỪ CHỐI đặt hàng kèm thông điệp riêng")
     public void voucherRejectedAtCheckoutWhenCartDropsBelowMinimum() {
         loginWithDemoAccount();
         HomePageObject homePage = new HomePageObject();
@@ -197,7 +212,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
 
     // ---------------- NEG-SRCH ----------------
 
-    @Test(description = "NEG-SRCH-01: Tim kiem san pham khong ton tai -> trang thai rong, khong loi he thong")
+    @Story("Tìm kiếm")
+    @Test(description = "NEG-SRCH-01: Tìm kiếm sản phẩm không tồn tại -> trạng thái rỗng, không lỗi hệ thống")
     public void searchForNonExistentProduct() {
         openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -210,7 +226,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
 
     // ---------------- NEG-CHK: loi khoi giao hang ----------------
 
-    @Test(description = "NEG-CHK-01: Dat hang voi SDT giao hang sai dinh dang -> loi shipping-phone-error, khong tao don")
+    @Story("Đặt hàng sai thông tin")
+    @Test(description = "NEG-CHK-01: Đặt hàng với SĐT giao hàng sai định dạng -> lỗi shipping-phone-error, không tạo đơn")
     public void checkoutWithInvalidPhone() {
         loginWithDemoAccount();
         HomePageObject homePage = new HomePageObject();
@@ -233,7 +250,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         Assert.assertFalse(checkout.isOrderSuccessViewDisplayed(), "Khong duoc tao don voi SDT sai");
     }
 
-    @Test(description = "NEG-CHK-02: Dat hang de trong dia chi chi tiet -> loi shipping-detail-error, khong tao don")
+    @Story("Đặt hàng sai thông tin")
+    @Test(description = "NEG-CHK-02: Đặt hàng để trống địa chỉ chi tiết -> lỗi shipping-detail-error, không tạo đơn")
     public void checkoutWithEmptyShippingDetail() {
         loginWithDemoAccount();
         HomePageObject homePage = new HomePageObject();
@@ -256,7 +274,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
         Assert.assertFalse(checkout.isOrderSuccessViewDisplayed(), "Khong duoc tao don khi thieu dia chi");
     }
 
-    @Test(description = "NEG-CHK-03: Gio trong -> khong co nut thanh toan de dat hang")
+    @Story("Đặt hàng sai thông tin")
+    @Test(description = "NEG-CHK-03: Giỏ trống -> không có nút thanh toán để đặt hàng")
     public void checkoutWithEmptyCart() {
         registerAndLogin("Khach Gio Trong", randomEmail(), randomPhone(), GlobalConstants.DEMO_PASSWORD);
         HomePageObject homePage = new HomePageObject();
@@ -269,7 +288,8 @@ public class NegativeAndExceptionScenariosTest extends BaseTest {
 
     // ---------------- NEG-ORD: rieng tu don hang ----------------
 
-    @Test(description = "NEG-ORD-01 (TC-CN08-02): Tai khoan khac khong thay don hang cua tai khoan demo trong danh sach cua minh")
+    @Story("Riêng tư đơn hàng")
+    @Test(description = "NEG-ORD-01 (TC-CN08-02): Tài khoản khác không thấy đơn hàng của tài khoản demo trong danh sách của mình")
     public void cannotSeeAnotherUsersOrder() {
         // Tai khoan demo dat mot don COD
         HomePageObject homePage = loginWithDemoAccount();
