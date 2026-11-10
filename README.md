@@ -18,19 +18,20 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 31 lớp test, 313 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   ├── src/test/java/vn/dafl/tests/  ← 32 lớp test, 321 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
 │   │   ├── web/  ← 26 lớp web bán hàng, 275 test
 │   │   │   ├── AuthTest (19) · CatalogAndSearchTest (12) · ProductDetailTest (9)
 │   │   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (10) · OrderCancellationTest (3)
 │   │   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
 │   │   │   ├── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
 │   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2) · NewsletterTest (3) · MembershipTest (3) · Wave15FeaturesTest (12)
-│   │   └── admin/  ← 5 lớp admin, 38 test (chạy trên app Admin riêng localhost:3001, KHÔNG cần :3000)
+│   │   └── admin/  ← 6 lớp admin, 46 test (chạy trên app Admin riêng localhost:3001, KHÔNG cần :3000)
 │   │       ├── AdminAndNewsletterTest (14) · AdminDetailTest (9)  (chỉ đọc)
 │   │       ├── AdminCrudTest (8)  (CRUD thật: tạo/sửa/xóa SP + danh mục, voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn, điều chỉnh điểm; chỉ đụng dữ liệu do test tạo, tự dọn — trừ ACR-06/07)
 │   │       ├── AdminWave13Test (4)  (đợt 13: đăng nhập admin không nút quay lại, quên mật khẩu ở admin, ghi nhận hoàn tiền, lọc ngày + Export nhật ký)
-│   │       └── AdminUploadTest (3)  (đợt redesign form admin: upload ảnh SP — 1 ảnh, file sai định dạng/quá 5MB, 2 ảnh + đặt ảnh chính)
-│   ├── testng.xml (cả 2 khối Web + Admin, 313 test) · testng-web.xml (275 test) · testng-admin.xml (38 test)
+│   │       ├── AdminUploadTest (3)  (đợt redesign form admin: upload ảnh SP — 1 ảnh, file sai định dạng/quá 5MB, 2 ảnh + đặt ảnh chính)
+│   │       └── AdminReviewTest (8)  (đợt 16: quản lý đánh giá — bảng, lọc sao + tìm kiếm, Export, phân trang, modal chi tiết, xóa qua hộp xác nhận; RVM-06 xóa 1 đánh giá thật, không khôi phục được)
+│   ├── testng.xml (cả 2 khối Web + Admin, 321 test) · testng-web.xml (275 test) · testng-admin.xml (46 test)
 │   ├── testng-flow.xml · testng-negative.xml
 │   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
 │       run_test_web.bat (chỉ test web) · run_test_admin.bat (chỉ test admin)
@@ -55,10 +56,10 @@ DAFL_DO_AN_TOT_NGHIEP/
 
 ```bat
 cd automation
-run_test_with_gui.bat        :: toan bo suite testng.xml (313 test: 275 web + 38 admin), Chrome co giao dien
+run_test_with_gui.bat        :: toan bo suite testng.xml (321 test: 275 web + 46 admin), Chrome co giao dien
 run_test_headless.bat        :: toan bo suite, che do headless (cho CI)
 run_test_web.bat             :: chi test web ban hang (testng-web.xml, 275 test)
-run_test_admin.bat           :: chi test admin (testng-admin.xml, 38 test) — chi can service
+run_test_admin.bat           :: chi test admin (testng-admin.xml, 46 test) — chi can service
                                admin :3001 dang chay va tai khoan admin@dafl.vn da duoc seed
 run_test_web_allure.bat      :: chi test web ban hang + tao bao cao Allure HTML (xem muc Bao cao Allure)
 ```
@@ -177,6 +178,18 @@ suite.
 
 `Jenkinsfile.pt` (pipeline performance) không có stage test chức năng nên
 giữ nguyên, không tách.
+
+### Đợt 16 — Quản lý đánh giá admin (RVM-01..08)
+
+Lớp `admin/AdminReviewTest` (8 test) cho mục "Đánh giá" thứ 9 trên Admin
+riêng: bảng Sản phẩm/Khách/Sao/Nội dung (cắt 80 ký tự)/Ngày, lọc theo số sao
++ tìm kiếm, nút Export CSV, phân trang 10 dòng/trang, modal xem chi tiết,
+xóa qua hộp xác nhận chung (không nút sửa/tạo). Chạy bằng
+`run_test_admin.bat` / `run_test_admin_allure.bat` (chỉ `:3001`, không cần
+`:3000`). Lưu ý: **RVM-06 xóa 1 đánh giá thật** (chỉ chạy khi có ≥ 2 đánh
+giá, xóa cứng + tính lại Rating sản phẩm, không khôi phục được); RVM-02
+skip nếu bảng trống, RVM-03 skip nếu không có đánh giá 5 sao. Chi tiết xem
+`TEST-MAPPING.md` mục "Đợt 16 — Quản lý đánh giá admin".
 
 ### Backend KHÔNG tách
 

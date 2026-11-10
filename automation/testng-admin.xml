@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="DAFL Admin Suite" verbose="1">
+<suite name="Bộ kiểm thử Admin DAFL — Quản trị" verbose="1">
     <parameter name="browser" value="chrome"/>
 
     <listeners>
         <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
     </listeners>
 
-    <!-- Chi chay test admin: 5 lop, 38 test (chi can app Admin rieng :3001; dot 13: +AdminWave13Test ADM-W13-01..04; dot redesign form admin: +AdminUploadTest UP-01..03) -->
-    <test name="Admin">
+    <!-- Chi chay test admin: 6 lop, 46 test (chi can app Admin rieng :3001; dot 13: +AdminWave13Test ADM-W13-01..04; dot redesign form admin: +AdminUploadTest UP-01..03; dot 16: +AdminReviewTest RVM-01..08) -->
+    <test name="Quản trị">
         <classes>
             <class name="vn.dafl.tests.admin.AdminAndNewsletterTest"/>
             <class name="vn.dafl.tests.admin.AdminDetailTest"/>
             <class name="vn.dafl.tests.admin.AdminCrudTest"/>
             <class name="vn.dafl.tests.admin.AdminWave13Test"/>
             <class name="vn.dafl.tests.admin.AdminUploadTest"/>
+            <class name="vn.dafl.tests.admin.AdminReviewTest"/>
         </classes>
     </test>
 </suite>

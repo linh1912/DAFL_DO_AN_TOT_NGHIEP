@@ -323,4 +323,56 @@ public class AdminPageUI {
     public static final String ADMIN_PROMO_EXPIRY_INPUT = "css=[data-testid='admin-promo-expiry-input']";
     public static final String ADMIN_PROMO_STATUS_TOGGLE = "css=[data-testid='admin-promo-status-toggle']";
     // Khuyen mai KHONG co upload anh (backend khong co field anh) — khong viet test upload cho khuyen mai.
+
+    // ---------- Muc Danh gia (dot 16) ----------
+    // Admin khong tao danh gia (danh gia la cua khach) nen toolbar KHONG co nut
+    // Them moi; chi co o tim + loc sao + Tim / Dat lai / Lam moi / Export.
+    // Bang chi hien khi co dong (reviews.length > 0); rong thi hien dong
+    // "Chưa có đánh giá nào." thay cho bang. Phan trang (SaPagination) cung chi
+    // hien khi co dong; nut so trang co testid <testid>-page-<p>.
+    public static final String ADMIN_NAV_REVIEWS = "css=[data-testid='admin-nav-reviews']";
+    public static final String ADMIN_REVIEWS_SECTION = "css=[data-testid='admin-reviews-section']";
+    public static final String ADMIN_REVIEW_SEARCH = "css=[data-testid='admin-review-search']";
+    public static final String ADMIN_REVIEW_RATING_FILTER = "css=[data-testid='admin-review-rating-filter']";
+    public static final String ADMIN_REVIEWS_SEARCH_BTN = "css=[data-testid='admin-reviews-search-btn']";
+    public static final String ADMIN_REVIEWS_RESET_BTN = "css=[data-testid='admin-reviews-reset-btn']";
+    public static final String ADMIN_REVIEWS_REFRESH_BTN = "css=[data-testid='admin-reviews-refresh-btn']";
+    public static final String ADMIN_REVIEWS_EXPORT_BTN = "css=[data-testid='admin-reviews-export-btn']";
+    // Bang danh gia (gioi han trong section de khong lan sang bang muc khac).
+    public static final String ADMIN_REVIEW_TABLE_ROWS =
+            "xpath=//*[@data-testid='admin-reviews-section']//tbody/tr";
+    public static final String ADMIN_REVIEW_TABLE_HEADERS =
+            "xpath=//*[@data-testid='admin-reviews-section']//thead/tr/th";
+    public static final String ADMIN_REVIEW_FIRST_ROW =
+            "xpath=(//*[@data-testid='admin-reviews-section']//tbody/tr)[1]";
+    // O Sao: <span aria-label="{n} trên 5 sao">★★★★☆ (4/5)</span>.
+    public static final String ADMIN_REVIEW_FIRST_ROW_PRODUCT =
+            "xpath=(//*[@data-testid='admin-reviews-section']//tbody/tr)[1]/td[1]";
+    public static final String ADMIN_REVIEW_FIRST_ROW_RATING =
+            "xpath=(//*[@data-testid='admin-reviews-section']//tbody/tr)[1]/td[3]//span";
+    // Noi dung trong bang bi cat toi da 80 ky tu + "..." (shortComment); trong
+    // modal chi tiet hien day du.
+    public static final String ADMIN_REVIEW_FIRST_ROW_COMMENT =
+            "xpath=(//*[@data-testid='admin-reviews-section']//tbody/tr)[1]/td[4]";
+    public static final String ADMIN_REVIEW_ROW_RATING_SPANS =
+            "xpath=//*[@data-testid='admin-reviews-section']//tbody/tr/td[3]//span";
+    // Nut mat / nut xoa tren tung dong (aria-label chua ten khach hang).
+    public static final String ADMIN_REVIEW_FIRST_ROW_DETAIL_BTN =
+            "xpath=(//*[@data-testid='admin-reviews-section']//tbody/tr)[1]//button[starts-with(@aria-label,'Xem đánh giá của')]";
+    public static final String ADMIN_REVIEW_LAST_ROW_DELETE_BTN =
+            "xpath=(//*[@data-testid='admin-reviews-section']//tbody/tr)[last()]//button[starts-with(@aria-label,'Xóa đánh giá của')]";
+    // Phan trang (chi hien khi co dong).
+    public static final String ADMIN_REVIEWS_PAGINATION = "css=[data-testid='admin-reviews-pagination']";
+    public static final String ADMIN_REVIEWS_PAGINATION_PREV = "css=[data-testid='admin-reviews-pagination-prev']";
+    public static final String ADMIN_REVIEWS_PAGINATION_NEXT = "css=[data-testid='admin-reviews-pagination-next']";
+    public static final String DYNAMIC_ADMIN_REVIEWS_PAGINATION_PAGE =
+            "css=[data-testid='admin-reviews-pagination-page-%s']";
+    // Modal chi tiet (SparkModal): KvRow label 'Nội dung' hien day du, khong cat.
+    public static final String ADMIN_REVIEW_DETAIL_MODAL = "css=[data-testid='admin-review-detail-modal']";
+    public static final String ADMIN_REVIEW_DETAIL_COMMENT =
+            "xpath=//*[@data-testid='admin-review-detail-modal']//div[@class='sa-kv'][span[text()='Nội dung']]/div";
+    public static final String ADMIN_REVIEW_DELETE_BTN = "css=[data-testid='admin-review-delete-btn']";
+    // Trang thai rong (khong co bang).
+    public static final String ADMIN_EMPTY_REVIEWS_MSG =
+            "xpath=//p[contains(text(),'Chưa có đánh giá nào.')]";
 }

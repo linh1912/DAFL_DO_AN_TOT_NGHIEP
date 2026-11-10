@@ -1,13 +1,14 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **313 test method / 31 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (26 lớp web bán hàng, 275 test) và `automation/src/test/java/vn/dafl/tests/admin/` (5 lớp admin, 38 test).
+> Bộ test tự động: **321 test method / 32 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (26 lớp web bán hàng, 275 test) và `automation/src/test/java/vn/dafl/tests/admin/` (6 lớp admin, 46 test).
 > Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
-> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 275 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 38 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
+> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 275 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 46 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
 > Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-14, ADT-01..ADT-09, ACR-01..ACR-08, ADM-W13-01..ADM-W13-04, UP-01..UP-03 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
 > Đợt 13: xem mục "Tính năng mới đợt 13" ở cuối bảng ánh xạ (trang Hội viên, quên mật khẩu, sửa/xóa voucher Draft, điểm khách đọc lại được, ghi nhận hoàn tiền, lọc ngày + Export nhật ký, đăng nhập admin không nút quay lại).
 > Đợt redesign form admin + upload ảnh: xem mục "Đợt redesign form admin + upload ảnh" ở cuối bảng ánh xạ (drawer form sản phẩm, dropdown danh mục custom, toast admin-toast, upload ảnh UP-01..UP-03).
 > Đợt 15: xem mục "Tính năng mới đợt 15" ở cuối bảng ánh xạ (gửi đánh giá sản phẩm RV-01..04, dùng điểm khi thanh toán PT-01..04, ngày sinh + voucher sinh nhật BD-01..04).
 > Đợt 15.1 (bước 3): xem mục "Đợt 15.1 — test auto từ file test case manual v15.1" ở cuối bảng ánh xạ (156 test mới / 12 lớp web, cover đủ 176 case loại (c) trong 338 case manual; mã RV-05..10, PT-05..08, BD-05..09 do nhóm viết test gán nối tiếp RV/PT/BD đợt 15 — file manual không ghi sẵn các mã này).
+> Đợt 16: xem mục "Đợt 16 — Quản lý đánh giá admin (RVM-01..08)" ở cuối bảng ánh xạ (mục "Đánh giá" thứ 9 trên Admin riêng :3001 — bảng, lọc sao + tìm kiếm, Export, phân trang, modal chi tiết, xóa qua hộp xác nhận).
 > Ghi chú về báo cáo Allure: báo cáo Allure hiển thị tên test, nhóm chức năng (Feature/Story) và tên suite bằng tiếng Việt (tên suite lấy từ thuộc tính `name` trong các file `automation/testng-web.xml`, `testng-admin.xml`, `testng.xml`). Menu giao diện Allure (Overview/Suites/Graphs...) vẫn tiếng Anh vì Allure không có bản dịch tiếng Việt.
 
 ## Tổng hợp theo lớp
@@ -45,7 +46,8 @@
 | admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn (đợt 10 — không khôi phục được trạng thái cũ), điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy (trừ ACR-06/07); đợt 13: ACR-05 thêm sửa/xóa voucher Draft qua hộp xác nhận, ACR-08 đọc lại số dư điểm trước/sau và khẳng định tăng đúng +5; đợt redesign form admin: ACR-01..05 viết lại theo drawer + dropdown custom + toast (ACR-01 kèm giá gốc/mô tả/highlight, ACR-02 kèm badge % giảm, ACR-04 kèm slug tự sinh + toggle, ACR-05 kèm form voucher đầy đủ + nút tạo mã ngẫu nhiên) |
 | admin/AdminWave13Test | 4 | Tính năng mới đợt 13 trên Admin riêng (ADM-W13-01..04): đăng nhập admin không nút quay lại, link 'Quên mật khẩu' ở admin, nút 'Ghi nhận đã hoàn tiền' (chỉ mở modal xem), lọc ngày + Export nhật ký hệ thống |
 | admin/AdminUploadTest | 3 | Upload ảnh sản phẩm (đợt redesign form admin, UP-01..03): 1 ảnh qua input file thật → có thumbnail trong bảng + chi tiết; file sai định dạng (.txt) và ảnh > 5MB bị từ chối inline; 2 ảnh + đặt ảnh thứ 2 làm ảnh chính |
-| **Tổng** | **313** | **275 web + 38 admin** |
+| admin/AdminReviewTest | 8 | Quản lý đánh giá admin (đợt 16, RVM-01..08): mục "Đánh giá" thứ 9 — bảng Sản phẩm/Khách/Sao/Nội dung/Ngày, lọc sao + tìm kiếm, Export CSV, phân trang, modal chi tiết, xóa qua hộp xác nhận (không nút sửa/tạo); RVM-06 xóa 1 đánh giá thật, không khôi phục được |
+| **Tổng** | **321** | **275 web + 46 admin** |
 
 ## CN-01 — Đăng ký tài khoản
 
@@ -461,3 +463,20 @@ Mã RV-05..10 / PT-05..08 / BD-05..09 **không có sẵn trong file manual** —
 ## Kiểm thử hiệu năng (JMeter) — đã đổi sang JWT
 
 `performance/dafl-loadtest.jmx`: bỏ phụ thuộc cookie `sid` (Cookie Manager đã tắt), sampler đăng nhập trích `$.data.token` bằng JSON Post Processor và Header Manager gắn `Authorization: Bearer ${jwtToken}` cho toàn bộ sampler cần xác thực; body giỏ/checkout không còn `userId`, checkout gửi kèm khối `shipping` lồng nhau + `paymentMethod`. **Ngưỡng Quality Gate giữ nguyên: lỗi ≤ 2%, thời gian phản hồi TB ≤ 1000 ms.**
+
+## Đợt 16 — Quản lý đánh giá admin (RVM-01..08)
+
+Mục "Đánh giá" thứ 9 trên Admin riêng (`http://localhost:3001`, lớp `admin/AdminReviewTest`, 8 test): bảng Sản phẩm/Khách/Sao/Nội dung (cắt 80 ký tự)/Ngày, lọc theo số sao + tìm kiếm, nút Export CSV, phân trang 10 dòng/trang, modal xem chi tiết + nút Xóa qua hộp xác nhận chung (`admin-confirm-modal`); không có nút sửa/tạo. Backend: `GET /api/admin/evaluations` (lọc productId/rating/search, phân trang) + `DELETE /api/admin/evaluations/{id}` (chỉ SuperAdmin, xóa CỨNG vì entity `Evaluation` không có cờ ẩn/xóa, xóa xong tính lại Rating = trung bình làm tròn 1 số thập phân, 0 đánh giá → Rating = 0, ghi AuditLog). Chạy bằng `run_test_admin.bat` / `run_test_admin_allure.bat` (chỉ :3001, không cần :3000).
+
+| Mã test | Mô tả | Ghi chú dữ liệu |
+|---|---|---|
+| RVM-01 | Mục "Đánh giá" hiện trong menu admin + bảng tải được, đủ cột Sản phẩm/Khách/Sao/Nội dung/Ngày | Chạy khi đã seed tài khoản admin |
+| RVM-02 | Tìm kiếm theo tên sản phẩm/khách lọc đúng dòng | Skip nếu bảng trống (không có đánh giá nào) |
+| RVM-03 | Lọc theo số sao 5 sao chỉ hiện đánh giá 5 sao | Skip nếu không có đánh giá 5 sao |
+| RVM-04 | Mở modal xem chi tiết 1 đánh giá (đủ tên SP/khách/sao/nội dung đầy đủ/ngày), đóng được | Nội dung trong modal hiện đủ, không bị cắt |
+| RVM-05 | Nội dung dài bị cắt 80 ký tự trong bảng | Cần 1 đánh giá có nội dung > 80 ký tự, nếu không có thì Skip |
+| RVM-06 | Xóa 1 đánh giá qua hộp xác nhận (bấm xác nhận → dòng biến mất khỏi bảng) | Chỉ chạy khi ≥ 2 đánh giá; **xóa 1 đánh giá thật, không khôi phục được** (xóa cứng + tính lại Rating SP) |
+| RVM-07 | Nút Export bấm được, trang admin vẫn đứng yên | Chỉ kiểm tra nút bấm được, không assert nội dung file (xuất CSV client-side, giống ADM-10) |
+| RVM-08 | Phân trang 10 dòng/trang: trang 1 tối đa 10 dòng, bấm 'Sau' sang trang 2 rồi 'Trước' về trang 1 | Số trang theo tổng thật; skip nếu ≤ 10 dòng (giống ADM-12) |
+
+> **Tổng mới: web 275 / admin 46 / tổng 321 test / 32 lớp (web 26 + admin 6).** Lưu ý: RVM-06 là test duy nhất trong lớp đụng dữ liệu thật (xóa 1 đánh giá có sẵn, không khôi phục được — giống ACR-06/07 đổi/hủy đơn có sẵn); các test còn lại chỉ đọc. Tên phương thức trong `AdminReviewTest` map 1-1 theo mã RVM-01..08.

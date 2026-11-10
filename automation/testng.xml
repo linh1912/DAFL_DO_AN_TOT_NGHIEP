@@ -39,7 +39,7 @@
         </classes>
     </test>
 
-    <!-- Khoi 2: Admin (5 lop, 38 test) -->
+    <!-- Khoi 2: Admin (6 lop, 46 test) -->
     <test name="Quản trị">
         <classes>
             <class name="vn.dafl.tests.admin.AdminAndNewsletterTest"/>
@@ -47,6 +47,7 @@
             <class name="vn.dafl.tests.admin.AdminCrudTest"/>
             <class name="vn.dafl.tests.admin.AdminWave13Test"/>
             <class name="vn.dafl.tests.admin.AdminUploadTest"/>
+            <class name="vn.dafl.tests.admin.AdminReviewTest"/>
         </classes>
     </test>
 </suite>

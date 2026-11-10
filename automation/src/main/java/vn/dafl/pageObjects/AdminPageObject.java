@@ -1331,4 +1331,204 @@ public class AdminPageObject extends BasePage {
         return getElementValue(AdminPageUI.ADMIN_ADJUST_POINTS_INPUT).isEmpty()
                 && getElementValue(AdminPageUI.ADMIN_ADJUST_REASON_INPUT).isEmpty();
     }
+
+    // ---------- Muc Danh gia (dot 16) ----------
+    // BE moi GET /api/admin/evaluations (loc productId/rating/search, phan trang
+    // 10/trang) + DELETE /api/admin/evaluations/{id} (SuperAdmin only, xoa CUNG
+    // vi entity Evaluation khong co co an/xoa; xoa xong tinh lai Rating, ghi
+    // AuditLog). Admin khong tao/sua danh gia — chi xem, loc/tim, Export, xoa.
+
+    // Dot16-reviews: mo muc Danh gia tu sidebar admin (nav 'reviews').
+    public void openReviewsSection() {
+        clickAdminNav("reviews");
+        waitForElementVisible(AdminPageUI.ADMIN_REVIEWS_SECTION);
+    }
+
+    // Dot16-reviews: muc Danh gia co hien tren sidebar khong.
+    public boolean isReviewsNavDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_NAV_REVIEWS, 10);
+    }
+
+    // Dot16-reviews: section Danh gia co dang hien khong.
+    public boolean isReviewsSectionDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_REVIEWS_SECTION, 10);
+    }
+
+    // Dot16-reviews: cho bang tai xong — het "Đang tải..." thi hoac co dong,
+    // hoac hien trang thai rong "Chưa có đánh giá nào." (toi da 10 giay).
+    public void waitForReviewsTableLoaded() {
+        waitForElementVisible(AdminPageUI.ADMIN_REVIEWS_SECTION);
+        long deadline = System.currentTimeMillis() + 10000;
+        while (System.currentTimeMillis() < deadline) {
+            if (getReviewRowCount() > 0 || isReviewsEmptyStateDisplayed()) {
+                return;
+            }
+            sleepInSecond(1);
+        }
+    }
+
+    // Dot16-reviews: so dong danh gia dang hien trong bang (0 neu bang rong).
+    public int getReviewRowCount() {
+        return getListWebElements(AdminPageUI.ADMIN_REVIEW_TABLE_ROWS).size();
+    }
+
+    // Dot16-reviews: text 6 tieu de cot cua bang, theo dung thu tu hien thi.
+    public List<String> getReviewHeaders() {
+        List<String> headers = new ArrayList<>();
+        for (WebElement th : getListWebElements(AdminPageUI.ADMIN_REVIEW_TABLE_HEADERS)) {
+            headers.add(th.getText().trim());
+        }
+        return headers;
+    }
+
+    // Dot16-reviews: tim theo ten san pham / khach hang / noi dung (loc
+    // server-side) roi bam nut Tim.
+    public void searchReviewsByText(String keyword) {
+        sendKeyToElement(AdminPageUI.ADMIN_REVIEW_SEARCH, keyword);
+        clickToElement(AdminPageUI.ADMIN_REVIEWS_SEARCH_BTN);
+        sleepInSecond(2); // cho GET /api/admin/evaluations tai lai
+    }
+
+    // Dot16-reviews: loc theo so sao (value = "" tat ca, "1".."5") roi bam nut Tim.
+    public void filterReviewsByRating(String value) {
+        selectByValue(AdminPageUI.ADMIN_REVIEW_RATING_FILTER, value);
+        clickToElement(AdminPageUI.ADMIN_REVIEWS_SEARCH_BTN);
+        sleepInSecond(2); // cho GET /api/admin/evaluations tai lai
+    }
+
+    // Dot16-reviews: bam nut icon "Đặt lại" — xoa trang o tim/loc + ve trang 1.
+    public void resetReviewsFilter() {
+        clickToElement(AdminPageUI.ADMIN_REVIEWS_RESET_BTN);
+        sleepInSecond(1); // cho loc client-side ap dung
+    }
+
+    // Dot16-reviews: ten san pham o dong dau tien cua bang.
+    public String getFirstRowProductName() {
+        return getElementText(AdminPageUI.ADMIN_REVIEW_FIRST_ROW_PRODUCT);
+    }
+
+    // Dot16-reviews: so sao o dong dau tien, parse so truoc "/5"
+    // (o hien dang "★★★★☆ (4/5)").
+    public int getFirstRowRating() {
+        String ratingText = getElementText(AdminPageUI.ADMIN_REVIEW_FIRST_ROW_RATING);
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\((\\d+)/5\\)")
+                .matcher(ratingText);
+        if (!matcher.find()) {
+            throw new AssertionError("Khong doc duoc so sao tu o '" + ratingText + "' (du kien dang '(n/5)')");
+        }
+        return Integer.parseInt(matcher.group(1));
+    }
+
+    // Dot16-reviews: so sao cua TAT CA dong dang hien trong bang (theo thu tu dong).
+    public List<Integer> getAllRowRatings() {
+        List<Integer> ratings = new ArrayList<>();
+        for (WebElement span : getListWebElements(AdminPageUI.ADMIN_REVIEW_ROW_RATING_SPANS)) {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\((\\d+)/5\\)")
+                    .matcher(span.getText());
+            if (!matcher.find()) {
+                throw new AssertionError("Khong doc duoc so sao tu o '" + span.getText() + "' (du kien dang '(n/5)')");
+            }
+            ratings.add(Integer.parseInt(matcher.group(1)));
+        }
+        return ratings;
+    }
+
+    // Dot16-reviews: noi dung (DA CAT 80 ky tu) o dong dau tien cua bang.
+    public String getFirstRowComment() {
+        return getElementText(AdminPageUI.ADMIN_REVIEW_FIRST_ROW_COMMENT);
+    }
+
+    // Dot16-reviews: bam ca dong dau tien -> mo modal chi tiet danh gia.
+    public void openFirstReviewDetail() {
+        clickToElement(AdminPageUI.ADMIN_REVIEW_FIRST_ROW);
+        waitForElementVisible(AdminPageUI.ADMIN_REVIEW_DETAIL_MODAL);
+    }
+
+    // Dot16-reviews: noi dung DAY DU (khong cat) trong modal chi tiet — lay tu
+    // KvRow co label 'Nội dung'.
+    public String getDetailModalComment() {
+        return getElementText(AdminPageUI.ADMIN_REVIEW_DETAIL_COMMENT);
+    }
+
+    // Dot16-reviews: modal chi tiet danh gia co dang hien khong.
+    public boolean isDetailModalDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_REVIEW_DETAIL_MODAL, 10);
+    }
+
+    // Dot16-reviews: nut "Xóa đánh giá" trong modal chi tiet co hien khong.
+    public boolean isReviewDeleteButtonInModalDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_REVIEW_DELETE_BTN);
+    }
+
+    // Dot16-reviews: dong modal chi tiet danh gia bang nut X.
+    public void closeReviewDetailModal() {
+        closeDetailModal("admin-review-detail-modal");
+    }
+
+    // Dot16-reviews: xoa dong CUOI cua trang hien tai — bam nut xoa tren dong ->
+    // hop xac nhan chung hien ra -> bam xac nhan -> tra ve thong bao (toast hoac
+    // .sa-notice). XOA THAT, KHONG khoi phuc duoc — test goi ham nay phai dam bao
+    // con du dong sau khi xoa.
+    public String deleteLastReview() {
+        clickToElement(AdminPageUI.ADMIN_REVIEW_LAST_ROW_DELETE_BTN);
+        waitForElementVisible(AdminPageUI.ADMIN_CONFIRM_MODAL);
+        clickToElement(AdminPageUI.ADMIN_CONFIRM_YES_BTN);
+        String feedback = waitForFeedback();
+        sleepInSecond(2); // cho loadReviews tai lai danh sach
+        return feedback;
+    }
+
+    // Dot16-reviews: getToastText() DA CO SAN o tren (dung ADMIN_TOAST) — dung
+    // lai, khong dinh nghia trung.
+
+    // Dot16-reviews: khoi phan trang cua muc Danh gia co hien khong (chi hien khi co dong).
+    public boolean isReviewsPaginationDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_REVIEWS_PAGINATION, 10);
+    }
+
+    // Dot16-reviews: text "Trang X / Y — Tổng T dòng" cua khoi phan trang; "" neu khong co phan trang.
+    public String getPaginationInfoText() {
+        if (!isReviewsPaginationDisplayed()) {
+            return "";
+        }
+        return getElementText(AdminPageUI.ADMIN_REVIEWS_PAGINATION);
+    }
+
+    // Dot16-reviews: tong so trang (Y trong "Trang X / Y"); -1 neu khong co phan trang.
+    public int getReviewsPaginationTotalPages() {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("Trang\\s+\\d+\\s*/\\s*(\\d+)")
+                .matcher(getPaginationInfoText());
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
+    }
+
+    // Dot16-reviews: tong so dong (T trong "Tổng T dòng"); -1 neu khong co phan trang.
+    public int getReviewsPaginationTotalRows() {
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("Tổng\\s+(\\d+)\\s+dòng")
+                .matcher(getPaginationInfoText());
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
+    }
+
+    // Dot16-reviews: nut so trang N cua phan trang Danh gia co hien khong.
+    public boolean isReviewsPageButtonDisplayed(int page) {
+        return isElementDisplayed(getDynamicLocator(
+                AdminPageUI.DYNAMIC_ADMIN_REVIEWS_PAGINATION_PAGE, String.valueOf(page)));
+    }
+
+    // Dot16-reviews: bam nut Export (xuat CSV client-side, chi tai file ve -
+    // khong doi du lieu). Khong khang dinh file tai ve (ten file phu thuoc trinh
+    // duyet/may chay); chi dam bao nut bam duoc va trang admin van dung yen.
+    public void clickExportReviews() {
+        clickToElement(AdminPageUI.ADMIN_REVIEWS_EXPORT_BTN);
+        sleepInSecond(1);
+    }
+
+    // Dot16-reviews: nut Export cua muc Danh gia co hien khong.
+    public boolean isReviewsExportButtonDisplayed() {
+        return isElementDisplayedWithWait(AdminPageUI.ADMIN_REVIEWS_EXPORT_BTN, 10);
+    }
+
+    // Dot16-reviews: trang thai rong "Chưa có đánh giá nào." co hien khong (luc do khong co bang).
+    public boolean isReviewsEmptyStateDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_EMPTY_REVIEWS_MSG);
+    }
 }
