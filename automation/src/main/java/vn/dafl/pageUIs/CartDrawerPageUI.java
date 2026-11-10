@@ -43,6 +43,13 @@ public class CartDrawerPageUI {
     public static final String REMOVE_VOUCHER_BTN = "css=[data-testid='remove-voucher-btn']";
     public static final String DYNAMIC_VOUCHER_CHIP = "css=[data-testid='voucher-chip-%s']";
 
+    // Wave15.1-auto: TC_SCR6_UI_017 — thanh tien do freeship (CartDrawer.tsx:229).
+    public static final String CART_FREESHIP_PROGRESS = "css=[data-testid='cart-freeship-progress']";
+    // Wave15.1-auto: TC_SCR6_UI_002 — nut dat hang/thanh toan o form checkout trong /cart.
+    public static final String CART_CHECKOUT_BTN = "css=[data-testid='cart-checkout-btn']";
+    // Wave15.1-auto: TC_SCR6_UI_002 — dem so dong gio qua o nhap so luong (moi dong co dung 1 o).
+    public static final String ANY_CART_ITEM_QTY = "css=[data-testid^='cart-item-qty-']";
+
     // Muc dung diem doi tien o gio hang (dot 15, chi hien khi da dang nhap):
     // bat toggle thi o nhap tu dien toi da; 1 diem = 1.000d; khong dung chung
     // voi ma FORDEV. Dong giam gia hien trong bang gia cua gio hang.

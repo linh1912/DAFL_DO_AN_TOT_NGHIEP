@@ -72,4 +72,18 @@ public class SiteFooterPageObject extends BasePage {
         clickToElement(SiteFooterUI.DYNAMIC_FOOTER_LINK, linkKey);
         sleepInSecond(2); // cho route moi tai xong
     }
+
+    // ---------- Bo sung Wave15.1-auto (buoc 3, nhom footer) ----------
+    // Wave15.1-auto: TC_SCR11_UI_022 — toan bo text khoi footer (brand, hotline, dong day).
+    public String getFooterText() {
+        scrollToElement(SiteFooterUI.SITE_FOOTER);
+        waitForElementVisible(SiteFooterUI.SITE_FOOTER);
+        return getElementText(SiteFooterUI.SITE_FOOTER);
+    }
+
+    // Wave15.1-auto: TC_SCR11_UI_022 — "Gian hang DAFL tren toan quoc" co phai la link khong
+    // (ky vong KHONG: day la chu tinh, khong co the <a> nao chua dong chu nay trong footer).
+    public boolean isNationwideShopsTextALink() {
+        return getListWebElements(SiteFooterUI.FOOTER_NATIONWIDE_LINK).size() > 0;
+    }
 }

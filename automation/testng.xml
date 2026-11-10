@@ -7,7 +7,7 @@
         <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
     </listeners>
 
-    <!-- Khoi 1: Web ban hang (14 lop, 119 test; dot 15: +Wave15FeaturesTest RV/PT/BD) -->
+    <!-- Khoi 1: Web ban hang (26 lop, 275 test; dot 15: +Wave15FeaturesTest RV/PT/BD; dot 15.1: +12 lop moi, 156 test tu file manual v15.1) -->
     <test name="Web — Cửa hàng">
         <classes>
             <class name="vn.dafl.tests.web.AuthTest"/>
@@ -24,6 +24,18 @@
             <class name="vn.dafl.tests.web.EndToEndShoppingFlowTest"/>
             <class name="vn.dafl.tests.web.NegativeAndExceptionScenariosTest"/>
             <class name="vn.dafl.tests.web.Wave15FeaturesTest"/>
+            <class name="vn.dafl.tests.web.AuthExtendedTest"/>
+            <class name="vn.dafl.tests.web.ProfileExtendedTest"/>
+            <class name="vn.dafl.tests.web.CatalogExtendedTest"/>
+            <class name="vn.dafl.tests.web.HomePageTest"/>
+            <class name="vn.dafl.tests.web.HomeHeaderTest"/>
+            <class name="vn.dafl.tests.web.ProductDetailExtendedTest"/>
+            <class name="vn.dafl.tests.web.CartExtendedTest"/>
+            <class name="vn.dafl.tests.web.CheckoutExtendedTest"/>
+            <class name="vn.dafl.tests.web.CheckoutPaymentTest"/>
+            <class name="vn.dafl.tests.web.OrdersExtendedTest"/>
+            <class name="vn.dafl.tests.web.MembershipExtendedTest"/>
+            <class name="vn.dafl.tests.web.NotificationsFooterTest"/>
         </classes>
     </test>
 

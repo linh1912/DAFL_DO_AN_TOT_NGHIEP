@@ -1,12 +1,13 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **157 test method / 19 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (14 lớp web bán hàng, 119 test) và `automation/src/test/java/vn/dafl/tests/admin/` (5 lớp admin, 38 test).
+> Bộ test tự động: **313 test method / 31 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (26 lớp web bán hàng, 275 test) và `automation/src/test/java/vn/dafl/tests/admin/` (5 lớp admin, 38 test).
 > Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
-> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 119 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 38 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
+> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 275 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 38 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
 > Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-14, ADT-01..ADT-09, ACR-01..ACR-08, ADM-W13-01..ADM-W13-04, UP-01..UP-03 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
 > Đợt 13: xem mục "Tính năng mới đợt 13" ở cuối bảng ánh xạ (trang Hội viên, quên mật khẩu, sửa/xóa voucher Draft, điểm khách đọc lại được, ghi nhận hoàn tiền, lọc ngày + Export nhật ký, đăng nhập admin không nút quay lại).
 > Đợt redesign form admin + upload ảnh: xem mục "Đợt redesign form admin + upload ảnh" ở cuối bảng ánh xạ (drawer form sản phẩm, dropdown danh mục custom, toast admin-toast, upload ảnh UP-01..UP-03).
 > Đợt 15: xem mục "Tính năng mới đợt 15" ở cuối bảng ánh xạ (gửi đánh giá sản phẩm RV-01..04, dùng điểm khi thanh toán PT-01..04, ngày sinh + voucher sinh nhật BD-01..04).
+> Đợt 15.1 (bước 3): xem mục "Đợt 15.1 — test auto từ file test case manual v15.1" ở cuối bảng ánh xạ (156 test mới / 12 lớp web, cover đủ 176 case loại (c) trong 338 case manual; mã RV-05..10, PT-05..08, BD-05..09 do nhóm viết test gán nối tiếp RV/PT/BD đợt 15 — file manual không ghi sẵn các mã này).
 > Ghi chú về báo cáo Allure: báo cáo Allure hiển thị tên test, nhóm chức năng (Feature/Story) và tên suite bằng tiếng Việt (tên suite lấy từ thuộc tính `name` trong các file `automation/testng-web.xml`, `testng-admin.xml`, `testng.xml`). Menu giao diện Allure (Overview/Suites/Graphs...) vẫn tiếng Anh vì Allure không có bản dịch tiếng Việt.
 
 ## Tổng hợp theo lớp
@@ -27,12 +28,24 @@
 | web/NewsletterTest | 3 | Đăng ký bản tin ở footer web bán hàng NL-01..03 (chuyển từ admin/AdminAndNewsletterTest sang web đợt 10) |
 | web/MembershipTest | 3 | Trang Hội viên riêng /membership (MEM-01/02) + 15 link footer (FTR-01) — đợt 13 |
 | web/Wave15FeaturesTest | 12 | Tính năng mới đợt 15: gửi đánh giá sản phẩm (RV-01..04), dùng điểm khi thanh toán (PT-01..04), ngày sinh + voucher sinh nhật (BD-01..04) |
+| web/AuthExtendedTest | 19 | Đăng ký/đăng nhập mở rộng: toggle mật khẩu, giữ dữ liệu khi trùng email, quên mật khẩu 3 bước (SCR_01 8 + SCR_02 11 case) — đợt 15.1 |
+| web/ProfileExtendedTest | 9 | Hồ sơ/sổ địa chỉ mở rộng (SCR_03 10 case) — đợt 15.1 |
+| web/CatalogExtendedTest | 15 | Danh mục/tìm kiếm/lọc/sắp xếp mở rộng (SCR_04 18 case) — đợt 15.1 |
+| web/HomePageTest | 12 | Trang chủ mở rộng: banner, danh mục nổi bật, bán chạy, gợi ý, Flash Sale (SCR_09 13 case) — đợt 15.1 |
+| web/HomeHeaderTest | 9 | Header mở rộng: tìm kiếm, giỏ, menu tài khoản, dark mode (SCR_09 9 case) — đợt 15.1 |
+| web/ProductDetailExtendedTest | 10 | Chi tiết SP mở rộng + gửi đánh giá RV-05..10 (SCR_05 9 case) — đợt 15.1 |
+| web/CartExtendedTest | 12 | Giỏ hàng mở rộng + voucher (SCR_06 11 case) — đợt 15.1 |
+| web/CheckoutExtendedTest | 19 | Checkout mở rộng: form giao hàng 8 trường, validation, lưu địa chỉ mặc định, khối tính tiền, giới hạn COD 2.000.000đ (SCR_07) — đợt 15.1 |
+| web/CheckoutPaymentTest | 11 | Thanh toán mở rộng: freeship trước giảm giá, voucher khi đặt hàng, view PayOS, /mock-payos, /payment-success, dùng điểm PT-05..08 (SCR_07) — đợt 15.1 |
+| web/OrdersExtendedTest | 13 | Đơn hàng mở rộng: lọc tab, phân trang, 'Thanh toán ngay', 'Mua lại', hộp hủy đơn 5 lý do (SCR_08 16 case) — đợt 15.1 |
+| web/MembershipExtendedTest | 16 | Hội viên mở rộng + voucher sinh nhật BD-05..09 (SCR_10 17 case) — đợt 15.1 |
+| web/NotificationsFooterTest | 11 | Thông báo + footer 15 link thật (SCR_11 24 case, 14 link footer gộp 1 test) — đợt 15.1 |
 | admin/AdminAndNewsletterTest | 14 | Trang Admin chỉ đọc + biểu đồ doanh thu (đợt 3–4) + tìm kiếm/lọc/Export (đợt 8); đợt 12: o search topbar đã bỏ (tìm kiếm ở toolbar của mục), toolbar chuẩn + phân trang 10 dòng/trang + form mở trong modal (ADM-11 viết lại, ADM-12..ADM-14 mới); 3 test bản tin NL-01..03 đã chuyển sang web/NewsletterTest (đợt 10) |
 | admin/AdminDetailTest | 9 | Modal xem chi tiết admin Spark: sản phẩm, danh mục, khuyến mãi, hạng, đơn, khách, trả hàng + mở form sửa từ modal (đợt 8, chỉ đọc) |
 | admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn (đợt 10 — không khôi phục được trạng thái cũ), điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy (trừ ACR-06/07); đợt 13: ACR-05 thêm sửa/xóa voucher Draft qua hộp xác nhận, ACR-08 đọc lại số dư điểm trước/sau và khẳng định tăng đúng +5; đợt redesign form admin: ACR-01..05 viết lại theo drawer + dropdown custom + toast (ACR-01 kèm giá gốc/mô tả/highlight, ACR-02 kèm badge % giảm, ACR-04 kèm slug tự sinh + toggle, ACR-05 kèm form voucher đầy đủ + nút tạo mã ngẫu nhiên) |
 | admin/AdminWave13Test | 4 | Tính năng mới đợt 13 trên Admin riêng (ADM-W13-01..04): đăng nhập admin không nút quay lại, link 'Quên mật khẩu' ở admin, nút 'Ghi nhận đã hoàn tiền' (chỉ mở modal xem), lọc ngày + Export nhật ký hệ thống |
 | admin/AdminUploadTest | 3 | Upload ảnh sản phẩm (đợt redesign form admin, UP-01..03): 1 ảnh qua input file thật → có thumbnail trong bảng + chi tiết; file sai định dạng (.txt) và ảnh > 5MB bị từ chối inline; 2 ảnh + đặt ảnh thứ 2 làm ảnh chính |
-| **Tổng** | **157** | **119 web + 38 admin** |
+| **Tổng** | **313** | **275 web + 38 admin** |
 
 ## CN-01 — Đăng ký tài khoản
 
@@ -275,6 +288,175 @@ Testid mới đợt này (FE bắt buộc dùng đúng các tên này — xem `A
 | BD-04 | Wave15FeaturesTest.claimBirthdayVoucherTwiceSecondTimeShowsError | chỉ chạy khi đủ điều kiện (hạng Vàng trở lên + đã có ngày sinh + sinh nhật trong 30 ngày quanh hôm nay), còn lại Skip; bấm nhận 2 lần liên tiếp -> lần 2 phải hiện `birthday-voucher-error-msg` (không khẳng định cứng câu lỗi vì phụ thuộc trạng thái thật: đã nhận trong năm / ngoài cửa sổ 30 ngày); lần 1 có thể tạo 1 voucher sinh nhật thật cho demo (1 lần/năm) |
 
 > Lưu ý đợt 15: (1) Form đánh giá được test ở chế độ KHÁCH (không đăng nhập) vì có ô `review-name-input`; nếu FE thật chỉ hiện form khi đã đăng nhập thì RV-01..RV-04 fail và cần thêm bước đăng nhập demo trước khi mở chi tiết. (2) Ô ngày sinh là `<input type="date">` — test gõ theo thứ tự ddMMyyyy (Chrome hiển thị vi-VN), nếu gõ phím không ăn thì đặt bằng native setter + sự kiện input/change (xem `MembershipPageObject.setBirthdate`). (3) Số dư điểm đọc từ `membership-points-balance` — test lấy cụm số ĐẦU TIÊN trong dòng (xem `MembershipPageObject.getAvailablePoints`); nếu FE đổi định dạng dòng số dư (vd thêm số khác đứng trước) thì hàm này đọc sai. (4) PT-02/PT-03/PT-04 tự dọn trạng thái giỏ demo (tắt toggle, gỡ voucher) và tự gỡ voucher cũ trước khi áp mã, để không phụ thuộc thứ tự chạy; nhưng RV-04 vẫn để lại 1 đánh giá thật trên SP seed.
+
+## Đợt 15.1 — test auto từ file test case manual v15.1 (338 case → 156 test mới)
+
+Đối chiếu 338 case manual web v15.1 (`dafl-test-manual-web-v15.1.xlsx`, 11 sheet SCR_01..SCR_11) với bộ Selenium 157 test: **(a) đã có test 105 case / (b) không tự động được 57 case / (c) thiếu 176 case**. Bảng đối chiếu đầy đủ: `~/workspace/manual-v15-draft/MAPPING_MANUAL_TO_AUTO.md` (1 dòng/case).
+
+156 test mới dưới đây cover đủ **176/176 case loại (c)** (mỗi test đều ghi mã case manual `TC_SCRx_...` trong `@Test(description=...)`; test gộp nhiều case biến thể dữ liệu thì liệt kê đủ các mã). 2 case được cover 1 PHẦN bởi test mới (phần còn lại đã có test cũ): `TC_SCR5_FUNC_016` (phần mới 'form đánh giá luôn hiển thị' — RV-10; phần hiển thị mục đánh giá khi chưa có đánh giá vẫn do `ProductDetailTest.productDetailShowsReviewsSection` cover) và `TC_SCR6_UI_014` (xem description của test tương ứng).
+
+Mã RV-05..10 / PT-05..08 / BD-05..09 **không có sẵn trong file manual** — do nhóm viết test gán nối tiếp mã đợt 15 (RV-01..04, PT-01..04, BD-01..04): RV-05=TC_SCR5_VAL_023, RV-06=TC_SCR5_FUNC_024, RV-07=TC_SCR5_FUNC_025, RV-08=TC_SCR5_FUNC_028, RV-09=TC_SCR5_FUNC_015, RV-10=TC_SCR5_FUNC_016; PT-05=TC_SCR7_FUNC_056, PT-06=TC_SCR7_VAL_058, PT-07=TC_SCR7_FUNC_060, PT-08=TC_SCR7_FUNC_061; BD-05=TC_SCR10_FUNC_020, BD-06=TC_SCR10_FUNC_022, BD-07=TC_SCR10_FUNC_023, BD-08=TC_SCR10_FUNC_024, BD-09=TC_SCR10_VAL_019. Trong nhóm (c) chỉ có 4 case điểm nên không có PT-09/PT-10.
+
+> Lưu ý đợt 15.1 (phát hiện khi đối chiếu code thật): (1) Kỳ vọng manual TC_SCR4_FUNC_027 SAI so với code — badge online chỉ hiện 'Hiển thị {n} sản phẩm', dạng 'Hiển thị {n} / {tổng}' chỉ ở chế độ fallback/offline; test viết theo hành vi thật, cần sửa kỳ vọng trong file manual/inventory. (2) Test cũ `CheckoutAndOrderTest.payWithMockPayosAndSeeOrderInHistory` (TC O1 PayOS, SCR7_047) khẳng định bấm `simulate-payos-success-btn` xong ra `order-paid-view` — SAI ở chế độ demo: nút mô phỏng chỉ gọi `GET /api/payments/status`, demo trả Pending nên FE chỉ hiện toast 'Đang chờ thanh toán'; đường Paid duy nhất ở demo là qua webhook `/mock-payos` (xem test mới SCR7_049/050). Test mới SCR7_048 khẳng định đúng hành vi demo. **ĐÃ SỬA 2026-11-10 (sau đợt 15.1): test 047 và test `payosPageHasNoEmbeddedGatewayIframe` (cùng khẳng định sai) đổi kỳ vọng thành toast 'Đang chờ thanh toán' + vẫn ở màn hình thanh toán + không hiện order-paid-view.** (3) Locator cũ `ANY_PRODUCT_CARD` ở trang chủ đếm cả thẻ flash/best/suggest nên 2 test cũ `homePageDisplaysProducts` / `filterByFirstCategory` có thể fail khi chạy E2E thật. **ĐÃ SỬA 2026-11-10: `ANY_PRODUCT_CARD` giờ chỉ đếm thẻ trong `.products-grid` (3 mục kia dùng hậu tố -flash/-best/-suggest).** (4) Các mức tiền gốc trong manual không ghép được từ giá seed (mọi giá đều là bội của 1.000đ): 305.000đ → 306.000đ, 250.000đ → 248.000đ, 2.000.001đ → 2.001.000đ (mức thay thế vẫn kích hoạt đúng luật cần kiểm); COD đúng 2.000.000đ ghép được (prod-1 ×1 + prod-2 ×5 + prod-6 ×4). (5) Test tự skip (SkipException) khi thiếu dữ liệu/trạng thái: PT-02/03 + PT-05..08 khi demo 0 điểm; BD-02 khi đã có ngày sinh; BD-05/08 khi demo đã nhận voucher sinh nhật năm nay; TC_SCR2_FUNC_027 (giới hạn gửi lại mã reset — inventory không ghi chuỗi lỗi/HTTP/testid); TC_SCR4_FUNC_026 (không danh mục nào > 12 SP để sang trang 2); TC_SCR4_FUNC_029 (seed không có SP IsActive=false). (6) Dữ liệu thật các test tạo ra khi chạy E2E: 12 đơn COD (phân trang), 4 đơn hủy, 1 đơn trừ 50 điểm demo (chỉ khi demo có điểm), 1 địa chỉ mặc định mới trên demo, 1 đơn PayOS Paid qua webhook giả, đánh giá thật trên SP seed (RV-06/07/08, kèm timestamp).
+
+| Mã TC (manual) | Lớp.phương thức | Mã test |
+|---|---|---|
+| TC_SCR1_UI_003 | AuthExtendedTest.registerPasswordTogglesWorkIndependently |  |
+| TC_SCR1_UI_004 | AuthExtendedTest.switchingTabsClearsPreviousErrors |  |
+| TC_SCR1_VAL_005 | AuthExtendedTest.registerWithAllFieldsEmptyShowsAllErrors |  |
+| TC_SCR1_VAL_006 | AuthExtendedTest.registerWithTooLongNameShowsError |  |
+| TC_SCR1_VAL_009 | AuthExtendedTest.registerWithInvalidPhoneVariantsShowsError |  |
+| TC_SCR1_VAL_016 | AuthExtendedTest.registerWithEmptyEmailShowsError |  |
+| TC_SCR1_VAL_017 | AuthExtendedTest.registerWithEmptyConfirmPasswordShowsError |  |
+| TC_SCR1_FUNC_019 | AuthExtendedTest.duplicateEmailKeepsEnteredDataExceptPasswords |  |
+| TC_SCR2_UI_002 | AuthExtendedTest.loginFormHasNoDemoOrOtpEntry |  |
+| TC_SCR2_SEC_015 | AuthExtendedTest.protectedPageReturnsAfterLogin |  |
+| TC_SCR2_VAL_017 | AuthExtendedTest.loginWithUsernameAdminOnShopShowsFormatError |  |
+| TC_SCR2_FUNC_018 | AuthExtendedTest.forgotPasswordStep1EmptyOrInvalidEmailShowsError |  |
+| TC_SCR2_FUNC_019 | AuthExtendedTest.forgotPasswordWithUnregisteredEmailShowsGenericMessage |  |
+| TC_SCR2_VAL_020 | AuthExtendedTest.resetPasswordWithShortCodeShowsError |  |
+| TC_SCR2_VAL_021 | AuthExtendedTest.resetPasswordWithWeakNewPasswordShowsError |  |
+| TC_SCR2_VAL_022 | AuthExtendedTest.resetPasswordWithMismatchedConfirmShowsError |  |
+| TC_SCR2_FUNC_023 | AuthExtendedTest.resetPasswordWithWrongCodeShowsErrorAndOldPasswordStillWorks |  |
+| TC_SCR2_FUNC_024 | AuthExtendedTest.resetPasswordWrongCodeFiveTimesDestroysCode |  |
+| TC_SCR2_FUNC_027 | AuthExtendedTest.forgotPasswordResendLimitExceedsThreePerHour |  |
+| TC_SCR6_UI_002 | CartExtendedTest.cartLineShowsAllComponentsAndTotals |  |
+| TC_SCR6_FUNC_008 | CartExtendedTest.directQuantityInputFiltersNonDigits |  |
+| TC_SCR6_FUNC_016, TC_SCR6_UI_014 | CartExtendedTest.cartTotalFormulaWithVoucherAndShipping |  |
+| TC_SCR6_UI_017 | CartExtendedTest.freeshipProgressShowsMissingAmount |  |
+| TC_SCR6_UI_017 | CartExtendedTest.freeshipProgressShowsFreeShipAchieved |  |
+| TC_SCR6_VAL_021 | CartExtendedTest.applyVip50kBelowMinOrderShowsError |  |
+| TC_SCR6_FUNC_023 | CartExtendedTest.applyDafl10ReducesTotalByTenPercent |  |
+| TC_SCR6_FUNC_025 | CartExtendedTest.applyFreeshipVoucherMakesShippingFree |  |
+| TC_SCR6_FUNC_026 | CartExtendedTest.applyVip50kReducesTotalBy50k |  |
+| TC_SCR6_FUNC_027 | CartExtendedTest.applyFordevVoucherBringsTotalTo2000 |  |
+| TC_SCR6_UI_028 | CartExtendedTest.voucherInputUppercaseAndChipAppliesCode |  |
+| TC_SCR6_UI_029 | CartExtendedTest.removeVoucherRestoresOriginalTotal |  |
+| TC_SCR4_UI_001 | CatalogExtendedTest.productCardShowsDiscountBadgeRatingOriginalPriceAndStock |  |
+| TC_SCR4_FUNC_005 | CatalogExtendedTest.clearCategoryButtonOnlyShowsAfterSelectingCategory |  |
+| TC_SCR4_FUNC_006 | CatalogExtendedTest.searchCategoryByNameShowsOnlyMatchingPills |  |
+| TC_SCR4_FUNC_007 | CatalogExtendedTest.searchCategoryByDescriptionShowsMatchingCategory |  |
+| TC_SCR4_FUNC_008 | CatalogExtendedTest.searchCategoryNoMatchShowsEmptyStateAndShowAllRestores |  |
+| TC_SCR4_FUNC_009 | CatalogExtendedTest.clearButtonInCategorySearchRestoresAllPills |  |
+| TC_SCR4_FUNC_010 | CatalogExtendedTest.productTypeGroupInSidebarFiltersByCategory |  |
+| TC_SCR4_FUNC_011, TC_SCR4_FUNC_013, TC_SCR4_FUNC_014, TC_SCR4_FUNC_015 | CatalogExtendedTest.remainingPricePresetsFillRangeFilterImmediatelyAndMarkActive |  |
+| TC_SCR4_FUNC_017 | CatalogExtendedTest.typingPriceManuallyDeselectsActivePreset |  |
+| TC_SCR4_FUNC_019 | CatalogExtendedTest.searchKeywordIsCaseInsensitive |  |
+| TC_SCR4_FUNC_020 | CatalogExtendedTest.clearFiltersAfterEmptySearchRestoresFullList |  |
+| TC_SCR4_FUNC_023 | CatalogExtendedTest.defaultSortIsNewest |  |
+| TC_SCR4_FUNC_026 | CatalogExtendedTest.categoryFilterPersistsAcrossPages |  |
+| TC_SCR4_FUNC_027 | CatalogExtendedTest.resultCountBadgeUpdatesWithFilterAndPage |  |
+| TC_SCR4_FUNC_029 | CatalogExtendedTest.discontinuedProductNotShownInList |  |
+| TC_SCR7_UI_001 | CheckoutExtendedTest.shippingFormDisplaysAllEightFieldsAndNoteCounter |  |
+| TC_SCR7_UI_002 | CheckoutExtendedTest.savedAddressListShowsDefaultBadgeAndAddButton |  |
+| TC_SCR7_UI_003 | CheckoutExtendedTest.addressCascadeLocksLowerLevelsAndResetsOnProvinceChange |  |
+| TC_SCR7_UI_004 | CheckoutExtendedTest.emptyFormSubmitShowsErrorsAndFocusesFirstError |  |
+| TC_SCR7_FUNC_006 | CheckoutExtendedTest.saveAsDefaultCheckboxCreatesDefaultAddressAfterOrder |  |
+| TC_SCR7_VAL_007 | CheckoutExtendedTest.emptyRecipientShowsError |  |
+| TC_SCR7_VAL_008 | CheckoutExtendedTest.oneCharRecipientShowsError |  |
+| TC_SCR7_VAL_009 | CheckoutExtendedTest.emptyPhoneShowsError |  |
+| TC_SCR7_VAL_011 | CheckoutExtendedTest.emptyEmailShowsError |  |
+| TC_SCR7_VAL_012 | CheckoutExtendedTest.invalidEmailFormatShowsError |  |
+| TC_SCR7_VAL_013 | CheckoutExtendedTest.missingProvinceShowsError |  |
+| TC_SCR7_VAL_014 | CheckoutExtendedTest.missingDistrictShowsError |  |
+| TC_SCR7_VAL_015 | CheckoutExtendedTest.missingWardShowsError |  |
+| TC_SCR7_VAL_017 | CheckoutExtendedTest.shortDetailAddressShowsError |  |
+| TC_SCR7_UI_026 | CheckoutExtendedTest.pricingSummaryAndPaymentMethodsDisplayedWithoutEmbeddedGateway |  |
+| TC_SCR7_UI_033 | CheckoutExtendedTest.submitButtonLabelChangesByPaymentMethodAndLoginState |  |
+| TC_SCR7_FUNC_024 | CheckoutExtendedTest.codStillAvailableAtExactlyTwoMillion |  |
+| TC_SCR7_FUNC_025 | CheckoutExtendedTest.codDisabledAboveTwoMillionWithNoteAndAutoSwitchToPayos |  |
+| TC_SCR7_FUNC_052 | CheckoutExtendedTest.directCheckoutUrlRedirectsToCart |  |
+| TC_SCR7_FUNC_020 | CheckoutPaymentTest.discountDoesNotRemoveFreeShipping |  |
+| TC_SCR7_FUNC_029 | CheckoutPaymentTest.voucherPercent10DiscountIsCorrectOnOrder |  |
+| TC_SCR7_FUNC_030 | CheckoutPaymentTest.voucherFreeshipMakesShippingFreeOnOrder |  |
+| TC_SCR7_UI_046 | CheckoutPaymentTest.payosPaymentViewShowsTimerAmountAndCopyBackButtons |  |
+| TC_SCR7_FUNC_048 | CheckoutPaymentTest.simulatePayosCheckBeforeTransferShowsWaitingToast |  |
+| TC_SCR7_FUNC_049 | CheckoutPaymentTest.mockPayosPageHasSingleConfirmButtonAndConfirmsPayment |  |
+| TC_SCR7_FUNC_050 | CheckoutPaymentTest.paymentSuccessPageShowsOrderSummaryAndLinks |  |
+| TC_SCR7_FUNC_056 | CheckoutPaymentTest.toggleOffAndOnKeepsUsedPoints | PT-05 |
+| TC_SCR7_VAL_058 | CheckoutPaymentTest.pointsInputFiltersNonDigitsAndKeepsValue | PT-06 |
+| TC_SCR7_FUNC_060 | CheckoutPaymentTest.turningPointsOffResetsPointsAndRestoresTotal | PT-07 |
+| TC_SCR7_FUNC_061 | CheckoutPaymentTest.orderWithPointsDeductsBalanceAndLogsHistory | PT-08 |
+| TC_SCR9_UI_021 | HomeHeaderTest.topbarShowsAllThreeMessages |  |
+| TC_SCR9_FUNC_022 | HomeHeaderTest.brandLogoNavigatesBackToHome |  |
+| TC_SCR9_UI_023 | HomeHeaderTest.searchBoxHasPlaceholderClearButtonAndNoSubmitButton |  |
+| TC_SCR9_FUNC_024 | HomeHeaderTest.shopsAndMagazineMenuItemsNavigateHome |  |
+| TC_SCR9_FUNC_025 | HomeHeaderTest.adminNavLinkOnlyShowsForAdminAndLeadsToWebNotFoundPage |  |
+| TC_SCR9_UI_026 | HomeHeaderTest.notificationBadgeHiddenWhenNoUnreadNotifications |  |
+| TC_SCR9_UI_026 | HomeHeaderTest.notificationBadgeShowsUnreadCountForDemoAccount |  |
+| TC_SCR9_UI_027 | HomeHeaderTest.accountDropdownShowsCorrectItemsForGuestAndLoggedInUser |  |
+| TC_SCR9_UI_028 | HomeHeaderTest.cartBadgeHiddenWhenEmptyShowsCountAfterAddingAndOpensCart |  |
+| TC_SCR9_UI_001, TC_SCR9_UI_002, TC_SCR9_UI_003 | HomePageTest.heroSlidesDisplayCorrectContentPerSlide |  |
+| TC_SCR9_UI_004 | HomePageTest.heroAutoAdvancesAboutEveryFourSecondsAndWrapsAround |  |
+| TC_SCR9_FUNC_007 | HomePageTest.heroCtaScrollsToProductsSection |  |
+| TC_SCR9_UI_010 | HomePageTest.trustStripShowsAllFourCommitments |  |
+| TC_SCR9_FUNC_012 | HomePageTest.categoryIconFiltersProductsAndScrollsToGrid |  |
+| TC_SCR9_UI_013 | HomePageTest.brandStripShowsSixBrandsAsPlainTextWithoutNavigation |  |
+| TC_SCR9_FUNC_014 | HomePageTest.flashSaleShowsUpToEightProductsOrderedByDiscountDesc |  |
+| TC_SCR9_FUNC_016 | HomePageTest.flashSaleHidesWhenCategorySelectedAndReturnsWhenCleared |  |
+| TC_SCR9_FUNC_017 | HomePageTest.bestSellerSectionShowsTopEightByRatingThenReviewCount |  |
+| TC_SCR9_FUNC_018 | HomePageTest.suggestedSectionShowsRemainingProductsNotInBestSellers |  |
+| TC_SCR9_UI_019 | HomePageTest.featuredShopsSectionShowsFourShops |  |
+| TC_SCR9_FUNC_020 | HomePageTest.shopCardClearsCategoryFilterAndScrollsToGrid |  |
+| TC_SCR10_FUNC_002, TC_SCR10_UI_012 | MembershipExtendedTest.membershipTierBadgesAndNextTierThreshold |  |
+| TC_SCR10_FUNC_003 | MembershipExtendedTest.membershipBenefitsShowCurrentTierEarnRate |  |
+| TC_SCR10_FUNC_004 | MembershipExtendedTest.membershipBenefitsShowPointsValueAndExpiry |  |
+| TC_SCR10_FUNC_005 | MembershipExtendedTest.membershipBenefitsShowMaxPointsPercentForCurrentTier |  |
+| TC_SCR10_FUNC_006 | MembershipExtendedTest.membershipBenefitsShowFreeShipForCurrentTier |  |
+| TC_SCR10_FUNC_007 | MembershipExtendedTest.membershipPointsBalanceShowsPointsAndConvertedValue |  |
+| TC_SCR10_UI_008 | MembershipExtendedTest.membershipProgressToNextTierShowsRemainingOrTopTier |  |
+| TC_SCR10_UI_010 | MembershipExtendedTest.membershipEmptyHistoryShowsEmptyMessageForNewAccount |  |
+| TC_SCR10_FUNC_011 | MembershipExtendedTest.membershipVouchersListOrEmptyState |  |
+| TC_SCR10_UI_017 | MembershipExtendedTest.membershipBirthdateInputPrefilledWithSavedDate |  |
+| TC_SCR10_VAL_019 | MembershipExtendedTest.membershipSaveBirthdateTwiceWithin90DaysShowsError | BD-09 |
+| TC_SCR10_VAL_025 | MembershipExtendedTest.membershipSaveInvalidBirthdateShowsError |  |
+| TC_SCR10_FUNC_020 | MembershipExtendedTest.claimBirthdayVoucherSuccessShowsMessageAndNewVoucher | BD-05 |
+| TC_SCR10_FUNC_022 | MembershipExtendedTest.claimBirthdayVoucherWithoutBirthdateShowsError | BD-06 |
+| TC_SCR10_FUNC_023 | MembershipExtendedTest.claimBirthdayVoucherOutsideBirthdayWindowShowsError | BD-07 |
+| TC_SCR10_FUNC_024 | MembershipExtendedTest.claimBirthdayVoucherSecondTimeThisYearShowsError | BD-08 |
+| TC_SCR11_UI_002 | NotificationsFooterTest.notificationModalShowsUnreadBadgeCount |  |
+| TC_SCR11_FUNC_003 | NotificationsFooterTest.notificationMarkAllReadClearsUnreadDotsAndBadges |  |
+| TC_SCR11_UI_004 | NotificationsFooterTest.notificationEmptyStateShowsForNewAccount |  |
+| TC_SCR11_FUNC_005 | NotificationsFooterTest.notificationClickItemMarksOnlyThatItemRead |  |
+| TC_SCR11_FUNC_006 | NotificationsFooterTest.notificationsRouteOpensModalAndReturnsToHome |  |
+| TC_SCR11_FUNC_007, TC_SCR11_FUNC_008, TC_SCR11_FUNC_009, TC_SCR11_FUNC_010, TC_SCR11_FUNC_011, TC_SCR11_FUNC_012, TC_SCR11_FUNC_013, TC_SCR11_FUNC_014, TC_SCR11_FUNC_016, TC_SCR11_FUNC_017, TC_SCR11_FUNC_018, TC_SCR11_FUNC_019, TC_SCR11_FUNC_020, TC_SCR11_FUNC_021 | NotificationsFooterTest.footerLinksNavigateToExpectedRoutes |  |
+| TC_SCR11_UI_022 | NotificationsFooterTest.footerShowsBrandHotlineAndBottomBar |  |
+| TC_SCR11_UI_026 | NotificationsFooterTest.themeToggleShowsCorrectLabelAndTitle |  |
+| TC_SCR11_FUNC_027 | NotificationsFooterTest.darkModePersistsInLocalStorageAfterReload |  |
+| TC_SCR11_FUNC_028 | NotificationsFooterTest.darkModeToggleChangesBackgroundColor |  |
+| TC_SCR11_FUNC_031 | NotificationsFooterTest.notFoundPageButtonsGoHomeAndBack |  |
+| TC_SCR8_FUNC_004 | OrdersExtendedTest.filterOrdersByPendingPaymentTab |  |
+| TC_SCR8_UI_012 | OrdersExtendedTest.ordersPaginationShowsTenPerPage |  |
+| TC_SCR8_UI_019 | OrdersExtendedTest.freshAccountSeesEmptyOrdersState |  |
+| TC_SCR8_FUNC_014 | OrdersExtendedTest.payNowButtonOnlyOnPendingPaymentOrder |  |
+| TC_SCR8_FUNC_015 | OrdersExtendedTest.reorderCancelledOrderAddsItemsBackToCart |  |
+| TC_SCR8_UI_013 | OrdersExtendedTest.orderCardShowsAtMostThreeItemsWithRemainderLine |  |
+| TC_SCR8_UI_017 | OrdersExtendedTest.orderDetailShowsTimelineShippingInfoAndMoneyTable |  |
+| TC_SCR8_FUNC_018 | OrdersExtendedTest.orderDetailMatchesPlacedOrderData |  |
+| TC_SCR8_UI_021 | OrdersExtendedTest.cancelDialogShowsCorrectContent |  |
+| TC_SCR8_FUNC_022, TC_SCR8_FUNC_023, TC_SCR8_FUNC_024, TC_SCR8_FUNC_025 | OrdersExtendedTest.cancelOrderWithEachPresetReasonShowsReasonInDetail |  |
+| TC_SCR8_FUNC_026 | OrdersExtendedTest.cancelOrderWithCustomReasonShowsCustomReasonInDetail |  |
+| TC_SCR8_FUNC_028 | OrdersExtendedTest.dismissCancelDialogKeepsOrderCancellable |  |
+| TC_SCR8_VAL_027 | OrdersExtendedTest.customCancelReasonEmptyShowsError |  |
+| TC_SCR5_UI_004 | ProductDetailExtendedTest.trustBadgesDisplayedUnderGallery |  |
+| TC_SCR5_FUNC_005 | ProductDetailExtendedTest.variantSectionHasOnlyOneDefaultOption |  |
+| TC_SCR5_UI_006 | ProductDetailExtendedTest.variantOptionDisabledWhenOutOfStock |  |
+| TC_SCR5_FUNC_013 | ProductDetailExtendedTest.buyNowAsGuestGoesToLoginWithReturnRoute |  |
+| TC_SCR5_FUNC_015 | ProductDetailExtendedTest.reviewsSectionShowsSummaryDistributionAndItems | RV-09 |
+| TC_SCR5_FUNC_016 | ProductDetailExtendedTest.reviewFormDisplayedOnProductWithoutReviews | RV-10 |
+| TC_SCR5_VAL_023 | ProductDetailExtendedTest.submitReviewWithTooLongCommentShowsError | RV-05 |
+| TC_SCR5_FUNC_024 | ProductDetailExtendedTest.submitReviewSuccessfullyWhenLoggedIn | RV-06 |
+| TC_SCR5_FUNC_025 | ProductDetailExtendedTest.guestSubmitReviewWithoutNameDefaultsToGuestName | RV-07 |
+| TC_SCR5_FUNC_028 | ProductDetailExtendedTest.averageRatingAndCountUpdateAfterSubmittingReview | RV-08 |
+| TC_SCR3_VAL_003, TC_SCR3_VAL_004 | ProfileExtendedTest.profileNameTooShortOrTooLongShowsError |  |
+| TC_SCR3_VAL_005 | ProfileExtendedTest.profilePhoneInvalidFormatShowsError |  |
+| TC_SCR3_VAL_006 | ProfileExtendedTest.profilePhoneCanBeLeftEmptyAndSaved |  |
+| TC_SCR3_VAL_008 | ProfileExtendedTest.changePasswordSameAsCurrentShowsError |  |
+| TC_SCR3_VAL_009 | ProfileExtendedTest.changePasswordWeakNewPasswordShowsError |  |
+| TC_SCR3_VAL_010 | ProfileExtendedTest.changePasswordMismatchedConfirmShowsError |  |
+| TC_SCR3_VAL_011 | ProfileExtendedTest.addressFormMissingOrInvalidFieldsShowFieldErrors |  |
+| TC_SCR3_VAL_012 | ProfileExtendedTest.addressFormMissingLocationShowsLocationErrors |  |
+| TC_SCR3_FUNC_020 | ProfileExtendedTest.cancelDeleteAddressKeepsAddress |  |
 
 ## Kiểm thử hiệu năng (JMeter) — đã đổi sang JWT
 

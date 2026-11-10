@@ -2,6 +2,8 @@ package vn.dafl.tests.web;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AuthModalPageObject;
@@ -18,9 +20,11 @@ import vn.dafl.pageUIs.CheckoutPageUI;
  * Dat hang bat buoc co khoi thong tin giao hang shipping-* day du; khach chua dang nhap
  * bam thanh toan se bi dua qua dang nhap roi quay lai dung trang gio (luong E4).
  */
+@Feature("Đặt hàng và thanh toán")
 public class CheckoutAndOrderTest extends BaseTest {
 
-    @Test(description = "CN-07 TC-CN07-01: Dat hang COD thanh cong -> ma don dang DH{yyyyMMdd}-{NNNN}, don o 'Cho xac nhan'")
+    @Story("Đặt hàng COD")
+    @Test(description = "CN-07 TC-CN07-01: Đặt hàng COD thành công -> mã đơn dạng DH{yyyyMMdd}-{NNNN}, đơn ở 'Chờ xác nhận'")
     public void placeOrderSuccessfully() {
         HomePageObject homePage = loginWithDemoAccount();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -48,7 +52,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "Don COD moi phai o trang thai Cho xac nhan");
     }
 
-    @Test(description = "CN-07 (override O1): Thanh toan PayOS (mock) thanh cong va thay don trong lich su")
+    @Story("Thanh toán PayOS")
+    @Test(description = "CN-07 (override O1, sửa 2026-11-10): Chế độ demo — bấm mô phỏng chỉ hiện toast chờ thanh toán, đơn vẫn Pending, thấy đơn trong lịch sử; đường Paid thật qua /mock-payos (TC_SCR7_FUNC_049/050)")
     public void payWithMockPayosAndSeeOrderInHistory() {
         HomePageObject homePage = loginWithDemoAccount();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -66,16 +71,27 @@ public class CheckoutAndOrderTest extends BaseTest {
         Assert.assertTrue(checkout.isPaymentViewDisplayed(), "Chon PayOS phai hien man hinh thanh toan");
         Assert.assertTrue(checkout.isOrderCodeDisplayed(), "Man hinh thanh toan phai co ma don");
         checkout.simulatePayosSuccess();
-        Assert.assertTrue(checkout.isOrderPaidViewDisplayed(), "Gia lap PayOS thanh cong phai bao da thanh toan");
+
+        // Che do demo: nut mo phong chi goi GET /api/payments/status; PayOSService tra null
+        // nen don van Pending, chi hien toast "Dang cho thanh toan", KHONG sang order-paid-view.
+        // Duong Paid that o demo la /mock-payos (TC_SCR7_FUNC_049/050). Toast chi ton tai 5 giay
+        // nen khang dinh ngay sau khi bam (giong TC_SCR7_FUNC_048).
+        Assert.assertTrue(isTextVisibleOnPage("Đang chờ thanh toán"),
+                "Che do demo: bam mo phong phai hien toast \"Đang chờ thanh toán\"");
+        Assert.assertTrue(checkout.isPaymentViewDisplayed(),
+                "Che do demo: don van Pending nen van o man hinh thanh toan");
+        Assert.assertFalse(checkout.isOrderPaidViewDisplayed(),
+                "Che do demo: KHONG duoc hien order-paid-view khi chua chuyen khoan that");
 
         OrdersPageObject ordersPage = homePage.openOrdersPage();
         String firstCode = ordersPage.getFirstOrderDisplayCode();
-        Assert.assertNotNull(firstCode, "Lich su don phai co don vua thanh toan");
+        Assert.assertNotNull(firstCode, "Lich su don phai co don PayOS vua dat");
         Assert.assertTrue(firstCode.matches(GlobalConstants.ORDER_DISPLAY_CODE_REGEX),
                 "Ma don moi nhat phai dung dinh dang DH, dang thay: " + firstCode);
     }
 
-    @Test(description = "CN-07 (dot 8): Trang thanh toan PayOS chi con quet VietQR tai cho - KHONG con tab nhung cong / iframe; mo phong thanh cong van duoc")
+    @Story("Thanh toán PayOS")
+    @Test(description = "CN-07 (đợt 8): Trang thanh toán PayOS chỉ còn quét VietQR tại chỗ - KHÔNG còn tab nhúng cổng / iframe; mô phỏng thành công vẫn được")
     public void payosPageHasNoEmbeddedGatewayIframe() {
         HomePageObject homePage = loginWithDemoAccount();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -104,12 +120,17 @@ public class CheckoutAndOrderTest extends BaseTest {
         Assert.assertTrue(checkout.isElementDisplayed(CheckoutPageUI.SIMULATE_PAYOS_SUCCESS_BTN),
                 "Che do demo phai co nut mo phong thanh toan PayOS thanh cong");
 
-        // Mo phong thanh cong de don ket thuc o trang thai da thanh toan (khong de don treo).
+        // Mo phong o che do demo: chi hien toast cho thanh toan, don van Pending
+        // (khong sang order-paid-view) — xem TC_SCR7_FUNC_048.
         checkout.simulatePayosSuccess();
-        Assert.assertTrue(checkout.isOrderPaidViewDisplayed(), "Gia lap PayOS thanh cong phai bao da thanh toan");
+        Assert.assertTrue(isTextVisibleOnPage("Đang chờ thanh toán"),
+                "Che do demo: bam mo phong phai hien toast \"Đang chờ thanh toán\"");
+        Assert.assertFalse(checkout.isOrderPaidViewDisplayed(),
+                "Che do demo: KHONG duoc hien order-paid-view khi chua chuyen khoan that");
     }
 
-    @Test(description = "TC-CN07-02 (luong E4): Khach bam thanh toan -> bi dua qua dang nhap -> dang nhap xong quay lai dung trang gio")
+    @Story("Đăng nhập khi thanh toán")
+    @Test(description = "TC-CN07-02 (luồng E4): Khách bấm thanh toán -> bị đưa qua đăng nhập -> đăng nhập xong quay lại đúng trang giỏ")
     public void checkoutRequiresLoginAndReturnsAfterLogin() {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -137,7 +158,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "San pham trong gio khach phai con nguyen sau dang nhap (da gop vao tai khoan)");
     }
 
-    @Test(description = "CN-07.1 + CN-03.3: Dat hang bang dia chi da luu trong so dia chi (khong nhap lai form)")
+    @Story("Địa chỉ đã lưu")
+    @Test(description = "CN-07.1 + CN-03.3: Đặt hàng bằng địa chỉ đã lưu trong sổ địa chỉ (không nhập lại form)")
     public void placeOrderUsingSavedAddressFromAddressBook() {
         String email = randomEmail();
         HomePageObject homePage = registerAndLogin("Khach Co So Dia Chi", email, randomPhone(), GlobalConstants.DEMO_PASSWORD);
@@ -165,7 +187,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "Ma don phai dung dinh dang DH");
     }
 
-    @Test(description = "TC-CN07-03 (CN-07 E5): Bam nut Dat hang 2 lan lien tiep chi tao dung 1 don (idempotency)")
+    @Story("Chống đặt trùng đơn")
+    @Test(description = "TC-CN07-03 (CN-07 E5): Bấm nút Đặt hàng 2 lần liên tiếp chỉ tạo đúng 1 đơn (idempotency)")
     public void doubleClickSubmitCreatesOnlyOneOrder() {
         String email = randomEmail();
         HomePageObject homePage = registerAndLogin("Khach Bam Hai Lan", email, randomPhone(), GlobalConstants.DEMO_PASSWORD);
@@ -186,7 +209,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "Tai khoan moi chi duoc co dung 1 don du bam nut 2 lan");
     }
 
-    @Test(description = "CN-07 E8: Ghi chu don hang qua 200 ky tu bi chan ngay tren form")
+    @Story("Ghi chú đơn hàng")
+    @Test(description = "CN-07 E8: Ghi chú đơn hàng quá 200 ký tự bị chặn ngay trên form")
     public void orderNoteLongerThan200CharsIsRejected() {
         loginWithDemoAccount();
         HomePageObject homePage = new HomePageObject();
@@ -211,7 +235,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "Ghi chu qua dai thi khong duoc dat hang thanh cong");
     }
 
-    @Test(description = "CN-07 (override O1): Phi ship 25.000d khi duoi 299.000d va mien phi khi dat nguong")
+    @Story("Phí vận chuyển")
+    @Test(description = "CN-07 (override O1): Phí ship 25.000đ khi dưới 299.000đ và miễn phí khi đạt ngưỡng")
     public void shippingFeeIs25kBelowThresholdAndFreeAbove() {
         HomePageObject homePage = openHomePage();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -236,7 +261,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "Don tu 299.000d phai duoc mien phi ship, dang thay: " + cart.getShippingFeeText());
     }
 
-    @Test(description = "CN-07 (dot 3): Nut Dat hang co class checkout-submit-btn (sticky tren mobile) va ghi dung tong tien")
+    @Story("Nút đặt hàng")
+    @Test(description = "CN-07 (đợt 3): Nút Đặt hàng có class checkout-submit-btn (sticky trên mobile) và ghi đúng tổng tiền")
     public void checkoutSubmitButtonHasStickyClassAndOrderTotal() {
         HomePageObject homePage = loginWithDemoAccount();
         ProductCatalogPageObject catalog = new ProductCatalogPageObject();
@@ -254,7 +280,8 @@ public class CheckoutAndOrderTest extends BaseTest {
                 "Nut dat hang (COD mac dinh) phai ghi 'Đặt hàng', dang thay: " + checkout.getSubmitButtonText());
     }
 
-    @Test(description = "CN-08 (dot 2-3): Tab trang thai don hien so luong; bam tab loc dung danh sach (khong con <select>)")
+    @Story("Lịch sử đơn hàng")
+    @Test(description = "CN-08 (đợt 2-3): Tab trạng thái đơn hiện số lượng; bấm tab lọc đúng danh sách (không còn <select>)")
     public void orderStatusTabsShowCountsAndFilterByTab() {
         String email = randomEmail();
         HomePageObject homePage = registerAndLogin("Khach Xem Tab Don", email, randomPhone(), GlobalConstants.DEMO_PASSWORD);

@@ -175,4 +175,52 @@ public class MembershipPageObject extends BasePage {
         waitForElementVisible(MembershipPageUI.BIRTHDAY_VOUCHER_SUCCESS_MSG);
         return getElementText(MembershipPageUI.BIRTHDAY_VOUCHER_SUCCESS_MSG);
     }
+
+    // ---------- Bo sung Wave15.1-auto (buoc 3, nhom hoi vien) ----------
+    // Wave15.1-auto: TC_SCR10_FUNC_004 — dong phu trang "/membership".
+    public String getSubtitleText() {
+        waitForElementVisible(MembershipPageUI.MEMBERSHIP_SUBTITLE);
+        return getElementText(MembershipPageUI.MEMBERSHIP_SUBTITLE);
+    }
+
+    // Wave15.1-auto: TC_SCR10_FUNC_003, TC_SCR10_FUNC_004, TC_SCR10_FUNC_005, TC_SCR10_FUNC_006.
+    public String getBenefitsText() {
+        waitForElementVisible(MembershipPageUI.MEMBERSHIP_BENEFITS);
+        return getElementText(MembershipPageUI.MEMBERSHIP_BENEFITS);
+    }
+
+    // Wave15.1-auto: TC_SCR10_FUNC_002, TC_SCR10_UI_012 — text 1 badge hang (Member|Silver|Gold|Diamond).
+    public String getTierBadgeText(String tierKey) {
+        waitForElementVisible(getDynamicLocator(MembershipPageUI.DYNAMIC_TIER_BADGE, tierKey));
+        return getElementText(getDynamicLocator(MembershipPageUI.DYNAMIC_TIER_BADGE, tierKey));
+    }
+
+    // Wave15.1-auto: TC_SCR10_FUNC_002, TC_SCR10_UI_012 — so badge hang dang hien (ky vong 4).
+    public int getTierBadgeCount() {
+        return getListWebElements(MembershipPageUI.ANY_TIER_BADGE).size();
+    }
+
+    // Wave15.1-auto: TC_SCR10_UI_008 — thanh tien do len hang (chi hien khi chua o hang cao nhat).
+    public boolean isProgressBarDisplayed() {
+        return isElementDisplayed(MembershipPageUI.MEMBERSHIP_PROGRESS_BAR);
+    }
+
+    // Wave15.1-auto: TC_SCR10_UI_010 — text khoi lich su diem (gom ca cau trang thai rong).
+    public String getHistoryText() {
+        waitForElementVisible(MembershipPageUI.MEMBERSHIP_HISTORY);
+        return getElementText(MembershipPageUI.MEMBERSHIP_HISTORY);
+    }
+
+    // Wave15.1-auto: TC_SCR10_FUNC_011, TC_SCR10_FUNC_020, TC_SCR10_FUNC_024 — toan bo text trang
+    // hoi vien (dung de thay cau trang thai rong "Ban chua co voucher nao." nam NGOAI khoi
+    // membership-vouchers, va mo ta voucher "Voucher sinh nhat ...").
+    public String getMembershipPageText() {
+        waitForElementVisible(MembershipPageUI.MEMBERSHIP_PAGE);
+        return getElementText(MembershipPageUI.MEMBERSHIP_PAGE);
+    }
+
+    // Wave15.1-auto: TC_SCR10_FUNC_011, TC_SCR10_FUNC_020 — so voucher cua toi dang hien.
+    public int getVoucherCount() {
+        return getListWebElements(MembershipPageUI.ANY_VOUCHER_ITEM).size();
+    }
 }

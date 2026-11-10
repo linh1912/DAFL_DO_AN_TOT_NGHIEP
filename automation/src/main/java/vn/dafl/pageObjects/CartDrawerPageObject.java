@@ -226,4 +226,107 @@ public class CartDrawerPageObject extends BasePage {
         waitForElementVisible(CartDrawerPageUI.POINTS_ERROR_MSG);
         return getElementText(CartDrawerPageUI.POINTS_ERROR_MSG);
     }
+
+    // ---------- Wave15.1-auto: gio hang + voucher (Pha B, SCR_06) ----------
+    /** Text thanh tien do freeship (vd "Them 149.000d de freeship" / "Da duoc freeship"). */
+    public String getFreeshipProgressText() {
+        return getElementText(CartDrawerPageUI.CART_FREESHIP_PROGRESS);
+    }
+
+    public boolean isFreeshipProgressDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.CART_FREESHIP_PROGRESS, 5);
+    }
+
+    /** Gia tri dang co trong o nhap ma voucher. */
+    public String getVoucherInputValue() {
+        return getElementValue(CartDrawerPageUI.VOUCHER_CODE_INPUT);
+    }
+
+    /** Chi go ma voucher vao o nhap (khong bam Ap dung) — dung kiem tra tu uppercase. */
+    public void setVoucherCode(String voucherCode) {
+        sendKeyToElement(CartDrawerPageUI.VOUCHER_CODE_INPUT, voucherCode);
+    }
+
+    /** Bam nut "Ap dung" cua o voucher (sau khi ma da duoc dien san, vd qua chip goi y). */
+    public void clickVoucherApplyButton() {
+        clickToElement(CartDrawerPageUI.VOUCHER_APPLY_BTN);
+        sleepInSecond(2); // cho BE tra ve + banner/loi hien
+    }
+
+    /** Text cua chip goi y ma voucher (vd "DAFL20 (-20.000d)"). */
+    public String getVoucherChipText(String voucherCode) {
+        return getElementText(CartDrawerPageUI.DYNAMIC_VOUCHER_CHIP, voucherCode);
+    }
+
+    public boolean isVoucherChipDisplayed(String voucherCode) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(CartDrawerPageUI.DYNAMIC_VOUCHER_CHIP, voucherCode), 5);
+    }
+
+    /** Text banner ma da ap (vd "Da ap dung ma DAFL20: -20.000d"). */
+    public String getAppliedVoucherBannerText() {
+        return getElementText(CartDrawerPageUI.APPLIED_VOUCHER_BANNER);
+    }
+
+    /** So tien giam do voucher (dong cart-voucher-discount); 0 neu dong chua hien. */
+    public long getVoucherDiscountValue() {
+        if (!isElementDisplayed(CartDrawerPageUI.CART_VOUCHER_DISCOUNT)) {
+            return 0;
+        }
+        return parseMoney(getElementText(CartDrawerPageUI.CART_VOUCHER_DISCOUNT));
+    }
+
+    /** Go truc tiep chuoi tho vao o so luong (vd "2a3", "0", "-1") roi Enter —
+     *  dung kiem tra FE loc ky tu / mo hop xac nhan xoa khi <= 0. */
+    public void setItemQuantityText(String productId, String rawText) {
+        sendKeyToElement(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, rawText, productId);
+        String locator = getDynamicLocator(CartDrawerPageUI.DYNAMIC_CART_ITEM_QTY, productId);
+        getWebElement(locator).sendKeys(org.openqa.selenium.Keys.ENTER);
+        pauseAfterAction();
+    }
+
+    /** Text gop cua 1 dong gio (ten, bien the, gia, so luong, thanh tien, nut Xoa). */
+    public String getItemRowText(String productId) {
+        return getElementText(CartDrawerPageUI.DYNAMIC_CART_ITEM, productId);
+    }
+
+    /** So dong gio dang hien (dem qua o nhap so luong — moi dong co dung 1 o). */
+    public int getCartItemCount() {
+        return getListWebElements(CartDrawerPageUI.ANY_CART_ITEM_QTY).size();
+    }
+
+    public String getItemPriceText(String productId) {
+        return getElementText(CartDrawerPageUI.DYNAMIC_CART_ITEM_PRICE, productId);
+    }
+
+    public boolean isItemPriceDisplayed(String productId) {
+        return isElementDisplayed(CartDrawerPageUI.DYNAMIC_CART_ITEM_PRICE, productId);
+    }
+
+    public boolean isItemMinusButtonDisplayed(String productId) {
+        return isElementDisplayed(CartDrawerPageUI.DYNAMIC_CART_ITEM_MINUS_BTN, productId);
+    }
+
+    public boolean isItemPlusButtonDisplayed(String productId) {
+        return isElementDisplayed(CartDrawerPageUI.DYNAMIC_CART_ITEM_PLUS_BTN, productId);
+    }
+
+    public boolean isItemRemoveButtonDisplayed(String productId) {
+        return isElementDisplayed(CartDrawerPageUI.DYNAMIC_CART_ITEM_REMOVE_BTN, productId);
+    }
+
+    public boolean isCheckoutButtonDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.CART_CHECKOUT_BTN, 5);
+    }
+
+    public String getCheckoutButtonText() {
+        return getElementText(CartDrawerPageUI.CART_CHECKOUT_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR7_VAL_058 (PT-06) — go chuoi tho vao o diem (vd "50abc");
+    // FE loc ky tu khong phai so ngay khi go (UsePointsSection.tsx).
+    public void setPointsToUseText(String rawText) {
+        sendKeyToElement(CartDrawerPageUI.POINTS_TO_USE_INPUT, rawText);
+        sleepInSecond(2); // cho FE loc ky tu + cap nhat dong giam gia
+    }
 }

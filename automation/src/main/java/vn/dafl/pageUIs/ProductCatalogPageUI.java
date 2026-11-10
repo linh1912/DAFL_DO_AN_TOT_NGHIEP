@@ -3,10 +3,13 @@ package vn.dafl.pageUIs;
 /** Locator cua luoi san pham o trang chu + trang chi tiet san pham.
  *  Moi san pham co data-testid dong theo id san pham (trich tu ProductCard.tsx):
  *  product-card-{id}, product-name-{id}, product-price-{id}, product-stock-{id}, add-to-cart-btn-{id}.
- *  Danh sach phan trang 12 san pham/trang (CN-04), chi tiet san pham o route /product/:id (CN-05). */
+ *  Danh sach phan trang 12 san pham/trang (CN-04), chi tiet san pham o route /product/:id (CN-05).
+ *  ANY_PRODUCT_CARD chi dem the trong luoi chinh (.products-grid): 3 muc Flash Sale / Ban chay /
+ *  Goi y dung cung prefix product-card- nhung hau to -flash/-best/-suggest (App.tsx renderSectionCard),
+ *  dem ca 3 muc se vuot 12 va lam sai getProductCountOnPage()/getFirstProductId() (sua 2026-11-10). */
 public class ProductCatalogPageUI {
 
-    public static final String ANY_PRODUCT_CARD = "css=[data-testid^='product-card-']";
+    public static final String ANY_PRODUCT_CARD = "css=.products-grid [data-testid^='product-card-']";
     public static final String DYNAMIC_PRODUCT_CARD = "css=[data-testid='product-card-%s']";
     public static final String DYNAMIC_PRODUCT_NAME = "css=[data-testid='product-name-%s']";
     public static final String DYNAMIC_PRODUCT_PRICE = "css=[data-testid='product-price-%s']";
@@ -47,6 +50,9 @@ public class ProductCatalogPageUI {
     public static final String BUY_NOW_BTN = "css=[data-testid='buy-now-btn']";
     public static final String DETAIL_OUT_OF_STOCK_NOTICE = "css=[data-testid='detail-out-of-stock-notice']";
     public static final String DYNAMIC_VARIANT_OPTION = "css=[data-testid='variant-option-%s']";
+    // Wave15.1-auto: TC_SCR5_FUNC_005 / TC_SCR5_UI_006 — dem tat ca nut bien the
+    // (moi SP chi co 1 nut "Mac dinh" nhung id bien the la dong, khong biet truoc).
+    public static final String ANY_VARIANT_OPTION = "css=[data-testid^='variant-option-']";
     /** Dong chu "(Con X san pham co san)" canh o so luong o trang chi tiet. */
     public static final String DETAIL_STOCK_TEXT = "xpath=//span[contains(.,'sản phẩm có sẵn')]";
 
@@ -71,4 +77,26 @@ public class ProductCatalogPageUI {
     public static final String REVIEW_SUBMIT_BTN = "css=[data-testid='review-submit-btn']";
     public static final String REVIEW_ERROR_MSG = "css=[data-testid='review-error-msg']";
     public static final String REVIEW_SUCCESS_MSG = "css=[data-testid='review-success-msg']";
+
+    // Wave15.1-auto (SCR_04): the SP trong LUOI CHINH (#products-section) — luoi
+    // nay chi chua 12 SP/trang; cac the -flash/-best/-suggest o muc ben duoi
+    // cung khop tien to product-card- nen KHONG dung ANY_PRODUCT_CARD de dem luoi.
+    public static final String ANY_GRID_PRODUCT_CARD =
+            "css=#products-section .products-grid [data-testid^='product-card-']";
+    // Wave15.1-auto (TC_SCR4_UI_001): thanh phan the SP (khong co testid rieng).
+    public static final String DYNAMIC_PRODUCT_DISCOUNT_BADGE =
+            "css=[data-testid='product-card-%s'] .product-discount-badge";
+    public static final String DYNAMIC_PRODUCT_RATING =
+            "css=[data-testid='product-card-%s'] .product-rating";
+    public static final String DYNAMIC_PRODUCT_ORIGINAL_PRICE =
+            "css=[data-testid='product-card-%s'] .product-original-price";
+    // Wave15.1-auto (TC_SCR4_FUNC_008): nut "Hien thi tat ca" trong trang thai
+    // rong tim danh muc (khong co testid rieng).
+    public static final String CATEGORY_EMPTY_SHOW_ALL_BTN =
+            "xpath=//*[@data-testid='category-empty-state']//button[contains(text(),'Hiển thị tất cả')]";
+    // Wave15.1-auto (TC_SCR4_FUNC_010): nhom "Loai san pham" o sidebar
+    // (class filter-link, KHONG co data-testid rieng).
+    public static final String DYNAMIC_FILTER_LINK_BTN =
+            "xpath=//button[contains(@class,'filter-link')][normalize-space()='%s']";
+    public static final String ANY_FILTER_LINK_BTN = "css=button.filter-link";
 }

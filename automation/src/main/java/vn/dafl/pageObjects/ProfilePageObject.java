@@ -214,4 +214,150 @@ public class ProfilePageObject extends BasePage {
         waitForElementVisible(ProfilePageUI.ADDRESS_FORM_ERROR);
         return getElementText(ProfilePageUI.ADDRESS_FORM_ERROR);
     }
+
+    // ---------- Wave15.1-auto: mo rong cho ProfileExtendedTest (Pha B, buoc 3) ----------
+
+    // Wave15.1-auto: TC_SCR3_VAL_008 — loi duoi o Mat khau moi khi doi mat khau.
+    public boolean isChangePasswordNewErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.CHANGE_PASSWORD_NEW_ERROR, 5);
+    }
+
+    public String getChangePasswordNewError() {
+        waitForElementVisible(ProfilePageUI.CHANGE_PASSWORD_NEW_ERROR);
+        return getElementText(ProfilePageUI.CHANGE_PASSWORD_NEW_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR3_VAL_010 — loi duoi o Nhap lai mat khau moi khi doi mat khau.
+    public boolean isChangePasswordConfirmErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.CHANGE_PASSWORD_CONFIRM_ERROR, 5);
+    }
+
+    public String getChangePasswordConfirmError() {
+        waitForElementVisible(ProfilePageUI.CHANGE_PASSWORD_CONFIRM_ERROR);
+        return getElementText(ProfilePageUI.CHANGE_PASSWORD_CONFIRM_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR3_VAL_009 — checklist policy cua mat khau moi o form doi
+    // mat khau (testid prefix change-password; mot rule dat khi co dau check "✓").
+    public boolean isChangePasswordRuleSatisfied(String ruleLocator) {
+        return isElementDisplayed(ruleLocator) && getElementText(ruleLocator).contains("✓");
+    }
+
+    public boolean isChangePasswordLengthRuleSatisfied() {
+        return isChangePasswordRuleSatisfied(ProfilePageUI.CHANGE_PASSWORD_RULE_LENGTH);
+    }
+
+    public boolean isChangePasswordUppercaseRuleSatisfied() {
+        return isChangePasswordRuleSatisfied(ProfilePageUI.CHANGE_PASSWORD_RULE_UPPERCASE);
+    }
+
+    public boolean isChangePasswordDigitRuleSatisfied() {
+        return isChangePasswordRuleSatisfied(ProfilePageUI.CHANGE_PASSWORD_RULE_DIGIT);
+    }
+
+    public boolean isChangePasswordSpecialRuleSatisfied() {
+        return isChangePasswordRuleSatisfied(ProfilePageUI.CHANGE_PASSWORD_RULE_SPECIAL);
+    }
+
+    // Wave15.1-auto: TC_SCR3_VAL_011 — loi rieng tung truong cua form them/sua dia chi.
+    public boolean isAddressRecipientErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.ADDRESS_RECIPIENT_ERROR, 5);
+    }
+
+    public String getAddressRecipientError() {
+        waitForElementVisible(ProfilePageUI.ADDRESS_RECIPIENT_ERROR);
+        return getElementText(ProfilePageUI.ADDRESS_RECIPIENT_ERROR);
+    }
+
+    public boolean isAddressPhoneErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.ADDRESS_PHONE_ERROR, 5);
+    }
+
+    public String getAddressPhoneError() {
+        waitForElementVisible(ProfilePageUI.ADDRESS_PHONE_ERROR);
+        return getElementText(ProfilePageUI.ADDRESS_PHONE_ERROR);
+    }
+
+    public boolean isAddressDetailErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.ADDRESS_DETAIL_ERROR, 5);
+    }
+
+    public String getAddressDetailError() {
+        waitForElementVisible(ProfilePageUI.ADDRESS_DETAIL_ERROR);
+        return getElementText(ProfilePageUI.ADDRESS_DETAIL_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR3_VAL_012 — loi rieng tung cap dia gioi cua form dia chi.
+    public boolean isAddressProvinceErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.ADDRESS_PROVINCE_ERROR, 5);
+    }
+
+    public String getAddressProvinceError() {
+        waitForElementVisible(ProfilePageUI.ADDRESS_PROVINCE_ERROR);
+        return getElementText(ProfilePageUI.ADDRESS_PROVINCE_ERROR);
+    }
+
+    public boolean isAddressDistrictErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.ADDRESS_DISTRICT_ERROR, 5);
+    }
+
+    public String getAddressDistrictError() {
+        waitForElementVisible(ProfilePageUI.ADDRESS_DISTRICT_ERROR);
+        return getElementText(ProfilePageUI.ADDRESS_DISTRICT_ERROR);
+    }
+
+    public boolean isAddressWardErrorDisplayed() {
+        return isElementDisplayedWithWait(ProfilePageUI.ADDRESS_WARD_ERROR, 5);
+    }
+
+    public String getAddressWardError() {
+        waitForElementVisible(ProfilePageUI.ADDRESS_WARD_ERROR);
+        return getElementText(ProfilePageUI.ADDRESS_WARD_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR3_VAL_011/012 — dong form dia chi bang nut Huy sau lan
+    // luu loi, de thu ca tiep theo tren cung tai khoan.
+    public void cancelAddressForm() {
+        clickToElement(ProfilePageUI.ADDRESS_CANCEL_BTN);
+        waitForElementInvisible(ProfilePageUI.ADDRESS_FORM);
+    }
+
+    // Wave15.1-auto: TC_SCR3_VAL_012 — dien form dia chi nhung BO QUA cac cap dia gioi
+    // truyen null/rong (de kiem tra loi "Vui long chon tinh/quan/phuong"); cac truong
+    // khac dien nhu fillAndSaveAddressForm.
+    public void fillAndSaveAddressFormPartial(String recipient, String phone,
+                                              String province, String district, String ward,
+                                              String detailAddress) {
+        sendKeyToElement(ProfilePageUI.ADDRESS_RECIPIENT_INPUT, recipient);
+        sendKeyToElement(ProfilePageUI.ADDRESS_PHONE_INPUT, phone);
+        if (province != null && !province.isEmpty()) {
+            selectByVisibleText(ProfilePageUI.ADDRESS_PROVINCE_SELECT, province);
+            sleepInSecond(1);
+        }
+        if (district != null && !district.isEmpty()) {
+            selectByVisibleText(ProfilePageUI.ADDRESS_DISTRICT_SELECT, district);
+            sleepInSecond(1);
+        }
+        if (ward != null && !ward.isEmpty()) {
+            selectByVisibleText(ProfilePageUI.ADDRESS_WARD_SELECT, ward);
+        }
+        sendKeyToElement(ProfilePageUI.ADDRESS_DETAIL_INPUT, detailAddress);
+        clickToElement(ProfilePageUI.ADDRESS_SAVE_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR3_FUNC_020 — mo hop xac nhan xoa dia chi (chi mo, chua xac nhan).
+    public void openDeleteAddressConfirm(String addressId) {
+        clickToElement(ProfilePageUI.DYNAMIC_ADDRESS_DELETE_BTN, addressId);
+        waitForElementVisible(ProfilePageUI.ADDRESS_DELETE_CONFIRM_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR3_FUNC_020 — bam Huy trong hop xac nhan xoa dia chi.
+    public void cancelDeleteAddress() {
+        clickToElement(ProfilePageUI.ADDRESS_DELETE_CANCEL_BTN);
+        waitForElementInvisible(ProfilePageUI.ADDRESS_DELETE_CONFIRM_BTN);
+    }
+
+    public boolean isDeleteConfirmDisplayed() {
+        return isElementDisplayed(ProfilePageUI.ADDRESS_DELETE_CONFIRM_BTN);
+    }
 }

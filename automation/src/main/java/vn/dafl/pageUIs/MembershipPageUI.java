@@ -27,4 +27,14 @@ public class MembershipPageUI {
     public static final String CLAIM_BIRTHDAY_VOUCHER_BTN = "css=[data-testid='claim-birthday-voucher-btn']";
     public static final String BIRTHDAY_VOUCHER_ERROR_MSG = "css=[data-testid='birthday-voucher-error-msg']";
     public static final String BIRTHDAY_VOUCHER_SUCCESS_MSG = "css=[data-testid='birthday-voucher-success-msg']";
+
+    // Wave15.1-auto: TC_SCR10_FUNC_004 — dong phu trang (subtitle) cua /membership.
+    public static final String MEMBERSHIP_SUBTITLE = "css=[data-testid='membership-page'] .page-subtitle";
+    // Wave15.1-auto: TC_SCR10_FUNC_002, TC_SCR10_UI_012 — 4 badge hang.
+    public static final String DYNAMIC_TIER_BADGE = "css=[data-testid='membership-tier-badge-%s']";
+    public static final String ANY_TIER_BADGE = "css=[data-testid^='membership-tier-badge-']";
+    // Wave15.1-auto: TC_SCR10_UI_008 — thanh tien do len hang (chi hien khi chua o hang cao nhat).
+    public static final String MEMBERSHIP_PROGRESS_BAR = "css=[data-testid='membership-tier'] [role='progressbar']";
+    // Wave15.1-auto: TC_SCR10_FUNC_011, TC_SCR10_FUNC_020, TC_SCR10_FUNC_024 — tung voucher cua toi.
+    public static final String ANY_VOUCHER_ITEM = "css=[data-testid^='membership-voucher-']";
 }

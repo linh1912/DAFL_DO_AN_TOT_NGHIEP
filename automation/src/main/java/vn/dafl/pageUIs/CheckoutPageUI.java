@@ -72,4 +72,9 @@ public class CheckoutPageUI {
     // Link mo tab moi chi hien khi dung key PayOS that (isRealPayOS); o che do demo khong co.
     public static final String PAYOS_OPEN_NEW_TAB_LINK =
             "xpath=//a[contains(text(),'Mở PayOS ở Tab Mới')]";
+
+    // Wave15.1-auto: TC_SCR7_FUNC_025 — ghi chu gioi han COD khi tong thanh toan > 2.000.000d.
+    public static final String PAYMENT_COD_LIMIT_NOTE = "css=[data-testid='payment-cod-limit-note']";
+    // Wave15.1-auto: TC_SCR7_UI_046 — nut sao chep ma don o view thanh toan PayOS trong gio.
+    public static final String COPY_ORDER_CODE_BTN = "css=[data-testid='copy-order-code-btn']";
 }

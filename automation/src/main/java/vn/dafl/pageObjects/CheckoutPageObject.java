@@ -175,4 +175,121 @@ public class CheckoutPageObject extends BasePage {
     public boolean isOrderPaidViewDisplayed() {
         return isElementDisplayedWithWait(CheckoutPageUI.ORDER_PAID_VIEW, 15);
     }
+
+    // ---------- Wave15.1-auto: mo rong cho CheckoutExtendedTest / CheckoutPaymentTest (Pha B, buoc 3) ----------
+
+    // Wave15.1-auto: TC_SCR7_FUNC_024/025 — radio COD co dang bam duoc khong (bi disable khi tong > 2.000.000d).
+    public boolean isCodPaymentEnabled() {
+        return isElementEnabled(CheckoutPageUI.PAYMENT_METHOD_COD);
+    }
+
+    // Wave15.1-auto: TC_SCR7_UI_026/025 — radio nao dang duoc chon (phuong thuc hieu luc).
+    public boolean isCodPaymentSelected() {
+        try {
+            return getWebElement(CheckoutPageUI.PAYMENT_METHOD_COD).isSelected();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isPayosPaymentSelected() {
+        try {
+            return getWebElement(CheckoutPageUI.PAYMENT_METHOD_PAYOS).isSelected();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Wave15.1-auto: TC_SCR7_FUNC_025 — ghi chu gioi han COD (khong cho doi khi chua hien).
+    public boolean isCodLimitNoteDisplayed() {
+        return isElementDisplayed(CheckoutPageUI.PAYMENT_COD_LIMIT_NOTE);
+    }
+
+    public String getCodLimitNoteText() {
+        waitForElementVisible(CheckoutPageUI.PAYMENT_COD_LIMIT_NOTE);
+        return getElementText(CheckoutPageUI.PAYMENT_COD_LIMIT_NOTE);
+    }
+
+    // Wave15.1-auto: TC_SCR7_UI_001 — bo dem ghi chu "{n}/200" (ban dau "0/200").
+    public String getShippingNoteCounterText() {
+        waitForElementVisible(CheckoutPageUI.SHIPPING_NOTE_COUNTER);
+        return getElementText(CheckoutPageUI.SHIPPING_NOTE_COUNTER);
+    }
+
+    // Wave15.1-auto: TC_SCR7_FUNC_006 — checkbox "Luu lam dia chi mac dinh" (chi hien khi da dang nhap).
+    public boolean isSaveDefaultCheckboxDisplayed() {
+        return isElementDisplayedWithWait(CheckoutPageUI.SHIPPING_SAVE_DEFAULT_CHECKBOX, 5);
+    }
+
+    public void clickSaveDefaultCheckbox() {
+        clickToElement(CheckoutPageUI.SHIPPING_SAVE_DEFAULT_CHECKBOX);
+    }
+
+    // Wave15.1-auto: TC_SCR7_UI_002 — text cua 1 dia chi da luu (nguoi nhan/SDT/dia chi + badge "MẶC ĐỊNH").
+    public String getSavedAddressOptionText(String addressId) {
+        return getElementText(CheckoutPageUI.DYNAMIC_SHIPPING_ADDRESS_OPTION, addressId);
+    }
+
+    public int getSavedAddressOptionCount() {
+        return getListWebElements(CheckoutPageUI.ANY_SHIPPING_ADDRESS_OPTION).size();
+    }
+
+    // Wave15.1-auto: TC_SCR7_UI_046 — dong ho dem nguoc giu cho PayOS (dinh dang MM:SS).
+    public String getPaymentTimerText() {
+        waitForElementVisible(CheckoutPageUI.PAYMENT_TIMER);
+        return getElementText(CheckoutPageUI.PAYMENT_TIMER);
+    }
+
+    // Wave15.1-auto: TC_SCR7_UI_046 — nut "Sao chép mã" o view thanh toan PayOS trong gio.
+    public boolean isCopyOrderCodeButtonDisplayed() {
+        return isElementDisplayedWithWait(CheckoutPageUI.COPY_ORDER_CODE_BTN, 5);
+    }
+
+    public void clickCopyOrderCodeButton() {
+        clickToElement(CheckoutPageUI.COPY_ORDER_CODE_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR7_UI_046 — nut "Đổi giỏ hàng" (quay lai gio hang).
+    public boolean isBackToCartButtonDisplayed() {
+        return isElementDisplayedWithWait(CheckoutPageUI.BACK_TO_CART_BTN, 5);
+    }
+
+    public void clickBackToCartButton() {
+        clickToElement(CheckoutPageUI.BACK_TO_CART_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR7_VAL_013/014/015 — dien form giao hang nhung BO QUA cac
+    // truong truyen null (de kiem tra loi "Vui long chon tinh/quan/phuong"); cac
+    // truong khac dien nhu fillShippingForm.
+    public void fillShippingFormPartial(String recipient, String email, String phone,
+                                        String province, String district, String ward,
+                                        String detailAddress, String note) {
+        ensureNewAddressFormVisible();
+        if (recipient != null) {
+            sendKeyToElement(CheckoutPageUI.SHIPPING_RECIPIENT_INPUT, recipient);
+        }
+        if (email != null) {
+            sendKeyToElement(CheckoutPageUI.SHIPPING_EMAIL_INPUT, email);
+        }
+        if (phone != null) {
+            sendKeyToElement(CheckoutPageUI.SHIPPING_PHONE_INPUT, phone);
+        }
+        if (province != null) {
+            selectByVisibleText(CheckoutPageUI.SHIPPING_PROVINCE_SELECT, province);
+            sleepInSecond(1); // cho danh sach quan/huyen nap theo tinh
+        }
+        if (district != null) {
+            selectByVisibleText(CheckoutPageUI.SHIPPING_DISTRICT_SELECT, district);
+            sleepInSecond(1); // cho danh sach phuong/xa nap theo quan
+        }
+        if (ward != null) {
+            selectByVisibleText(CheckoutPageUI.SHIPPING_WARD_SELECT, ward);
+        }
+        if (detailAddress != null) {
+            sendKeyToElement(CheckoutPageUI.SHIPPING_DETAIL_INPUT, detailAddress);
+        }
+        if (note != null) {
+            sendKeyToElement(CheckoutPageUI.SHIPPING_NOTE_INPUT, note);
+        }
+    }
 }

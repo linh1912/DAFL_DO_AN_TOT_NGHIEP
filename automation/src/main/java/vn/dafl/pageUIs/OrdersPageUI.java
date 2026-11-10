@@ -38,4 +38,19 @@ public class OrdersPageUI {
     public static final String CANCEL_CONFIRM_BTN = "css=[data-testid='cancel-confirm-btn']";
     public static final String CANCEL_CANCEL_BTN = "css=[data-testid='cancel-cancel-btn']";
     public static final String CANCEL_SUCCESS_MSG = "css=[data-testid='cancel-success-msg']";
+
+    // Wave15.1-auto: TC_SCR8_FUNC_014 — nut "Thanh toán ngay" (khong co testid rieng,
+    // chi hien khi nhan don la "Chờ thanh toán"), pham vi trong the don order-item-{ma}.
+    public static final String DYNAMIC_ORDER_PAY_NOW_BTN =
+            "xpath=//*[@data-testid='order-item-%s']//button[contains(.,'Thanh toán ngay')]";
+    // Wave15.1-auto: TC_SCR8_FUNC_015 — nut "Mua lại" (khong co testid rieng,
+    // chi hien khi don o Paid/Delivered/Completed/Cancelled), pham vi trong the don.
+    public static final String DYNAMIC_ORDER_REORDER_BTN =
+            "xpath=//*[@data-testid='order-item-%s']//button[contains(.,'Mua lại')]";
+    // Wave15.1-auto: TC_SCR8_UI_013 — cac dong san pham trong the don (the chi hien toi da 3 dong).
+    public static final String DYNAMIC_ORDER_ITEM_ROWS =
+            "xpath=//*[@data-testid='order-item-%s']//*[contains(@class,'order-item-row')]";
+    // Wave15.1-auto: TC_SCR8_UI_012 — chi so "Trang {n}" trong khoi phan trang don hang.
+    public static final String ORDERS_PAGE_INDICATOR =
+            "xpath=//*[@data-testid='orders-pagination']//span[contains(@class,'pagination-current')]";
 }

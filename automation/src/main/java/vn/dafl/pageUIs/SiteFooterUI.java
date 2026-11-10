@@ -19,4 +19,9 @@ public class SiteFooterUI {
     // "/membership"). %s = phan sau 'footer-link-' (vd 'track-order').
     public static final String DYNAMIC_FOOTER_LINK = "css=[data-testid='footer-link-%s']";
     public static final String ANY_FOOTER_LINK = "css=[data-testid^='footer-link-']";
+
+    // Wave15.1-auto: TC_SCR11_UI_022 — khoi footer + dong chu tinh "Gian hang DAFL tren toan quoc".
+    public static final String SITE_FOOTER = "css=.site-footer";
+    public static final String FOOTER_NATIONWIDE_LINK =
+            "xpath=//footer[contains(@class,'site-footer')]//a[contains(text(),'Gian hàng DAFL')]";
 }

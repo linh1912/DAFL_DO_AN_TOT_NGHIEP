@@ -69,4 +69,17 @@ public class AuthModalPageUI {
     // (khong phai adminOnly) — o /login admin no phai VANG MAT (dot 13, muc 10).
     public static final String AUTH_PAGE = "css=[data-testid='auth-page']";
 
+    // Wave15.1-auto (TC_SCR2_FUNC_018/019, TC_SCR2_VAL_020/021/022, TC_SCR2_FUNC_023/024):
+    // loi + checklist buoc 2 quen mat khau, theo inventory §10.3 (testid that trong AuthModal.tsx).
+    public static final String FORGOT_PASSWORD_EMAIL_ERROR = "css=[data-testid='forgot-password-email-error']";
+    public static final String FORGOT_PASSWORD_ERROR = "css=[data-testid='forgot-password-error']";
+    public static final String RESET_CODE_ERROR = "css=[data-testid='reset-code-error']";
+    public static final String RESET_NEW_PASSWORD_ERROR = "css=[data-testid='reset-new-password-error']";
+    public static final String RESET_CONFIRM_PASSWORD_ERROR = "css=[data-testid='reset-confirm-password-error']";
+    public static final String RESET_PASSWORD_ERROR = "css=[data-testid='reset-password-error']";
+    public static final String RESET_PASSWORD_RULE_LENGTH = "css=[data-testid='reset-password-rule-len']";
+    public static final String RESET_PASSWORD_RULE_UPPERCASE = "css=[data-testid='reset-password-rule-upper']";
+    public static final String RESET_PASSWORD_RULE_DIGIT = "css=[data-testid='reset-password-rule-digit']";
+    public static final String RESET_PASSWORD_RULE_SPECIAL = "css=[data-testid='reset-password-rule-special']";
+
 }

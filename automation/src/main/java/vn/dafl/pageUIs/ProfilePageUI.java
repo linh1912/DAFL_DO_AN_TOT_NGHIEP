@@ -71,4 +71,10 @@ public class ProfilePageUI {
     public static final String ADDRESS_DISTRICT_ERROR = "css=[data-testid='address-district-error']";
     public static final String ADDRESS_WARD_ERROR = "css=[data-testid='address-ward-error']";
     public static final String ADDRESS_DETAIL_ERROR = "css=[data-testid='address-detail-error']";
+
+    // Wave15.1-auto (TC_SCR3_VAL_009): checklist doi mat khau, prefix change-password (inventory §11.2).
+    public static final String CHANGE_PASSWORD_RULE_LENGTH = "css=[data-testid='change-password-rule-len']";
+    public static final String CHANGE_PASSWORD_RULE_UPPERCASE = "css=[data-testid='change-password-rule-upper']";
+    public static final String CHANGE_PASSWORD_RULE_DIGIT = "css=[data-testid='change-password-rule-digit']";
+    public static final String CHANGE_PASSWORD_RULE_SPECIAL = "css=[data-testid='change-password-rule-special']";
 }

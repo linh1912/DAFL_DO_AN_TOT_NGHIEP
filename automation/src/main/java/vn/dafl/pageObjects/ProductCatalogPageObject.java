@@ -327,4 +327,238 @@ public class ProductCatalogPageObject extends BasePage {
         waitForElementVisible(ProductCatalogPageUI.REVIEW_SUCCESS_MSG);
         return getElementText(ProductCatalogPageUI.REVIEW_SUCCESS_MSG);
     }
+
+    // ---------- Wave15.1-auto: bien the + form danh gia (Pha B, SCR_05) ----------
+    /** So nut bien the dang hien tren trang chi tiet (ky vong: dung 1 nut "Mac dinh"). */
+    public int getVariantOptionCount() {
+        return getListWebElements(ProductCatalogPageUI.ANY_VARIANT_OPTION).size();
+    }
+
+    /** Nhan cua tat ca nut bien the dang hien. */
+    public List<String> getVariantOptionLabels() {
+        List<String> labels = new ArrayList<>();
+        for (WebElement option : getListWebElements(ProductCatalogPageUI.ANY_VARIANT_OPTION)) {
+            labels.add(option.getText().trim());
+        }
+        return labels;
+    }
+
+    /** Nut bien the dau tien co dang bam duoc khong (false khi SP het hang). */
+    public boolean isFirstVariantOptionEnabled() {
+        List<WebElement> options = getListWebElements(ProductCatalogPageUI.ANY_VARIANT_OPTION);
+        if (options.isEmpty()) {
+            return false;
+        }
+        return options.get(0).isEnabled();
+    }
+
+    /** Gia tri dang co trong o ten nguoi danh gia (dung kiem tra form duoc xoa sau khi gui). */
+    public String getReviewerNameValue() {
+        return getElementValue(ProductCatalogPageUI.REVIEW_NAME_INPUT);
+    }
+
+    /** Gia tri dang co trong o binh luan danh gia. */
+    public String getReviewCommentValue() {
+        return getElementValue(ProductCatalogPageUI.REVIEW_COMMENT_INPUT);
+    }
+
+    /** Diem trung binh X.Y trich tu tom tat danh gia; -1 neu khong doc duoc. */
+    public double getRatingSummaryAverage() {
+        String summary = getRatingSummaryText();
+        java.util.regex.Matcher matcher =
+                java.util.regex.Pattern.compile("(\\d+\\.\\d)").matcher(summary);
+        return matcher.find() ? Double.parseDouble(matcher.group(1)) : -1;
+    }
+
+    /** Tong so danh gia trich tu tom tat ("{n} danh gia"); -1 neu khong doc duoc. */
+    public int getRatingSummaryReviewCount() {
+        String summary = getRatingSummaryText();
+        java.util.regex.Matcher matcher =
+                java.util.regex.Pattern.compile("(\\d+)\\s*đánh giá").matcher(summary);
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : -1;
+    }
+
+    // ---------- Wave15.1-auto (SCR_04: luoi chinh, loc danh muc/gia) ----------
+
+    /** Id SP chi trong LUOI CHINH (#products-section) — loai the -flash/-best/-suggest o cac muc ben duoi. */
+    public List<String> getGridProductIds() {
+        List<String> ids = new ArrayList<>();
+        for (WebElement card : getListWebElements(ProductCatalogPageUI.ANY_GRID_PRODUCT_CARD)) {
+            String testId = card.getAttribute("data-testid");
+            if (testId != null) {
+                ids.add(testId.replace("product-card-", ""));
+            }
+        }
+        return ids;
+    }
+
+    /** So the SP trong luoi chinh (toi da 12/trang). */
+    public int getGridProductCount() {
+        return getListWebElements(ProductCatalogPageUI.ANY_GRID_PRODUCT_CARD).size();
+    }
+
+    /** Gia cua tung the trong luoi chinh theo thu tu hien thi. */
+    public List<Long> getGridProductPrices() {
+        List<Long> prices = new ArrayList<>();
+        for (String id : getGridProductIds()) {
+            prices.add(getProductPrice(id));
+        }
+        return prices;
+    }
+
+    /** Text badge giam gia ("-25%") cua 1 the luoi chinh; rong neu SP khong giam gia. */
+    public String getProductDiscountBadgeText(String productId) {
+        String locator = getDynamicLocator(ProductCatalogPageUI.DYNAMIC_PRODUCT_DISCOUNT_BADGE, productId);
+        if (!isElementDisplayed(locator)) {
+            return "";
+        }
+        return getElementText(locator);
+    }
+
+    /** Text sao cua 1 the luoi chinh (vd "4.9 (78)"); rong neu khong doc duoc. */
+    public String getProductRatingText(String productId) {
+        String locator = getDynamicLocator(ProductCatalogPageUI.DYNAMIC_PRODUCT_RATING, productId);
+        if (!isElementDisplayed(locator)) {
+            return "";
+        }
+        return getElementText(locator);
+    }
+
+    /** Text gia goc cua 1 the luoi chinh; rong neu khong co gia goc. */
+    public String getProductOriginalPriceText(String productId) {
+        String locator = getDynamicLocator(ProductCatalogPageUI.DYNAMIC_PRODUCT_ORIGINAL_PRICE, productId);
+        if (!isElementDisplayed(locator)) {
+            return "";
+        }
+        return getElementText(locator);
+    }
+
+    /** Gia goc cua the SP co bi gach ngang (text-decoration line-through) khong. */
+    public boolean isOriginalPriceStruckThrough(String productId) {
+        String locator = getDynamicLocator(ProductCatalogPageUI.DYNAMIC_PRODUCT_ORIGINAL_PRICE, productId);
+        if (!isElementDisplayed(locator)) {
+            return false;
+        }
+        Object result = executeScript(
+                "var els = document.querySelectorAll(\"[data-testid='product-card-"
+                        + productId + "'] .product-original-price\");"
+                        + "if (els.length === 0) return '';"
+                        + "return window.getComputedStyle(els[0]).textDecorationLine;");
+        return result != null && String.valueOf(result).contains("line-through");
+    }
+
+    // ---------- Loc danh muc: nut "Xem tat ca", o tim danh muc ----------
+
+    /** Nut "Xem tất cả" (clear-category-btn) co hien thi khong (chi hien khi da chon danh muc). */
+    public boolean isClearCategoryButtonDisplayed() {
+        return isElementDisplayed(ProductCatalogPageUI.CLEAR_CATEGORY_BTN);
+    }
+
+    /** Bam nut "Xem tất cả" de bo chon danh muc. */
+    public void clickClearCategoryButton() {
+        clickToElement(ProductCatalogPageUI.CLEAR_CATEGORY_BTN);
+        sleepInSecond(2);
+    }
+
+    /** Go tu khoa vao o tim danh muc (loc theo ten hoac mo ta). */
+    public void typeCategorySearch(String keyword) {
+        sendKeyToElement(ProductCatalogPageUI.CATEGORY_SEARCH_INPUT, keyword);
+        sleepInSecond(1);
+    }
+
+    /** Gia tri dang go trong o tim danh muc. */
+    public String getCategorySearchValue() {
+        return getElementValue(ProductCatalogPageUI.CATEGORY_SEARCH_INPUT);
+    }
+
+    /** Nut xoa trong o tim danh muc co hien thi khong (chi hien khi o co chu). */
+    public boolean isCategorySearchClearButtonDisplayed() {
+        return isElementDisplayed(ProductCatalogPageUI.CATEGORY_SEARCH_CLEAR_BTN);
+    }
+
+    /** Bam nut xoa trong o tim danh muc. */
+    public void clickCategorySearchClearButton() {
+        clickToElement(ProductCatalogPageUI.CATEGORY_SEARCH_CLEAR_BTN);
+        sleepInSecond(1);
+    }
+
+    /** Ten day du (title) cua cac pill danh muc dang hien (tru pill "Tat ca danh muc"). */
+    public List<String> getVisibleCategoryPillNames() {
+        List<String> names = new ArrayList<>();
+        for (WebElement pill : getListWebElements(vn.dafl.pageUIs.HomePageUI.ANY_CATEGORY_PILL)) {
+            if (!pill.isDisplayed()) {
+                continue;
+            }
+            String testId = pill.getAttribute("data-testid");
+            if (testId == null || testId.equals("category-pill-all")) {
+                continue;
+            }
+            String title = pill.getAttribute("title");
+            names.add(title != null ? title : pill.getText().trim());
+        }
+        return names;
+    }
+
+    /** Ten day du cua pill danh muc dang duoc chon (class active); null neu dang xem tat ca. */
+    public String getActiveCategoryPillName() {
+        for (WebElement pill : getListWebElements(vn.dafl.pageUIs.HomePageUI.ANY_CATEGORY_PILL)) {
+            String testId = pill.getAttribute("data-testid");
+            if (testId == null || testId.equals("category-pill-all")) {
+                continue;
+            }
+            String cssClass = pill.getAttribute("class");
+            if (cssClass != null && cssClass.contains("active")) {
+                String title = pill.getAttribute("title");
+                return title != null ? title : pill.getText().trim();
+            }
+        }
+        return null;
+    }
+
+    /** Trang thai rong tim danh muc (category-empty-state) co hien thi khong. */
+    public boolean isCategoryEmptyStateDisplayed() {
+        return isElementDisplayed(ProductCatalogPageUI.CATEGORY_EMPTY_STATE);
+    }
+
+    /** Text trang thai rong tim danh muc. */
+    public String getCategoryEmptyStateText() {
+        waitForElementVisible(ProductCatalogPageUI.CATEGORY_EMPTY_STATE);
+        return getElementText(ProductCatalogPageUI.CATEGORY_EMPTY_STATE);
+    }
+
+    /** Bam nut "Hiển thị tất cả" trong trang thai rong tim danh muc. */
+    public void clickCategoryEmptyShowAll() {
+        clickToElement(ProductCatalogPageUI.CATEGORY_EMPTY_SHOW_ALL_BTN);
+        sleepInSecond(1);
+    }
+
+    // ---------- Nhom "Loai san pham" o sidebar (class filter-link) ----------
+
+    /** Ten cac muc trong nhom "Loai san pham" ("Tat ca san pham" + ten danh muc). */
+    public List<String> getFilterLinkNames() {
+        List<String> names = new ArrayList<>();
+        for (WebElement link : getListWebElements(ProductCatalogPageUI.ANY_FILTER_LINK_BTN)) {
+            names.add(link.getText().trim());
+        }
+        return names;
+    }
+
+    /** Bam 1 muc trong nhom "Loai san pham" theo ten hien thi day du. */
+    public void clickFilterLinkByName(String name) {
+        clickToElement(ProductCatalogPageUI.DYNAMIC_FILTER_LINK_BTN, name);
+        sleepInSecond(2);
+    }
+
+    // ---------- Muc gia san: trang thai active ----------
+
+    /** Muc gia san co dang duoc chon khong (class active + aria-pressed=true). */
+    public boolean isPricePresetActive(int index) {
+        String locator = getDynamicLocator(ProductCatalogPageUI.DYNAMIC_PRICE_PRESET_BTN, String.valueOf(index));
+        if (!isElementDisplayed(locator)) {
+            return false;
+        }
+        String cssClass = getElementAttribute(locator, "class");
+        String pressed = getElementAttribute(locator, "aria-pressed");
+        return cssClass != null && cssClass.contains("active") && "true".equals(pressed);
+    }
 }

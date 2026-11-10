@@ -230,4 +230,168 @@ public class AuthModalPageObject extends BasePage {
         waitForElementVisible(AuthModalPageUI.AUTH_PAGE);
         return getElementAttribute(AuthModalPageUI.AUTH_PAGE, "class");
     }
+
+    // ---------- Wave15.1-auto: mo rong cho AuthExtendedTest (Pha B, buoc 3) ----------
+
+    // Wave15.1-auto: TC_SCR1_UI_003 — toggle hien/an mat khau o form DANG KY
+    // (mirror cua form dang nhap; 2 o doc lap nhau).
+    public void toggleRegisterPasswordVisibility() {
+        clickToElement(AuthModalPageUI.TOGGLE_REGISTER_PASSWORD_BTN);
+    }
+
+    public String getRegisterPasswordInputType() {
+        return getElementAttribute(AuthModalPageUI.REGISTER_PASSWORD_INPUT, "type");
+    }
+
+    public void toggleRegisterConfirmPasswordVisibility() {
+        clickToElement(AuthModalPageUI.TOGGLE_REGISTER_CONFIRM_PASSWORD_BTN);
+    }
+
+    public String getRegisterConfirmPasswordInputType() {
+        return getElementAttribute(AuthModalPageUI.REGISTER_CONFIRM_PASSWORD_INPUT, "type");
+    }
+
+    // Wave15.1-auto: TC_SCR1_UI_003 — chi go vao o Nhap lai mat khau dang ky (khong submit).
+    public void enterRegisterConfirmPassword(String password) {
+        switchToRegisterTab();
+        sendKeyToElement(AuthModalPageUI.REGISTER_CONFIRM_PASSWORD_INPUT, password);
+    }
+
+    // Wave15.1-auto: TC_SCR1_FUNC_019 — doc gia tri cac o dang ky sau khi submit loi
+    // (kiem tra du lieu nhap duoc giu lai, tru 2 o mat khau bi xoa vi bao mat).
+    public String getRegisterNameValue() {
+        return getElementValue(AuthModalPageUI.REGISTER_NAME_INPUT);
+    }
+
+    public String getRegisterEmailValue() {
+        return getElementValue(AuthModalPageUI.REGISTER_EMAIL_INPUT);
+    }
+
+    public String getRegisterPhoneValue() {
+        return getElementValue(AuthModalPageUI.REGISTER_PHONE_INPUT);
+    }
+
+    public String getRegisterPasswordValue() {
+        return getElementValue(AuthModalPageUI.REGISTER_PASSWORD_INPUT);
+    }
+
+    public String getRegisterConfirmPasswordValue() {
+        return getElementValue(AuthModalPageUI.REGISTER_CONFIRM_PASSWORD_INPUT);
+    }
+
+    // Wave15.1-auto: TC_SCR1_UI_004 — loi dang nhap co con HIEN (khong phai chi con
+    // trong DOM an) sau khi doi tab hay khong.
+    public boolean isLoginPasswordErrorVisible() {
+        return isElementDisplayed(AuthModalPageUI.LOGIN_PASSWORD_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR1_UI_004 — form dang ky sach: khong co loi nao dang hien
+    // duoi cac o dang ky.
+    public boolean isAnyRegisterFieldErrorVisible() {
+        return isElementDisplayed(AuthModalPageUI.REGISTER_NAME_ERROR)
+                || isElementDisplayed(AuthModalPageUI.REGISTER_EMAIL_ERROR)
+                || isElementDisplayed(AuthModalPageUI.REGISTER_PHONE_ERROR)
+                || isElementDisplayed(AuthModalPageUI.REGISTER_PASSWORD_ERROR)
+                || isElementDisplayed(AuthModalPageUI.REGISTER_CONFIRM_PASSWORD_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR2_FUNC_018/019 — nhap email + gui ma o buoc 1 quen mat khau.
+    public void submitForgotPasswordEmail(String email) {
+        sendKeyToElement(AuthModalPageUI.FORGOT_PASSWORD_EMAIL_INPUT, email);
+        clickToElement(AuthModalPageUI.FORGOT_PASSWORD_SUBMIT_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR2_FUNC_018 — loi duoi o Email o buoc 1 quen mat khau.
+    public boolean isForgotPasswordEmailErrorDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.FORGOT_PASSWORD_EMAIL_ERROR, 5);
+    }
+
+    public String getForgotPasswordEmailError() {
+        waitForElementVisible(AuthModalPageUI.FORGOT_PASSWORD_EMAIL_ERROR);
+        return getElementText(AuthModalPageUI.FORGOT_PASSWORD_EMAIL_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR2_FUNC_019 — thong bao chung chong do tai khoan
+    // ("Neu email ton tai, ma dat lai da duoc gui." + " Ma co hieu luc trong 15 phut.").
+    public boolean isForgotPasswordNoticeDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.FORGOT_PASSWORD_NOTICE, 10);
+    }
+
+    public String getForgotPasswordNoticeText() {
+        waitForElementVisible(AuthModalPageUI.FORGOT_PASSWORD_NOTICE);
+        return getElementText(AuthModalPageUI.FORGOT_PASSWORD_NOTICE);
+    }
+
+    // Wave15.1-auto: TC_SCR2_VAL_020/021/022, TC_SCR2_FUNC_023/024 — form buoc 2
+    // (nhap ma 6 so + mat khau moi); vao duoc buoc nay chi bang cach gui email hop le
+    // o buoc 1, khong can doc ma that trong hop thu.
+    public boolean isResetPasswordFormDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.RESET_PASSWORD_FORM, 10);
+    }
+
+    public void submitResetPassword(String code, String newPassword, String confirmPassword) {
+        sendKeyToElement(AuthModalPageUI.RESET_CODE_INPUT, code);
+        sendKeyToElement(AuthModalPageUI.RESET_NEW_PASSWORD_INPUT, newPassword);
+        sendKeyToElement(AuthModalPageUI.RESET_CONFIRM_PASSWORD_INPUT, confirmPassword);
+        clickToElement(AuthModalPageUI.RESET_PASSWORD_SUBMIT_BTN);
+    }
+
+    // Wave15.1-auto: TC_SCR2_VAL_020 — loi duoi o ma dat lai.
+    public boolean isResetCodeErrorDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.RESET_CODE_ERROR, 5);
+    }
+
+    public String getResetCodeError() {
+        waitForElementVisible(AuthModalPageUI.RESET_CODE_ERROR);
+        return getElementText(AuthModalPageUI.RESET_CODE_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR2_VAL_021 — loi duoi o mat khau moi o buoc 2.
+    public boolean isResetNewPasswordErrorDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.RESET_NEW_PASSWORD_ERROR, 5);
+    }
+
+    public String getResetNewPasswordError() {
+        waitForElementVisible(AuthModalPageUI.RESET_NEW_PASSWORD_ERROR);
+        return getElementText(AuthModalPageUI.RESET_NEW_PASSWORD_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR2_VAL_022 — loi duoi o nhap lai mat khau moi o buoc 2.
+    public boolean isResetConfirmPasswordErrorDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.RESET_CONFIRM_PASSWORD_ERROR, 5);
+    }
+
+    public String getResetConfirmPasswordError() {
+        waitForElementVisible(AuthModalPageUI.RESET_CONFIRM_PASSWORD_ERROR);
+        return getElementText(AuthModalPageUI.RESET_CONFIRM_PASSWORD_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR2_FUNC_023/024 — loi chung cua buoc 2 (ma sai/het han,
+    // nhap sai qua 5 lan thi ma bi huy).
+    public boolean isResetPasswordErrorDisplayed() {
+        return isElementDisplayedWithWait(AuthModalPageUI.RESET_PASSWORD_ERROR, 5);
+    }
+
+    public String getResetPasswordError() {
+        waitForElementVisible(AuthModalPageUI.RESET_PASSWORD_ERROR);
+        return getElementText(AuthModalPageUI.RESET_PASSWORD_ERROR);
+    }
+
+    // Wave15.1-auto: TC_SCR2_VAL_021 — checklist policy cua mat khau moi o buoc 2
+    // (testid prefix reset-password).
+    public boolean isResetPasswordLengthRuleSatisfied() {
+        return isPasswordRuleSatisfied(AuthModalPageUI.RESET_PASSWORD_RULE_LENGTH);
+    }
+
+    public boolean isResetPasswordUppercaseRuleSatisfied() {
+        return isPasswordRuleSatisfied(AuthModalPageUI.RESET_PASSWORD_RULE_UPPERCASE);
+    }
+
+    public boolean isResetPasswordDigitRuleSatisfied() {
+        return isPasswordRuleSatisfied(AuthModalPageUI.RESET_PASSWORD_RULE_DIGIT);
+    }
+
+    public boolean isResetPasswordSpecialRuleSatisfied() {
+        return isPasswordRuleSatisfied(AuthModalPageUI.RESET_PASSWORD_RULE_SPECIAL);
+    }
 }
