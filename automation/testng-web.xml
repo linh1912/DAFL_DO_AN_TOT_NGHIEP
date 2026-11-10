@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="DAFL Web Shop Suite" verbose="1">
+<suite name="Bộ kiểm thử Web DAFL — Cửa hàng" verbose="1">
     <parameter name="browser" value="chrome"/>
 
     <listeners>
         <listener class-name="vn.dafl.reportConfig.AllureTestListener"/>
     </listeners>
 
-    <!-- Chi chay test web ban hang: 13 lop, 107 test (dot 13: +AuthTest FP-01, +MembershipTest MEM-01/02 + FTR-01) -->
-    <test name="Web - Shop">
+    <!-- Chi chay test web ban hang: 14 lop, 119 test (dot 15: +Wave15FeaturesTest RV-01..04, PT-01..04, BD-01..04) -->
+    <test name="Web — Cửa hàng">
         <classes>
             <class name="vn.dafl.tests.web.AuthTest"/>
             <class name="vn.dafl.tests.web.CatalogAndSearchTest"/>
@@ -23,6 +23,7 @@
             <class name="vn.dafl.tests.web.MembershipTest"/>
             <class name="vn.dafl.tests.web.EndToEndShoppingFlowTest"/>
             <class name="vn.dafl.tests.web.NegativeAndExceptionScenariosTest"/>
+            <class name="vn.dafl.tests.web.Wave15FeaturesTest"/>
         </classes>
     </test>
 </suite>

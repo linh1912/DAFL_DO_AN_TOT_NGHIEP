@@ -1,11 +1,13 @@
 # ÁNH XẠ KIỂM THỬ — Đặc tả CN-01..CN-08 ↔ Bộ test Selenium (repo2)
 
-> Bộ test tự động: **145 test method / 18 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (13 lớp web bán hàng, 107 test) và `automation/src/test/java/vn/dafl/tests/admin/` (5 lớp admin, 38 test).
+> Bộ test tự động: **157 test method / 19 lớp**, chia 2 thư mục riêng: `automation/src/test/java/vn/dafl/tests/web/` (14 lớp web bán hàng, 119 test) và `automation/src/test/java/vn/dafl/tests/admin/` (5 lớp admin, 38 test).
 > Mọi locator bám `data-testid` thật của FE bản cuối (đã đối chiếu tự động với mã nguồn FE — 0 testid lệch; 2 locator cũ đã sửa: `filterByStatus` dùng tab thay cho `<select>`, 2 test dùng tên SP seed cũ "Khăn ướt" đổi sang "Mặt nạ giấy").
-> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 107 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 38 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
+> Chạy: app DAFL ở `http://localhost:3000`, sau đó `cd automation && run_test_headless.bat` (hoặc `mvnw.cmd test -Dheadless=true`). Chỉ chạy web: `run_test_web.bat` (suite `testng-web.xml`, 119 test — chỉ cần web bán hàng `http://localhost:3000`); chỉ chạy admin: `run_test_admin.bat` (suite `testng-admin.xml`, 38 test — chỉ cần app Admin riêng `http://localhost:3001` đang chạy + tài khoản admin đã seed, KHÔNG cần `:3000` nữa từ đợt 10).
 > Tài khoản demo: `demo@dafl.vn` / `Password123!`. Tài khoản Super Admin: `admin@dafl.vn` / `Admin@123` (đăng nhập được bằng tên `admin` ở trang Admin riêng localhost:3001) — DbInitializer tự tạo nếu thiếu; nếu chưa có thì các test ADM-03..ADM-14, ADT-01..ADT-09, ACR-01..ACR-08, ADM-W13-01..ADM-W13-04, UP-01..UP-03 tự bỏ qua (Skip). Voucher seed: DAFL10, DAFL20, FREESHIP, VIP50K, FORDEV.
 > Đợt 13: xem mục "Tính năng mới đợt 13" ở cuối bảng ánh xạ (trang Hội viên, quên mật khẩu, sửa/xóa voucher Draft, điểm khách đọc lại được, ghi nhận hoàn tiền, lọc ngày + Export nhật ký, đăng nhập admin không nút quay lại).
 > Đợt redesign form admin + upload ảnh: xem mục "Đợt redesign form admin + upload ảnh" ở cuối bảng ánh xạ (drawer form sản phẩm, dropdown danh mục custom, toast admin-toast, upload ảnh UP-01..UP-03).
+> Đợt 15: xem mục "Tính năng mới đợt 15" ở cuối bảng ánh xạ (gửi đánh giá sản phẩm RV-01..04, dùng điểm khi thanh toán PT-01..04, ngày sinh + voucher sinh nhật BD-01..04).
+> Ghi chú về báo cáo Allure: báo cáo Allure hiển thị tên test, nhóm chức năng (Feature/Story) và tên suite bằng tiếng Việt (tên suite lấy từ thuộc tính `name` trong các file `automation/testng-web.xml`, `testng-admin.xml`, `testng.xml`). Menu giao diện Allure (Overview/Suites/Graphs...) vẫn tiếng Anh vì Allure không có bản dịch tiếng Việt.
 
 ## Tổng hợp theo lớp
 
@@ -24,12 +26,13 @@
 | web/NotFoundPageTest | 2 | Trang 404 (đợt 3–4) |
 | web/NewsletterTest | 3 | Đăng ký bản tin ở footer web bán hàng NL-01..03 (chuyển từ admin/AdminAndNewsletterTest sang web đợt 10) |
 | web/MembershipTest | 3 | Trang Hội viên riêng /membership (MEM-01/02) + 15 link footer (FTR-01) — đợt 13 |
+| web/Wave15FeaturesTest | 12 | Tính năng mới đợt 15: gửi đánh giá sản phẩm (RV-01..04), dùng điểm khi thanh toán (PT-01..04), ngày sinh + voucher sinh nhật (BD-01..04) |
 | admin/AdminAndNewsletterTest | 14 | Trang Admin chỉ đọc + biểu đồ doanh thu (đợt 3–4) + tìm kiếm/lọc/Export (đợt 8); đợt 12: o search topbar đã bỏ (tìm kiếm ở toolbar của mục), toolbar chuẩn + phân trang 10 dòng/trang + form mở trong modal (ADM-11 viết lại, ADM-12..ADM-14 mới); 3 test bản tin NL-01..03 đã chuyển sang web/NewsletterTest (đợt 10) |
 | admin/AdminDetailTest | 9 | Modal xem chi tiết admin Spark: sản phẩm, danh mục, khuyến mãi, hạng, đơn, khách, trả hàng + mở form sửa từ modal (đợt 8, chỉ đọc) |
 | admin/AdminCrudTest | 8 | CRUD thật trên Admin riêng :3001 (đợt 9): tạo/sửa/xóa SP + danh mục, tạo/kích hoạt/tắt voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn (đợt 10 — không khôi phục được trạng thái cũ), điều chỉnh điểm demo — chỉ đụng dữ liệu do test tạo, tự dọn sau khi chạy (trừ ACR-06/07); đợt 13: ACR-05 thêm sửa/xóa voucher Draft qua hộp xác nhận, ACR-08 đọc lại số dư điểm trước/sau và khẳng định tăng đúng +5; đợt redesign form admin: ACR-01..05 viết lại theo drawer + dropdown custom + toast (ACR-01 kèm giá gốc/mô tả/highlight, ACR-02 kèm badge % giảm, ACR-04 kèm slug tự sinh + toggle, ACR-05 kèm form voucher đầy đủ + nút tạo mã ngẫu nhiên) |
 | admin/AdminWave13Test | 4 | Tính năng mới đợt 13 trên Admin riêng (ADM-W13-01..04): đăng nhập admin không nút quay lại, link 'Quên mật khẩu' ở admin, nút 'Ghi nhận đã hoàn tiền' (chỉ mở modal xem), lọc ngày + Export nhật ký hệ thống |
 | admin/AdminUploadTest | 3 | Upload ảnh sản phẩm (đợt redesign form admin, UP-01..03): 1 ảnh qua input file thật → có thumbnail trong bảng + chi tiết; file sai định dạng (.txt) và ảnh > 5MB bị từ chối inline; 2 ảnh + đặt ảnh thứ 2 làm ảnh chính |
-| **Tổng** | **145** | **107 web + 38 admin** |
+| **Tổng** | **157** | **119 web + 38 admin** |
 
 ## CN-01 — Đăng ký tài khoản
 
@@ -253,6 +256,25 @@ Testid mới đợt này (FE bắt buộc dùng đúng các tên này — xem `A
 | Khuyến mãi | `admin-promo-generate-code-btn`, `admin-promo-discount-type-fixed`, `admin-promo-discount-type-percent`, `admin-promo-value-input`, `admin-promo-min-order-input`, `admin-promo-max-discount-input`, `admin-promo-max-uses-input`, `admin-promo-expiry-input`, `admin-promo-status-toggle` |
 
 > Lưu ý đợt redesign: (1) Nút 'Lưu' form danh mục đã có testid `admin-category-save-btn` (FE thêm đợt redesign) nên test dùng locator theo testid (`ADMIN_CATEGORY_SAVE_BTN`). (2) Option của dropdown danh mục custom KHÔNG có testid trong hợp đồng nên test chọn theo text hiển thị (`role='option'`, dự phòng `<li>` / `<button>` trong phạm vi drawer) — xem `AdminPageObject.selectProductCategory`. (3) Mô tả voucher KHÔNG có testid trong hợp đồng nên vẫn dùng locator theo nhãn `<span>` (`ADMIN_PROMO_DESCRIPTION_INPUT`). (4) Ngày hết hạn khuyến mãi là `<input type="date">` — test nhập định dạng yyyy-MM-dd. (5) UP-03 khẳng định ảnh chính bằng nhãn 'Ảnh chính' trên thumbnail 0 (trước/sau khi lưu) + so sánh src ảnh chi tiết với src thumbnail 0 khi mở lại form sửa, vì endpoint `POST /api/admin/upload` đổi tên file thành UUID nên không khẳng định bằng tên file gốc được. (6) File ảnh test thật ở `automation/src/test/resources/upload/` (`test-product-1.png`, `test-product-2.png` — PNG 1x1 hợp lệ — và `invalid-file.txt`); file ảnh > 5MB được tạo lúc chạy test bằng padding, không commit file lớn vào repo.
+
+## Tính năng mới đợt 15 (gửi đánh giá, dùng điểm, ngày sinh + voucher sinh nhật)
+
+| Mã TC | Lớp.phương thức | Testid/khẳng định chính |
+|---|---|---|
+| RV-01 | Wave15FeaturesTest.reviewFormDisplaysAllFieldsOnProductDetail | mở chi tiết SP đầu tiên: `review-form`, đủ 5 nút `review-star-1..5`, `review-name-input`, `review-comment-input`, `review-submit-btn` |
+| RV-02 | Wave15FeaturesTest.submitReviewWithoutStarShowsError | điền sẵn tên + bình luận, bấm gửi khi chưa chọn sao -> lỗi đúng nguyên văn "Vui lòng chọn số sao đánh giá." (`review-error-msg`) |
+| RV-03 | Wave15FeaturesTest.submitReviewWithoutCommentShowsError | chọn 5 sao + điền tên, để trống bình luận rồi gửi -> lỗi đúng nguyên văn "Vui lòng nhập nội dung đánh giá." |
+| RV-04 | Wave15FeaturesTest.submitValidReviewAppearsInListAfterReload | chọn 5 sao + bình luận hợp lệ (kèm timestamp) rồi gửi -> "Cảm ơn bạn đã gửi đánh giá cho sản phẩm!" (`review-success-msg`); tải lại trang, đánh giá mới có trong danh sách. TẠO DỮ LIỆU THẬT trên SP seed, không xóa được qua UI |
+| PT-01 | Wave15FeaturesTest.guestCartHasNoUsePointsSection | chưa đăng nhập mở thẳng /cart -> KHÔNG có `use-points-section` |
+| PT-02 | Wave15FeaturesTest.loggedInCartToggleFillsMaxPointsAndDiscountMatches | đăng nhập demo, đọc số dư điểm qua /membership (0 điểm thì Skip); thêm 1 SP rồi mở /cart, bật `use-points-toggle` -> `points-to-use-input` tự điền tối đa (> 0, ≤ số dư), `cart-points-discount` đúng bằng số điểm × 1.000đ; xong tắt toggle để dọn |
+| PT-03 | Wave15FeaturesTest.pointsInputOverMaxClampsToMaxWithError | như PT-02 (0 điểm thì Skip); nhập 999999 vào `points-to-use-input` -> bị kẹp về trần {m} + lỗi đúng mẫu "Chỉ dùng tối đa {m} điểm cho đơn này." (`points-error-msg`; {m} trích từ chính câu lỗi để không khẳng định cứng số); xong tắt toggle để dọn |
+| PT-04 | Wave15FeaturesTest.voucherFordevDisablesUsePointsSection | đăng nhập demo, thêm 1 SP, mở /cart, áp mã seed FORDEV -> `use-points-section` vẫn hiện nhưng `use-points-toggle` bị disable + ghi chú "Không dùng điểm cùng mã FORDEV."; áp mã thất bại thì Skip (không khẳng định sai); xong gỡ voucher để dọn |
+| BD-01 | Wave15FeaturesTest.birthdateSectionDisplaysAllControlsOnMembership | đăng nhập mở /membership: `birthdate-section`, `birthdate-input`, `birthdate-save-btn`, `claim-birthday-voucher-btn` đều hiện |
+| BD-02 | Wave15FeaturesTest.saveBirthdateWhenNotSetShowsSuccess | chỉ chạy khi `birthdate-input` đang trống (đã có giá trị thì Skip — BE khóa sửa 90 ngày); nhập 1998-05-20 rồi lưu -> "Đã cập nhật ngày sinh." (`birthdate-success-msg`) |
+| BD-03 | Wave15FeaturesTest.claimBirthdayVoucherAsRegularTierShowsError | hạng demo là Thường (không phải Thường thì Skip) bấm nhận voucher -> lỗi đúng nguyên văn "Voucher sinh nhật chỉ dành cho hạng Vàng trở lên." (`birthday-voucher-error-msg`); không tạo dữ liệu |
+| BD-04 | Wave15FeaturesTest.claimBirthdayVoucherTwiceSecondTimeShowsError | chỉ chạy khi đủ điều kiện (hạng Vàng trở lên + đã có ngày sinh + sinh nhật trong 30 ngày quanh hôm nay), còn lại Skip; bấm nhận 2 lần liên tiếp -> lần 2 phải hiện `birthday-voucher-error-msg` (không khẳng định cứng câu lỗi vì phụ thuộc trạng thái thật: đã nhận trong năm / ngoài cửa sổ 30 ngày); lần 1 có thể tạo 1 voucher sinh nhật thật cho demo (1 lần/năm) |
+
+> Lưu ý đợt 15: (1) Form đánh giá được test ở chế độ KHÁCH (không đăng nhập) vì có ô `review-name-input`; nếu FE thật chỉ hiện form khi đã đăng nhập thì RV-01..RV-04 fail và cần thêm bước đăng nhập demo trước khi mở chi tiết. (2) Ô ngày sinh là `<input type="date">` — test gõ theo thứ tự ddMMyyyy (Chrome hiển thị vi-VN), nếu gõ phím không ăn thì đặt bằng native setter + sự kiện input/change (xem `MembershipPageObject.setBirthdate`). (3) Số dư điểm đọc từ `membership-points-balance` — test lấy cụm số ĐẦU TIÊN trong dòng (xem `MembershipPageObject.getAvailablePoints`); nếu FE đổi định dạng dòng số dư (vd thêm số khác đứng trước) thì hàm này đọc sai. (4) PT-02/PT-03/PT-04 tự dọn trạng thái giỏ demo (tắt toggle, gỡ voucher) và tự gỡ voucher cũ trước khi áp mã, để không phụ thuộc thứ tự chạy; nhưng RV-04 vẫn để lại 1 đánh giá thật trên SP seed.
 
 ## Kiểm thử hiệu năng (JMeter) — đã đổi sang JWT
 

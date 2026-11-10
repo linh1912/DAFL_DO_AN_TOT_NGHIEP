@@ -61,4 +61,14 @@ public class ProductCatalogPageUI {
     public static final String ANY_PRODUCT_REVIEW_ITEM = "css=[data-testid='product-review-item']";
     public static final String PRODUCT_REVIEWS_EMPTY_MSG =
             "xpath=//section[@data-testid='product-reviews-section']//p[contains(text(),'Chưa có đánh giá nào')]";
+
+    // Form gui danh gia moi o trang chi tiet (dot 15): hien trong muc danh gia,
+    // co 5 nut chon sao + o ten + o binh luan + nut gui; loi/thanh cong hien inline.
+    public static final String REVIEW_FORM = "css=[data-testid='review-form']";
+    public static final String DYNAMIC_REVIEW_STAR_BTN = "css=[data-testid='review-star-%s']";
+    public static final String REVIEW_NAME_INPUT = "css=[data-testid='review-name-input']";
+    public static final String REVIEW_COMMENT_INPUT = "css=[data-testid='review-comment-input']";
+    public static final String REVIEW_SUBMIT_BTN = "css=[data-testid='review-submit-btn']";
+    public static final String REVIEW_ERROR_MSG = "css=[data-testid='review-error-msg']";
+    public static final String REVIEW_SUCCESS_MSG = "css=[data-testid='review-success-msg']";
 }

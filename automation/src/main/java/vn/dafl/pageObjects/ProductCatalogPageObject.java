@@ -269,4 +269,62 @@ public class ProductCatalogPageObject extends BasePage {
     public boolean isReviewsEmptyStateDisplayed() {
         return isElementDisplayedWithWait(ProductCatalogPageUI.PRODUCT_REVIEWS_EMPTY_MSG, 5);
     }
+
+    // ---------- Form gui danh gia moi (dot 15) ----------
+    public boolean isReviewFormDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.REVIEW_FORM, 10);
+    }
+
+    public boolean isReviewStarButtonDisplayed(int star) {
+        return isElementDisplayedWithWait(
+                getDynamicLocator(ProductCatalogPageUI.DYNAMIC_REVIEW_STAR_BTN, String.valueOf(star)), 5);
+    }
+
+    /** Bam chon so sao 1..5 o form danh gia. */
+    public void clickReviewStar(int star) {
+        clickToElement(ProductCatalogPageUI.DYNAMIC_REVIEW_STAR_BTN, String.valueOf(star));
+    }
+
+    public boolean isReviewNameInputDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.REVIEW_NAME_INPUT, 5);
+    }
+
+    public void setReviewerName(String name) {
+        sendKeyToElement(ProductCatalogPageUI.REVIEW_NAME_INPUT, name);
+    }
+
+    public boolean isReviewCommentInputDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.REVIEW_COMMENT_INPUT, 5);
+    }
+
+    public void setReviewComment(String comment) {
+        sendKeyToElement(ProductCatalogPageUI.REVIEW_COMMENT_INPUT, comment);
+    }
+
+    public boolean isReviewSubmitButtonDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.REVIEW_SUBMIT_BTN, 5);
+    }
+
+    public void clickSubmitReview() {
+        clickToElement(ProductCatalogPageUI.REVIEW_SUBMIT_BTN);
+        sleepInSecond(2); // cho FE validate + goi POST /api/products/{id}/evaluations
+    }
+
+    public boolean isReviewErrorDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.REVIEW_ERROR_MSG, 5);
+    }
+
+    public String getReviewErrorMessage() {
+        waitForElementVisible(ProductCatalogPageUI.REVIEW_ERROR_MSG);
+        return getElementText(ProductCatalogPageUI.REVIEW_ERROR_MSG);
+    }
+
+    public boolean isReviewSuccessDisplayed() {
+        return isElementDisplayedWithWait(ProductCatalogPageUI.REVIEW_SUCCESS_MSG, 10);
+    }
+
+    public String getReviewSuccessMessage() {
+        waitForElementVisible(ProductCatalogPageUI.REVIEW_SUCCESS_MSG);
+        return getElementText(ProductCatalogPageUI.REVIEW_SUCCESS_MSG);
+    }
 }

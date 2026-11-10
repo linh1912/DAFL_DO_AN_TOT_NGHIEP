@@ -42,4 +42,14 @@ public class CartDrawerPageUI {
     public static final String APPLIED_VOUCHER_BANNER = "css=[data-testid='applied-voucher-banner']";
     public static final String REMOVE_VOUCHER_BTN = "css=[data-testid='remove-voucher-btn']";
     public static final String DYNAMIC_VOUCHER_CHIP = "css=[data-testid='voucher-chip-%s']";
+
+    // Muc dung diem doi tien o gio hang (dot 15, chi hien khi da dang nhap):
+    // bat toggle thi o nhap tu dien toi da; 1 diem = 1.000d; khong dung chung
+    // voi ma FORDEV. Dong giam gia hien trong bang gia cua gio hang.
+    public static final String USE_POINTS_SECTION = "css=[data-testid='use-points-section']";
+    public static final String USE_POINTS_TOGGLE = "css=[data-testid='use-points-toggle']";
+    public static final String POINTS_TO_USE_INPUT = "css=[data-testid='points-to-use-input']";
+    public static final String POINTS_BALANCE_HINT = "css=[data-testid='points-balance-hint']";
+    public static final String CART_POINTS_DISCOUNT = "css=[data-testid='cart-points-discount']";
+    public static final String POINTS_ERROR_MSG = "css=[data-testid='points-error-msg']";
 }

@@ -1,6 +1,7 @@
 package vn.dafl.pageObjects;
 
 import vn.dafl.commons.BasePage;
+import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageUIs.CartDrawerPageUI;
 
 /** Page Object cho gio hang: dong san pham, so luong, tong tien va voucher.
@@ -143,5 +144,86 @@ public class CartDrawerPageObject extends BasePage {
         if (isElementDisplayed(CartDrawerPageUI.CART_CLOSE_BTN)) {
             clickToElement(CartDrawerPageUI.CART_CLOSE_BTN);
         }
+    }
+
+    public boolean isRemoveVoucherButtonDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.REMOVE_VOUCHER_BTN, 5);
+    }
+
+    /** Go ma voucher khoi gio (dung don dep sau test ap ma). */
+    public void clickRemoveVoucher() {
+        clickToElement(CartDrawerPageUI.REMOVE_VOUCHER_BTN);
+        sleepInSecond(1);
+    }
+
+    // ---------- Dung diem doi tien o gio hang (dot 15) ----------
+    /** Mo thang trang /cart (khong qua nut gio o header). */
+    public void openCartPage() {
+        openPageUrl(GlobalConstants.getAppUrl() + "/cart");
+        waitForDrawerVisible();
+    }
+
+    /** Muc dung diem co xuat hien NGAY BAY GIO khong (khong cho doi) — dung
+     *  cho khang dinh am (PT-01: khach chua dang nhap phai KHONG thay muc nay). */
+    public boolean isUsePointsSectionPresent() {
+        return isElementDisplayed(CartDrawerPageUI.USE_POINTS_SECTION);
+    }
+
+    public boolean isUsePointsSectionDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.USE_POINTS_SECTION, 10);
+    }
+
+    public void waitForUsePointsSection() {
+        waitForElementVisible(CartDrawerPageUI.USE_POINTS_SECTION);
+    }
+
+    public void clickUsePointsToggle() {
+        clickToElement(CartDrawerPageUI.USE_POINTS_TOGGLE);
+        sleepInSecond(2); // cho FE tu dien toi da / cap nhat lai bang gia
+    }
+
+    public boolean isUsePointsToggleEnabled() {
+        return isElementEnabled(CartDrawerPageUI.USE_POINTS_TOGGLE);
+    }
+
+    /** So diem dang nhap o o dung diem; 0 neu o chua hien hoac dang trong. */
+    public int getPointsToUseValue() {
+        if (!isElementDisplayed(CartDrawerPageUI.POINTS_TO_USE_INPUT)) {
+            return 0;
+        }
+        String value = getElementValue(CartDrawerPageUI.POINTS_TO_USE_INPUT);
+        return value.isEmpty() ? 0 : Integer.parseInt(value.replaceAll("[^0-9]", ""));
+    }
+
+    /** Go so diem muon dung (FE tu kep ve tran neu vuot). */
+    public void setPointsToUse(int points) {
+        sendKeyToElement(CartDrawerPageUI.POINTS_TO_USE_INPUT, String.valueOf(points));
+        sleepInSecond(2); // cho FE kep ve tran + hien loi (neu co)
+    }
+
+    public boolean isPointsDiscountDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.CART_POINTS_DISCOUNT, 5);
+    }
+
+    /** So tien giam do dung diem (dong cart-points-discount); 0 neu dong chua hien. */
+    public long getPointsDiscountValue() {
+        if (!isElementDisplayed(CartDrawerPageUI.CART_POINTS_DISCOUNT)) {
+            return 0;
+        }
+        return parseMoney(getElementText(CartDrawerPageUI.CART_POINTS_DISCOUNT));
+    }
+
+    public String getPointsBalanceHintText() {
+        waitForElementVisible(CartDrawerPageUI.POINTS_BALANCE_HINT);
+        return getElementText(CartDrawerPageUI.POINTS_BALANCE_HINT);
+    }
+
+    public boolean isPointsErrorDisplayed() {
+        return isElementDisplayedWithWait(CartDrawerPageUI.POINTS_ERROR_MSG, 5);
+    }
+
+    public String getPointsErrorMessage() {
+        waitForElementVisible(CartDrawerPageUI.POINTS_ERROR_MSG);
+        return getElementText(CartDrawerPageUI.POINTS_ERROR_MSG);
     }
 }

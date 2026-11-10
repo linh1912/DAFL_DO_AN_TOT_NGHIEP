@@ -14,4 +14,17 @@ public class MembershipPageUI {
     public static final String MEMBERSHIP_VOUCHERS = "css=[data-testid='membership-vouchers']";
     public static final String MEMBERSHIP_REFRESH_BTN = "css=[data-testid='membership-refresh-btn']";
     public static final String MEMBERSHIP_LOGIN_REQUIRED = "css=[data-testid='membership-login-required']";
+
+    // Muc ngay sinh + voucher sinh nhat o trang hoi vien (dot 15):
+    // ngay sinh chi duoc luu 1 lan (BE khoa sua 90 ngay sau khi dat);
+    // voucher sinh nhat chi cho hang Vang tro len, 15% toi da 150.000d, han 30 ngay,
+    // moi tai khoan chi nhan 1 lan/nam trong cua so 30 ngay quanh sinh nhat.
+    public static final String BIRTHDATE_SECTION = "css=[data-testid='birthdate-section']";
+    public static final String BIRTHDATE_INPUT = "css=[data-testid='birthdate-input']";
+    public static final String BIRTHDATE_SAVE_BTN = "css=[data-testid='birthdate-save-btn']";
+    public static final String BIRTHDATE_ERROR_MSG = "css=[data-testid='birthdate-error-msg']";
+    public static final String BIRTHDATE_SUCCESS_MSG = "css=[data-testid='birthdate-success-msg']";
+    public static final String CLAIM_BIRTHDAY_VOUCHER_BTN = "css=[data-testid='claim-birthday-voucher-btn']";
+    public static final String BIRTHDAY_VOUCHER_ERROR_MSG = "css=[data-testid='birthday-voucher-error-msg']";
+    public static final String BIRTHDAY_VOUCHER_SUCCESS_MSG = "css=[data-testid='birthday-voucher-success-msg']";
 }

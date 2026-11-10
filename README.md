@@ -18,19 +18,19 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 18 lớp test, 145 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
-│   │   ├── web/  ← 13 lớp web bán hàng, 107 test
+│   ├── src/test/java/vn/dafl/tests/  ← 19 lớp test, 157 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   │   ├── web/  ← 14 lớp web bán hàng, 119 test
 │   │   │   ├── AuthTest (19) · CatalogAndSearchTest (12) · ProductDetailTest (9)
 │   │   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (10) · OrderCancellationTest (3)
 │   │   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
 │   │   │   ├── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
-│   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2) · NewsletterTest (3) · MembershipTest (3)
+│   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2) · NewsletterTest (3) · MembershipTest (3) · Wave15FeaturesTest (12)
 │   │   └── admin/  ← 5 lớp admin, 38 test (chạy trên app Admin riêng localhost:3001, KHÔNG cần :3000)
 │   │       ├── AdminAndNewsletterTest (14) · AdminDetailTest (9)  (chỉ đọc)
 │   │       ├── AdminCrudTest (8)  (CRUD thật: tạo/sửa/xóa SP + danh mục, voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn, điều chỉnh điểm; chỉ đụng dữ liệu do test tạo, tự dọn — trừ ACR-06/07)
 │   │       ├── AdminWave13Test (4)  (đợt 13: đăng nhập admin không nút quay lại, quên mật khẩu ở admin, ghi nhận hoàn tiền, lọc ngày + Export nhật ký)
 │   │       └── AdminUploadTest (3)  (đợt redesign form admin: upload ảnh SP — 1 ảnh, file sai định dạng/quá 5MB, 2 ảnh + đặt ảnh chính)
-│   ├── testng.xml (cả 2 khối Web + Admin, 145 test) · testng-web.xml (107 test) · testng-admin.xml (38 test)
+│   ├── testng.xml (cả 2 khối Web + Admin, 157 test) · testng-web.xml (119 test) · testng-admin.xml (38 test)
 │   ├── testng-flow.xml · testng-negative.xml
 │   └── run_test_with_gui.bat · run_test_headless.bat  (tự lo JDK 17 + JAVA_HOME + Wrapper)
 │       run_test_web.bat (chỉ test web) · run_test_admin.bat (chỉ test admin)
@@ -55,9 +55,9 @@ DAFL_DO_AN_TOT_NGHIEP/
 
 ```bat
 cd automation
-run_test_with_gui.bat        :: toan bo suite testng.xml (145 test: 107 web + 38 admin), Chrome co giao dien
+run_test_with_gui.bat        :: toan bo suite testng.xml (157 test: 119 web + 38 admin), Chrome co giao dien
 run_test_headless.bat        :: toan bo suite, che do headless (cho CI)
-run_test_web.bat             :: chi test web ban hang (testng-web.xml, 107 test)
+run_test_web.bat             :: chi test web ban hang (testng-web.xml, 119 test)
 run_test_admin.bat           :: chi test admin (testng-admin.xml, 38 test) — chi can service
                                admin :3001 dang chay va tai khoan admin@dafl.vn da duoc seed
 run_test_web_allure.bat      :: chi test web ban hang + tao bao cao Allure HTML (xem muc Bao cao Allure)
@@ -79,7 +79,7 @@ mvnw.cmd test -DsuiteXmlFile=testng-negative.xml -Dheadless=true
 File `automation/run_test_web_allure.bat` chạy test web rồi tạo báo cáo Allure HTML:
 
 1. Kiểm tra SUT web `:3000` có trả HTTP 200 không — chưa chạy thì dừng và báo lỗi (chạy Docker trước: `docker compose up -d`).
-2. Gọi `run_test_web.bat` chạy 107 test web (suite `testng-web.xml`, Chrome có giao diện).
+2. Gọi `run_test_web.bat` chạy 119 test web (suite `testng-web.xml`, Chrome có giao diện).
 3. Chạy `mvnw.cmd allure:report` để sinh báo cáo từ `target/allure-results` (TestNG đã đăng ký `AllureTestListener`, pom có `allure-maven` 2.12.0).
 4. Mở `target/site/allure-maven-plugin/index.html` trên trình duyệt.
 
@@ -89,6 +89,8 @@ run_test_web_allure.bat
 ```
 
 Báo cáo HTML thật chỉ có sau khi chạy test trên máy có SUT đang chạy. Test quên mật khẩu (FP-01/FP-02) chỉ kiểm tra UI của link/form, không gửi mail thật nên không xuất hiện trong báo cáo dưới dạng gửi mail.
+
+Tên test, nhóm chức năng (Feature/Story) và tên suite trong báo cáo Allure hiển thị bằng tiếng Việt (tên suite lấy từ thuộc tính `name` trong các file `testng-web.xml`, `testng-admin.xml`, `testng.xml`). Menu giao diện Allure (Overview/Suites/Graphs...) vẫn tiếng Anh vì Allure không có bản dịch tiếng Việt.
 
 ## Chạy bằng Jenkins
 
