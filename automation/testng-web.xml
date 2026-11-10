@@ -10,32 +10,32 @@
     <!-- Chi chay test web ban hang: 26 lop, 275 test (dot 15: +Wave15FeaturesTest RV-01..04, PT-01..04, BD-01..04; dot 15.1: +12 lop moi, 156 test tu file manual v15.1) -->
     <test name="Web — Cửa hàng">
         <classes>
-            <class name="vn.dafl.tests.web.AuthTest"/>
-            <class name="vn.dafl.tests.web.CatalogAndSearchTest"/>
-            <class name="vn.dafl.tests.web.ProductDetailTest"/>
-            <class name="vn.dafl.tests.web.CartManagementTest"/>
-            <class name="vn.dafl.tests.web.CheckoutAndOrderTest"/>
-            <class name="vn.dafl.tests.web.OrderCancellationTest"/>
-            <class name="vn.dafl.tests.web.ProfileAndAddressTest"/>
-            <class name="vn.dafl.tests.web.HomeHeroTest"/>
-            <class name="vn.dafl.tests.web.NotFoundPageTest"/>
-            <class name="vn.dafl.tests.web.NewsletterTest"/>
-            <class name="vn.dafl.tests.web.MembershipTest"/>
+            <class name="vn.dafl.tests.web.auth.AuthTest"/>
+            <class name="vn.dafl.tests.web.catalog.CatalogAndSearchTest"/>
+            <class name="vn.dafl.tests.web.catalog.ProductDetailTest"/>
+            <class name="vn.dafl.tests.web.cart.CartManagementTest"/>
+            <class name="vn.dafl.tests.web.checkout.CheckoutAndOrderTest"/>
+            <class name="vn.dafl.tests.web.orders.OrderCancellationTest"/>
+            <class name="vn.dafl.tests.web.profile.ProfileAndAddressTest"/>
+            <class name="vn.dafl.tests.web.home.HomeHeroTest"/>
+            <class name="vn.dafl.tests.web.home.NotFoundPageTest"/>
+            <class name="vn.dafl.tests.web.home.NewsletterTest"/>
+            <class name="vn.dafl.tests.web.membership.MembershipTest"/>
             <class name="vn.dafl.tests.web.EndToEndShoppingFlowTest"/>
             <class name="vn.dafl.tests.web.NegativeAndExceptionScenariosTest"/>
             <class name="vn.dafl.tests.web.Wave15FeaturesTest"/>
-            <class name="vn.dafl.tests.web.AuthExtendedTest"/>
-            <class name="vn.dafl.tests.web.ProfileExtendedTest"/>
-            <class name="vn.dafl.tests.web.CatalogExtendedTest"/>
-            <class name="vn.dafl.tests.web.HomePageTest"/>
-            <class name="vn.dafl.tests.web.HomeHeaderTest"/>
-            <class name="vn.dafl.tests.web.ProductDetailExtendedTest"/>
-            <class name="vn.dafl.tests.web.CartExtendedTest"/>
-            <class name="vn.dafl.tests.web.CheckoutExtendedTest"/>
-            <class name="vn.dafl.tests.web.CheckoutPaymentTest"/>
-            <class name="vn.dafl.tests.web.OrdersExtendedTest"/>
-            <class name="vn.dafl.tests.web.MembershipExtendedTest"/>
-            <class name="vn.dafl.tests.web.NotificationsFooterTest"/>
+            <class name="vn.dafl.tests.web.auth.AuthExtendedTest"/>
+            <class name="vn.dafl.tests.web.profile.ProfileExtendedTest"/>
+            <class name="vn.dafl.tests.web.catalog.CatalogExtendedTest"/>
+            <class name="vn.dafl.tests.web.home.HomePageTest"/>
+            <class name="vn.dafl.tests.web.home.HomeHeaderTest"/>
+            <class name="vn.dafl.tests.web.catalog.ProductDetailExtendedTest"/>
+            <class name="vn.dafl.tests.web.cart.CartExtendedTest"/>
+            <class name="vn.dafl.tests.web.checkout.CheckoutExtendedTest"/>
+            <class name="vn.dafl.tests.web.checkout.CheckoutPaymentTest"/>
+            <class name="vn.dafl.tests.web.orders.OrdersExtendedTest"/>
+            <class name="vn.dafl.tests.web.membership.MembershipExtendedTest"/>
+            <class name="vn.dafl.tests.web.home.NotificationsFooterTest"/>
         </classes>
     </test>
 </suite>

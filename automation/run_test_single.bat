@@ -25,9 +25,14 @@ exit /b 1
 :SIDE_OK
 if /i "%SIDE%"=="web" set "APP_URL=http://localhost:3000"
 if /i "%SIDE%"=="admin" set "APP_URL=http://localhost:3001"
-if /i "%SIDE%"=="web" set "CLASS_FILE=src\test\java\vn\dafl\tests\web\%CLASS_NAME%.java"
-if /i "%SIDE%"=="admin" set "CLASS_FILE=src\test\java\vn\dafl\tests\admin\%CLASS_NAME%.java"
-if not exist "%CLASS_FILE%" goto NOCLASS
+rem Tim file lop de quy trong thu muc cua side (web chia theo nhom chuc nang)
+rem va suy FQCN tu duong dan file; khong thay thi bao loi o NOCLASS.
+if exist "%TEMP%\dafl-fqcn.txt" del "%TEMP%\dafl-fqcn.txt"
+powershell -NoProfile -Command "$f = Get-ChildItem -Recurse -Filter '%CLASS_NAME%.java' 'src\test\java\vn\dafl\tests\%SIDE%' | Select-Object -First 1; if ($f) { $r = $f.FullName.Substring($f.FullName.IndexOf('vn\dafl\tests\')) -replace '\\', '.' -replace '\.java$', ''; Set-Content -Path '%TEMP%\dafl-fqcn.txt' -Value $r -NoNewline }"
+if not exist "%TEMP%\dafl-fqcn.txt" goto NOCLASS
+set /p FQCN=<"%TEMP%\dafl-fqcn.txt"
+del "%TEMP%\dafl-fqcn.txt"
+if "%FQCN%"=="" goto NOCLASS
 
 rem ===== Buoc 0: Xac dinh JAVA_HOME (bat buoc la JDK, co javac) =====
 call :VALIDATE_JAVA_HOME
@@ -80,8 +85,8 @@ if not "%HTTP_CODE%"=="200" (
 echo [OK] SUT dang chay - %APP_URL% tra ve HTTP 200.
 
 rem ===== Buoc 2: Ghi ten lop vao testng-single.xml =====
-powershell -NoProfile -Command "(Get-Content testng-single.xml) -replace 'vn\.dafl\.tests\.(web|admin)\.[A-Za-z0-9_]+', 'vn.dafl.tests.%SIDE%.%CLASS_NAME%' | Set-Content testng-single.xml"
-echo [INFO] Se chay lop: vn.dafl.tests.%SIDE%.%CLASS_NAME%
+powershell -NoProfile -Command "(Get-Content testng-single.xml) -replace 'vn\.dafl\.tests\.[A-Za-z0-9_.]+', '%FQCN%' | Set-Content testng-single.xml"
+echo [INFO] Se chay lop: %FQCN%
 findstr /C:"class name=" testng-single.xml
 
 rem ===== Buoc 3: Xoa ket qua Allure cu de bao cao chi co lop nay =====
@@ -104,16 +109,18 @@ if not exist "target\site\allure-maven-plugin\index.html" (
     pause
     exit /b 1
 )
+for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmmss"') do set TS=%%i
+xcopy /e /i /q "target\site\allure-maven-plugin" "..\bao-cao\allure-single-%TS%"
 echo [OK] Bao cao Allure da tao xong:
-echo      %~dp0target\site\allure-maven-plugin\index.html
-start "" "target\site\allure-maven-plugin\index.html"
+echo      %~dp0..\bao-cao\allure-single-%TS%\index.html
+start "" "..\bao-cao\allure-single-%TS%\index.html"
 pause
 exit /b 0
 
 :NOCLASS
 echo [LOI] Khong tim thay lop %CLASS_NAME% trong thu muc %SIDE%.
-echo Cac lop web: AuthTest, CatalogAndSearchTest, ProductDetailTest, CartManagementTest, CheckoutAndOrderTest, OrderCancellationTest, ProfileAndAddressTest, HomeHeroTest, NotFoundPageTest, NewsletterTest, MembershipTest, EndToEndShoppingFlowTest, NegativeAndExceptionScenariosTest
-echo Cac lop admin: AdminAndNewsletterTest, AdminCrudTest, AdminDetailTest, AdminUploadTest, AdminWave13Test
+echo Cac lop web (go ten lop, khong can thu muc con - script tu tim file): AuthTest, AuthExtendedTest, CatalogAndSearchTest, CatalogExtendedTest, ProductDetailTest, ProductDetailExtendedTest, CartManagementTest, CartExtendedTest, CheckoutAndOrderTest, CheckoutExtendedTest, CheckoutPaymentTest, OrderCancellationTest, OrdersExtendedTest, ProfileAndAddressTest, ProfileExtendedTest, MembershipTest, MembershipExtendedTest, HomeHeroTest, HomePageTest, HomeHeaderTest, NewsletterTest, NotFoundPageTest, NotificationsFooterTest, Wave15FeaturesTest, EndToEndShoppingFlowTest, NegativeAndExceptionScenariosTest
+echo Cac lop admin: AdminAndNewsletterTest, AdminCrudTest, AdminDetailTest, AdminUploadTest, AdminWave13Test, AdminReviewTest
 pause
 exit /b 1
 

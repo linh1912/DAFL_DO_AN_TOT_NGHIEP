@@ -190,7 +190,7 @@ cd D:\DoAnTotNghiep\DAFL_DO_AN_TOT_NGHIEP\automation
 .\mvnw.cmd test -DsuiteXmlFile=testng-negative.xml -Dheadless=true
 
 # Chi chay mot lop kiem thu cu the
-.\mvnw.cmd test "-Dtest=vn.dafl.tests.web.AuthTest" "-DsuiteXmlFile="
+.\mvnw.cmd test "-Dtest=vn.dafl.tests.web.auth.AuthTest" "-DsuiteXmlFile="
 ```
 
 Khi chạy xong, dòng tổng kết trên console có dạng `Tests run: 32, Failures: 0, Errors: 0, Skipped: 0`. Báo cáo chi tiết dạng XML/HTML nằm trong thư mục `target\surefire-reports`. Để xem báo cáo Allure dạng web, chạy lệnh `.\mvnw.cmd allure:serve` (lệnh này tự mở trình duyệt hiển thị báo cáo; nhấn `Ctrl+C` để dừng).

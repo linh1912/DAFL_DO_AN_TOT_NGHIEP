@@ -10,7 +10,7 @@
     <!-- File mau cho run_test_single.bat: file bat se tu ghi de ten lop o dong class ben duoi -->
     <test name="Single">
         <classes>
-            <class name="vn.dafl.tests.web.AuthTest"/>
+            <class name="vn.dafl.tests.web.auth.AuthTest"/>
         </classes>
     </test>
 </suite>
