@@ -121,7 +121,7 @@ exit /b 0
 
 :NOCLASS
 echo [LOI] Khong tim thay lop %CLASS_NAME% trong thu muc %SIDE%.
-echo Cac lop web (go ten lop, khong can thu muc con - script tu tim file): AuthTest, CatalogAndSearchTest, CatalogExtendedTest, ProductDetailTest, ProductDetailExtendedTest, CartManagementTest, CartExtendedTest, CheckoutAndOrderTest, CheckoutExtendedTest, CheckoutPaymentTest, OrderCancellationTest, OrdersExtendedTest, ProfileAndAddressTest, ProfileExtendedTest, MembershipTest, MembershipExtendedTest, HomeHeroTest, HomePageTest, HomeHeaderTest, NewsletterTest, NotFoundPageTest, NotificationsFooterTest, Wave15FeaturesTest, EndToEndShoppingFlowTest, NegativeAndExceptionScenariosTest
+echo Cac lop web (go ten lop, khong can thu muc con - script tu tim file): AuthTest, CatalogAndSearchTest, ProductDetailTest, CartManagementTest, CheckoutAndOrderTest, OrderCancellationTest, ProfileAndAddressTest, MembershipTest, HomeHeroTest, HomePageTest, HomeHeaderTest, NewsletterTest, NotFoundPageTest, NotificationsFooterTest, Wave15FeaturesTest, EndToEndShoppingFlowTest, NegativeAndExceptionScenariosTest
 echo Cac lop admin: AdminAndNewsletterTest, AdminCrudTest, AdminDetailTest, AdminUploadTest, AdminWave13Test, AdminReviewTest
 pause
 exit /b 1

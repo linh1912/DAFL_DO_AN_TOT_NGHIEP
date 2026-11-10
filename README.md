@@ -18,13 +18,13 @@ DAFL_DO_AN_TOT_NGHIEP/
 │   │   ├── pageUIs/       ← locator theo 7 màn hình (trích từ data-testid của FE)
 │   │   ├── pageObjects/   ← 7 page object tương ứng
 │   │   └── reportConfig/  ← AllureTestListener (chụp màn hình khi test fail)
-│   ├── src/test/java/vn/dafl/tests/  ← 31 lớp test, 321 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
-│   │   ├── web/  ← 25 lớp web bán hàng, 275 test
-│   │   │   ├── AuthTest (19) · CatalogAndSearchTest (12) · ProductDetailTest (9)
-│   │   │   ├── CartManagementTest (9) · CheckoutAndOrderTest (10) · OrderCancellationTest (3)
-│   │   │   ├── ProfileAndAddressTest (9) · EndToEndShoppingFlowTest (1)
+│   ├── src/test/java/vn/dafl/tests/  ← 23 lớp test, 321 test case (ánh xạ TC-CN ở TEST-MAPPING.md)
+│   │   ├── web/  ← 17 lớp web bán hàng, 275 test
+│   │   │   ├── AuthTest (38) · CatalogAndSearchTest (27) · ProductDetailTest (19)
+│   │   │   ├── CartManagementTest (21) · CheckoutAndOrderTest (40) · OrderCancellationTest (16)
+│   │   │   ├── ProfileAndAddressTest (18) · EndToEndShoppingFlowTest (1)
 │   │   │   ├── NegativeAndExceptionScenariosTest (17 case âm/ngoại lệ)
-│   │   │   └── HomeHeroTest (10) · NotFoundPageTest (2) · NewsletterTest (3) · MembershipTest (3) · Wave15FeaturesTest (12)
+│   │   │   └── HomeHeroTest (10) · HomePageTest (12) · HomeHeaderTest (9) · NotFoundPageTest (2) · NewsletterTest (3) · NotificationsFooterTest (11) · MembershipTest (19) · Wave15FeaturesTest (12)
 │   │   └── admin/  ← 6 lớp admin, 46 test (chạy trên app Admin riêng localhost:3001, KHÔNG cần :3000)
 │   │       ├── AdminAndNewsletterTest (14) · AdminDetailTest (9)  (chỉ đọc)
 │   │       ├── AdminCrudTest (8)  (CRUD thật: tạo/sửa/xóa SP + danh mục, voucher, đổi trạng thái + hủy 1 đơn 'Chờ xử lý' có sẵn, điều chỉnh điểm; chỉ đụng dữ liệu do test tạo, tự dọn — trừ ACR-06/07)
