@@ -2769,24 +2769,57 @@ public class AdminPageObject extends BasePage {
         return getListWebElements(AdminPageUI.ADMIN_TABLE_ROWS).size() > 0;
     }
 
-    // ---------- Dot 18 wave D: drawer doi mat khau (FormShell) ----------
-    /** Drawer doi mat khau co dang hien khong. */
+    // ---------- Dot 23 phan A: modal doi mat khau giua man hinh (.sa-modal 560px) ----------
+    /** Modal doi mat khau co dang hien khong. */
     public boolean isChangePasswordModalDisplayed() {
         return isElementDisplayedWithWait(AdminPageUI.ADMIN_CHANGE_PASSWORD_MODAL, 10);
     }
 
-    /** So nut o footer drawer doi mat khau — dot 18 quy dinh CHI [Hủy] +
+    /** Modal doi mat khau co phai modal giua man hinh (.sa-modal) khong —
+     *  dot 23 phan A: khong con Drawer FormShell (fs-drawer). */
+    public boolean isChangePasswordModalCentered() {
+        if (!isElementDisplayed(AdminPageUI.ADMIN_CHANGE_PASSWORD_MODAL)) {
+            return false;
+        }
+        String cls = getElementAttribute(AdminPageUI.ADMIN_CHANGE_PASSWORD_MODAL, "class");
+        return cls != null && cls.contains("sa-modal") && !cls.contains("fs-drawer");
+    }
+
+    /** Be rong thuc te (px) cua modal doi mat khau — dot 23 phan A: 560px. */
+    public String getChangePasswordModalWidth() {
+        return getWebElement(AdminPageUI.ADMIN_CHANGE_PASSWORD_MODAL).getCssValue("width");
+    }
+
+    /** 3 o mat khau co xep doc 1 cot khong (cung toa do X, Y tang dan) —
+     *  dot 23 phan A: modal 3 hang, moi hang 1 o full width. */
+    public boolean areChangePasswordFieldsStackedVertically() {
+        org.openqa.selenium.Point current =
+                getWebElement(AdminPageUI.ADMIN_CHANGE_PASSWORD_CURRENT_INPUT).getLocation();
+        org.openqa.selenium.Point next =
+                getWebElement(AdminPageUI.ADMIN_CHANGE_PASSWORD_NEW_INPUT).getLocation();
+        org.openqa.selenium.Point confirm =
+                getWebElement(AdminPageUI.ADMIN_CHANGE_PASSWORD_CONFIRM_INPUT).getLocation();
+        return current.getX() == next.getX() && next.getX() == confirm.getX()
+                && current.getY() < next.getY() && next.getY() < confirm.getY();
+    }
+
+    /** So nut o footer modal doi mat khau — dot 18/23 quy dinh CHI [Hủy] +
      *  [Đổi mật khẩu] (2 nut). */
     public int getChangePasswordFooterButtonCount() {
-        return getListWebElements(AdminPageUI.DYNAMIC_FORM_FOOTER_BUTTONS, "admin-change-password-modal").size();
+        return getListWebElements(AdminPageUI.ADMIN_CHANGE_PASSWORD_FOOTER_BUTTONS).size();
     }
 
-    /** Nhan cac nut o footer drawer doi mat khau (theo thu tu hien thi). */
+    /** Nhan cac nut o footer modal doi mat khau (theo thu tu hien thi). */
     public java.util.List<String> getChangePasswordFooterButtonTexts() {
-        return getDetailFooterButtonTexts("admin-change-password-modal");
+        java.util.List<String> texts = new java.util.ArrayList<>();
+        for (org.openqa.selenium.WebElement btn : getListWebElements(
+                AdminPageUI.ADMIN_CHANGE_PASSWORD_FOOTER_BUTTONS)) {
+            texts.add(btn.getText().trim());
+        }
+        return texts;
     }
 
-    /** Dong drawer doi mat khau bang nut X (khong doi mat khau). */
+    /** Dong modal doi mat khau bang nut X (khong doi mat khau). */
     public void closeChangePasswordModal() {
         clickToElement(AdminPageUI.ADMIN_CHANGE_PASSWORD_MODAL_CLOSE_BTN);
         waitForElementInvisible(AdminPageUI.ADMIN_CHANGE_PASSWORD_MODAL);

@@ -595,7 +595,7 @@ public class AdminDot18Test extends BaseTest {
     // ---------- Modal doi mat khau / khong con Export / huy don bat buoc ly do ----------
 
     @Story("Tài khoản")
-    @Test(description = "ADM18-11 (đợt 18 wave D): Drawer đổi mật khẩu (FormShell) — footer CHỈ đúng 2 nút [Hủy]+[Đổi mật khẩu]; đóng bằng nút X không đổi mật khẩu")
+    @Test(description = "ADM18-11 (đợt 18 wave D, đợt 23 phần A: đổi mật khẩu giờ là Modal giữa màn hình 560px thay Drawer FormShell): Modal đổi mật khẩu — footer CHỈ đúng 2 nút [Hủy]+[Đổi mật khẩu]; đóng bằng nút X không đổi mật khẩu")
     public void changePasswordModalHasExactlyTwoFooterButtons() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.openUserMenuIfClosed();

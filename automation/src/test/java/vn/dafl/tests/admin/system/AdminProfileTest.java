@@ -474,29 +474,43 @@ public class AdminProfileTest extends BaseTest {
     }
 
     @Story("Hồ sơ")
-    @Test(description = "ADM19-49 (TC_SCRA12_UI_029): Dòng gợi ý dưới ô Mật khẩu mới ('Tối thiểu 8 ký tự, gồm chữ hoa, chữ số và ký tự đặc biệt.') và dưới ô Số điện thoại ('Bắt đầu bằng 0, gồm 10 chữ số.'); đóng cả 2 form không lưu")
+    @Test(description = "ADM19-49 (TC_SCRA12_UI_029, đợt 23 phần A): 2 dòng gợi ý ĐÃ BỎ — dưới ô Mật khẩu mới KHÔNG còn 'Tối thiểu 8 ký tự, gồm chữ hoa, chữ số và ký tự đặc biệt.', dưới ô Số điện thoại KHÔNG còn 'Bắt đầu bằng 0, gồm 10 chữ số.', dưới ô Email KHÔNG còn 'Email là định danh đăng nhập — chỉ xem, không sửa.'; đổi mật khẩu là MODAL giữa màn hình rộng 560px, 3 ô xếp dọc 1 cột; đang sửa hồ sơ thì nút 'Sửa thông tin' biến mất (không còn 'Đóng form sửa'); đóng cả 2 form không lưu")
     public void adminProfileAndPasswordFieldHints() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         openProfilePage(adminPage);
 
+        // (1) Modal doi mat khau giua man hinh, 3 o xep doc 1 cot, khong hint policy.
         adminPage.openChangePasswordForm();
         Assert.assertTrue(adminPage.isChangePasswordFormDisplayed(),
                 "Bam 'Đổi mật khẩu' phai mo form doi mat khau");
-        Assert.assertTrue(adminPage.getProfilePageText().contains(
+        Assert.assertTrue(adminPage.isChangePasswordModalCentered(),
+                "Form doi mat khau dot 23 phai la MODAL giua man hinh (.sa-modal), khong con Drawer FormShell (fs-drawer)");
+        Assert.assertEquals(adminPage.getChangePasswordModalWidth(), "560px",
+                "Modal doi mat khau dot 23 phai rong 560px, dang thay: " + adminPage.getChangePasswordModalWidth());
+        Assert.assertTrue(adminPage.areChangePasswordFieldsStackedVertically(),
+                "3 o doi mat khau phai xep doc 1 cot (moi hang 1 o full width): cung toa do X, Y tang dan");
+        Assert.assertFalse(adminPage.getProfilePageText().contains(
                         "Tối thiểu 8 ký tự, gồm chữ hoa, chữ số và ký tự đặc biệt."),
-                "Duoi o Mat khau moi phai co goi y 'Tối thiểu 8 ký tự, gồm chữ hoa, chữ số và ký tự đặc biệt.'");
+                "Duoi o Mat khau moi dot 23 KHONG duoc con goi y 'Tối thiểu 8 ký tự, gồm chữ hoa, chữ số và ký tự đặc biệt.'");
         adminPage.clickChangePasswordCancelButton();
         Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_CHANGE_PASSWORD_FORM),
                 "Bam 'Hủy' xong form doi mat khau phai dong");
 
+        // (2) Form sua ho so: khong hint SDT/Email; nut 'Sửa thông tin' bien mat khi dang sua.
         adminPage.clickProfileEditButton();
         Assert.assertTrue(adminPage.isProfileFormDisplayed(),
                 "Bam 'Sửa thông tin' phai mo form sua ho so");
-        Assert.assertTrue(adminPage.getProfilePageText().contains("Bắt đầu bằng 0, gồm 10 chữ số."),
-                "Duoi o SDT phai co goi y 'Bắt đầu bằng 0, gồm 10 chữ số.'");
+        Assert.assertFalse(adminPage.getProfilePageText().contains("Bắt đầu bằng 0, gồm 10 chữ số."),
+                "Duoi o SDT dot 23 KHONG duoc con goi y 'Bắt đầu bằng 0, gồm 10 chữ số.'");
+        Assert.assertFalse(adminPage.getProfilePageText().contains("Email là định danh đăng nhập — chỉ xem, không sửa."),
+                "Duoi o Email dot 23 KHONG duoc con goi y 'Email là định danh đăng nhập — chỉ xem, không sửa.'");
+        Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PROFILE_EDIT_BTN),
+                "Dang sua ho so thi nut 'Sửa thông tin' phai bien mat han (khong con 'Đóng form sửa')");
         adminPage.clickProfileCancelButton();
         Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PROFILE_FORM),
                 "Bam 'Hủy' xong form sua ho so phai dong");
+        Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PROFILE_EDIT_BTN),
+                "Dong form sua xong nut 'Sửa thông tin' phai hien lai");
     }
 
     @Story("Hồ sơ")

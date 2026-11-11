@@ -697,17 +697,24 @@ public class AdminPageUI {
     public static final String ADMIN_NAV_RETURNS_BADGE = "css=[data-testid='admin-nav-returns-badge']";
     public static final String ADMIN_NAV_REVIEWS_BADGE = "css=[data-testid='admin-nav-reviews-badge']";
 
-    // ---------- Dot 18 wave D: doi mat khau dang FormShell Drawer + toolbar Hoi vien ----------
-    // Drawer doi mat khau (AdminProfilePage): FormShell testid
-    // admin-change-password-modal, form admin-change-password-form, footer CHI
-    // [Hủy] (admin-change-password-cancel-btn) + [Đổi mật khẩu]
+    // ---------- Dot 23 phan A: doi mat khau dang Modal giua man hinh (thay
+    // Drawer FormShell 680px dot 18) ----------
+    // Modal doi mat khau (AdminProfilePage): .sa-modal 560px
+    // (.sa-profile-pw-modal), form admin-change-password-form, 3 hang moi
+    // hang 1 o full width, footer CHI [Hủy]
+    // (admin-change-password-cancel-btn) + [Đổi mật khẩu]
     // (admin-change-password-save-btn); dong bang nut X
-    // (admin-change-password-modal-close-btn, aria-label='Đóng').
+    // (admin-change-password-modal-close-btn, aria-label='Đóng'), ESC hoac
+    // bam nen mo.
     public static final String ADMIN_CHANGE_PASSWORD_MODAL = "css=[data-testid='admin-change-password-modal']";
     public static final String ADMIN_CHANGE_PASSWORD_MODAL_CLOSE_BTN =
             "css=[data-testid='admin-change-password-modal-close-btn']";
     public static final String ADMIN_CHANGE_PASSWORD_MODAL_TITLE =
             "css=[data-testid='admin-change-password-modal-title']";
+    // Cac nut o footer modal doi mat khau (khung .sa-modal-foot, dot 23 —
+    // khong con .fs-foot cua Drawer FormShell).
+    public static final String ADMIN_CHANGE_PASSWORD_FOOTER_BUTTONS =
+            "xpath=//*[@data-testid='admin-change-password-modal']//div[contains(@class,'sa-modal-foot')]//button";
     // Toolbar rieng cua muc Hoi vien (khong dung PageToolbar): nut Dat lai /
     // Lam moi co testid rieng.
     public static final String ADMIN_MEMBERS_RESET_BTN = "css=[data-testid='admin-members-reset-btn']";
