@@ -112,13 +112,15 @@ public class AdminCategoryFormTest extends BaseTest {
                 "Toggle trang thai DM mac dinh bat phai hien nhan 'Hiển thị', dang thay: " + modalText);
         Assert.assertTrue(adminPage.isCategoryImageDropzoneDisplayed(),
                 "Form them DM phai co dropzone upload icon (admin-category-image-dropzone, chi 1 anh)");
-        Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_IMAGE_LINK_TOGGLE),
-                "Form them DM phai co nut 'Hoặc dán link ảnh'");
+        Assert.assertFalse(adminPage.getCategoryFormModalText().contains("Hoặc dán link ảnh"),
+                "Dot 26 da bo dan link anh — form them DM KHONG duoc con nut 'Hoặc dán link ảnh'");
+        Assert.assertTrue(adminPage.isCategoryFormBackBtnDisplayed(),
+                "Header sticky form them DM phai co nut '← Quay lại' (admin-category-form-back-btn)");
         java.util.List<String> footerTexts = adminPage.getPageHeadButtonTexts("admin-category-create-page");
-        Assert.assertEquals(footerTexts.size(), 2,
-                "Header trang tao DM phai CHI co dung 2 nut, dang thay: " + footerTexts);
-        Assert.assertTrue(footerTexts.contains("Hủy") && footerTexts.contains("Lưu"),
-                "Header trang tao DM phai la [Hủy] + [Lưu], dang thay: " + footerTexts);
+        Assert.assertEquals(footerTexts.size(), 3,
+                "Header trang tao DM dot 24/25 phai co dung 3 nut, dang thay: " + footerTexts);
+        Assert.assertTrue(footerTexts.contains("Quay lại") && footerTexts.contains("Hủy") && footerTexts.contains("Lưu"),
+                "Header trang tao DM phai la [Quay lại] + [Hủy] + [Lưu], dang thay: " + footerTexts);
 
         adminPage.cancelCategoryForm();
         Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
@@ -146,18 +148,15 @@ public class AdminCategoryFormTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM19-68 (TC_SCRA05_UI_006): Upload icon DM qua dán link → thumbnail — bấm 'Hoặc dán link ảnh' thì ô nhập link hiện; nhập 'https://example.com/cat.jpg' rồi bấm 'Thêm' thì hiện 1 thumbnail duy nhất (admin-category-image-thumb); đóng form không lưu")
+    @Test(description = "ADM19-68 (TC_SCRA05_UI_006, đợt 26 viết lại — dán link ảnh ĐÃ BỎ, chỉ còn upload file): Upload icon DM bằng file từ máy — chọn file ảnh qua dropzone thì hiện 1 thumbnail duy nhất (admin-category-image-thumb); form KHÔNG còn nút 'Hoặc dán link ảnh'; đóng form không lưu")
     public void adminCategoryIconPasteLinkShowsThumbnail() {
         AdminPageObject adminPage = openCreateForm();
-        adminPage.clickCategoryImageLinkToggle();
-        Assert.assertTrue(adminPage.isCategoryImageLinkInputDisplayed(),
-                "Bam 'Hoặc dán link ảnh' thi o nhap link anh DM phai hien");
+        Assert.assertFalse(adminPage.getCategoryFormModalText().contains("Hoặc dán link ảnh"),
+                "Dot 26 da bo dan link anh — form them DM KHONG duoc con nut 'Hoặc dán link ảnh'");
 
-        adminPage.sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_INPUT, "https://example.com/cat.jpg");
-        adminPage.clickToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_ADD_BTN);
-        adminPage.sleepInSecond(1);
+        adminPage.uploadCategoryImage(getTestResourcePath(IMAGE_1));
         Assert.assertTrue(adminPage.isCategoryImageThumbDisplayed(),
-                "Dan link 'https://example.com/cat.jpg' roi bam 'Thêm' thi phai hien 1 thumbnail icon DM duy nhat");
+                "Chon 1 file anh qua dropzone DM xong phai hien 1 thumbnail icon duy nhat");
 
         adminPage.cancelCategoryForm();
         Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
@@ -358,23 +357,23 @@ public class AdminCategoryFormTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM19-77 (TC_SCRA05_FUNC_029, dot 21): Đã sửa mà bấm Hủy thì hỏi 'chưa lưu' — nhập tên 'DM mới' rồi bấm Hủy thì hiện hộp 'Thoát mà chưa lưu?' / 'Các thay đổi bạn vừa nhập sẽ bị mất.' với 2 nút 'Ở lại'/'Thoát'; bấm 'Ở lại' thì hộp đóng, trang form vẫn mở, dữ liệu 'DM mới' còn nguyên; bấm Hủy rồi 'Thoát' thì trang đóng, không lưu, không gọi POST")
+    @Test(description = "ADM19-77 (TC_SCRA05_FUNC_029, đợt 24/25 viết lại — dialog 'Thoát mà chưa lưu?' -> 'Hủy các thay đổi?', nút 'Thoát' -> 'Rời trang'): Đã sửa mà bấm Hủy thì hỏi 'Hủy các thay đổi?' — nhập tên 'DM mới' rồi bấm Hủy thì hiện hộp 'Hủy các thay đổi?' / 'Các thay đổi bạn vừa nhập sẽ bị mất.' với 2 nút 'Ở lại'/'Rời trang'; bấm 'Ở lại' thì hộp đóng, trang form vẫn mở, dữ liệu 'DM mới' còn nguyên; bấm Hủy rồi 'Rời trang' thì trang đóng, không lưu, không gọi POST")
     public void adminCategoryDirtyFormCancelAsksConfirm() {
         AdminPageObject adminPage = openCreateForm();
         adminPage.setCategoryName("DM mới");
         adminPage.clickToElement(AdminPageUI.ADMIN_CATEGORY_CANCEL_BTN);
         Assert.assertTrue(adminPage.isConfirmDialogDisplayed(),
-                "Bam Hủy khi form da sua thi phai hien hop 'Thoát mà chưa lưu?'");
-        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Thoát mà chưa lưu?",
-                "Hop dong form dirty phai co tieu de 'Thoát mà chưa lưu?'");
+                "Bam Hủy khi form da sua thi phai hien hop 'Hủy các thay đổi?'");
+        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Hủy các thay đổi?",
+                "Hop dong form dirty phai co tieu de 'Hủy các thay đổi?'");
         Assert.assertTrue(adminPage.getConfirmDialogText().contains("Các thay đổi bạn vừa nhập sẽ bị mất."),
                 "Hop dong form dirty phai co noi dung 'Các thay đổi bạn vừa nhập sẽ bị mất.'");
         Assert.assertEquals(adminPage.getConfirmDialogFooterButtonCount(), 2,
-                "Hop dong form dirty dot 18 phai CHI co dung 2 nut ([Ở lại] + [Thoát])");
+                "Hop dong form dirty dot 18 phai CHI co dung 2 nut ([Ở lại] + [Rời trang])");
         Assert.assertEquals(adminPage.getConfirmDialogCancelText(), "Ở lại",
                 "Nut trai hop dong form dirty phai la 'Ở lại'");
-        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Thoát",
-                "Nut phai hop dong form dirty phai la 'Thoát'");
+        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Rời trang",
+                "Nut phai hop dong form dirty phai la 'Rời trang'");
 
         // Nhanh 'Ở lại': hop dong, trang form van mo, du lieu con nguyen.
         adminPage.clickConfirmNo();
@@ -386,12 +385,12 @@ public class AdminCategoryFormTest extends BaseTest {
         Assert.assertEquals(adminPage.getCategoryNameInputValue(), "DM mới",
                 "Bam 'Ở lại' xong du lieu 'DM mới' trong form phai con nguyen");
 
-        // Nhanh 'Thoát': trang dong, khong luu, khong tao danh muc.
+        // Nhanh 'Rời trang': trang dong, khong luu, khong tao danh muc.
         adminPage.clickToElement(AdminPageUI.ADMIN_CATEGORY_CANCEL_BTN);
         adminPage.clickConfirmDialogConfirm();
         adminPage.sleepInSecond(1);
         Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
-                "Bam Hủy roi 'Thoát' xong trang form danh muc phai dong");
+                "Bam Hủy roi 'Rời trang' xong trang form danh muc phai dong");
         adminPage.searchCategories("DM mới");
         Assert.assertFalse(adminPage.isRowWithTextDisplayed("DM mới"),
                 "Thoat form chua luu thi khong duoc tao danh muc 'DM mới'");
@@ -417,7 +416,7 @@ public class AdminCategoryFormTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM19-79 (TC_SCRA05_FUNC_053/054): Upload icon sai định dạng/quá 5MB và dán link icon không phải http(s) → từ chối inline — chọn file .txt thì lỗi 'Định dạng không được hỗ trợ (chỉ PNG, JPG, WEBP).'; chọn ảnh > 5MB thì lỗi 'Ảnh vượt quá 5MB.'; cả 2 ca không tạo thumbnail ready, kèm toast đúng loại; dán link 'ftp://...' thì lỗi inline 'Link ảnh phải bắt đầu bằng http:// hoặc https://.', không thêm thumbnail nào; đóng form không lưu")
+    @Test(description = "ADM19-79 (TC_SCRA05_FUNC_053/054, đợt 26 viết lại — dán link ảnh ĐÃ BỎ nên không còn ca ftp link): Upload icon sai định dạng/quá 5MB → từ chối inline — chọn file .txt thì lỗi 'Định dạng không được hỗ trợ (chỉ PNG, JPG, WEBP).'; chọn ảnh > 5MB thì lỗi 'Ảnh vượt quá 5MB.'; cả 2 ca không tạo thumbnail ready, kèm toast đúng loại; form KHÔNG còn nút dán link ảnh; đóng form không lưu")
     public void adminCategoryIconInvalidFileRejectedInline() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("categories");
@@ -452,16 +451,12 @@ public class AdminCategoryFormTest extends BaseTest {
         Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
                 "Bam Hủy xong form danh muc phai dong (khong luu icon loi)");
 
-        // (3) Dan link icon khong phai http(s).
+        // (3) Dot 26: dan link anh DA BO — form khong con nut 'Hoặc dán link ảnh'.
         adminPage.openCategoryForm();
-        adminPage.clickCategoryImageLinkToggle();
-        adminPage.sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_INPUT, "ftp://example.com/cat.jpg");
-        adminPage.clickToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_ADD_BTN);
-        adminPage.sleepInSecond(1);
-        Assert.assertEquals(adminPage.getCategoryImageErrorText(), "Link ảnh phải bắt đầu bằng http:// hoặc https://.",
-                "Dan link 'ftp://...' lam icon DM thi phai bao loi inline 'Link ảnh phải bắt đầu bằng http:// hoặc https://.'");
+        Assert.assertFalse(adminPage.getCategoryFormModalText().contains("Hoặc dán link ảnh"),
+                "Dot 26 da bo dan link anh — form them DM KHONG duoc con nut 'Hoặc dán link ảnh'");
         Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_IMAGE_THUMB),
-                "Dan link icon khong hop le thi khong duoc them thumbnail nao");
+                "Chua chon file thi khong duoc co thumbnail icon nao");
         adminPage.cancelCategoryForm();
         Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
                 "Dong form bang nut Hủy xong khong duoc con thay form danh muc");

@@ -758,18 +758,18 @@ public class AdminDot18Test extends BaseTest {
     // ---------- Toolbar icon Lucide (khong emoji) ----------
 
     @Story("Toolbar")
-    @Test(description = "ADM18-16 (đợt 18 wave D): Toolbar Sản phẩm dùng icon Lucide — nút Tìm chứa svg.lucide-search, nút Đặt lại chứa svg.lucide-rotate-ccw; toàn bộ toolbar không còn ký tự emoji 🔍/↺")
+    @Test(description = "ADM18-16 (đợt 18 wave D, đợt 24/26 viết lại — KHÔNG còn nút Tìm riêng, icon Tìm nằm TRONG ô tìm): Toolbar Sản phẩm dùng icon Lucide — ô tìm chứa svg.lucide-search, nút Đặt lại chứa svg.lucide-rotate-ccw; toàn bộ toolbar không còn ký tự emoji 🔍/↺")
     public void adminToolbarUsesLucideIconsNotEmoji() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
         Assert.assertTrue(adminPage.isAdminMenuDisplayed(), "Super Admin phai thay menu quan tri");
         adminPage.clickAdminNav("products");
-        Assert.assertTrue(adminPage.isToolbarSearchButtonDisplayed("products"),
-                "Toolbar San pham phai co nut Tim (products-search-btn)");
+        Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("products"),
+                "Toolbar San pham dot 24/26 KHONG con nut Tim rieng (products-search-btn)");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("products"),
                 "Toolbar San pham phai co nut Dat lai (products-reset-btn)");
         Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("products"),
-                "Nut Tim phai chua icon Lucide Search (svg.lucide-search)");
+                "O tim San pham phai chua icon Lucide Search TRONG o tim (svg.lucide-search)");
         Assert.assertTrue(adminPage.isToolbarResetIconDisplayed("products"),
                 "Nut Dat lai phai chua icon Lucide RotateCcw (svg.lucide-rotate-ccw)");
         String toolbarText = adminPage.getToolbarText();

@@ -170,7 +170,7 @@ public class AdminCatalogBrowseTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM-14 (đợt 12, viết lại đợt 21 theo toolbar mới — Thêm mới cuối phải, KHÔNG nút icon Tìm, nút Đặt lại là nút chữ, KHÔNG nút Làm mới, KHÔNG Export): Toolbar chuẩn mục Sản phẩm — nút '+ Thêm mới' ở CUỐI bên phải, ô tìm tự lọc (không nút Tìm), nút chữ 'Đặt lại bộ lọc'; bấm 'Đặt lại' xóa từ khóa và về trang 1")
+    @Test(description = "ADM-14 (đợt 12, viết lại đợt 24/26 — nút Đặt lại chỉ còn ICON RotateCcw, icon Tìm nằm TRONG ô tìm): Toolbar chuẩn mục Sản phẩm — nút '+ Thêm mới' ở CUỐI bên phải, ô tìm tự lọc (không nút Tìm riêng, icon Tìm trong ô tìm), nút icon 'Đặt lại bộ lọc' (aria-label, disabled khi chưa lọc); bấm 'Đặt lại' xóa từ khóa và về trang 1")
     public void adminProductsToolbarHasAddResetRefreshButtons() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -182,13 +182,17 @@ public class AdminCatalogBrowseTest extends BaseTest {
         Assert.assertTrue(adminPage.isToolbarAddButtonLast("products"),
                 "Nut '+ Thêm mới' dot 21 phai la nut CUOI CUNG o ben phai toolbar");
         Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("products"),
-                "Toolbar muc San pham dot 21 KHONG con nut icon 'Tìm' (loc tu dong khi go, debounce 120ms)");
-        Assert.assertFalse(adminPage.isToolbarSearchIconDisplayed("products"),
-                "Toolbar muc San pham dot 21 KHONG con icon Tim kiem o nut Tim");
+                "Toolbar muc San pham dot 24/26 KHONG con nut icon 'Tìm' rieng (loc tu dong khi go, debounce 300ms)");
+        Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("products"),
+                "Toolbar muc San pham dot 24/26 phai co icon Tim kiem (Lucide Search) TRONG o tim");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("products"),
-                "Toolbar muc San pham phai co nut chu 'Đặt lại bộ lọc' (products-reset-btn)");
-        Assert.assertFalse(adminPage.isToolbarResetIconDisplayed("products"),
-                "Nut 'Đặt lại' dot 21 la nut chu, KHONG con icon RotateCcw");
+                "Toolbar muc San pham phai co nut icon 'Đặt lại' (products-reset-btn)");
+        Assert.assertTrue(adminPage.isToolbarResetIconDisplayed("products"),
+                "Nut 'Đặt lại' dot 24/26 la nut icon, phai chua icon RotateCcw");
+        Assert.assertEquals(adminPage.getToolbarResetButtonText("products"), "",
+                "Nut 'Đặt lại' dot 24/26 chi con icon nen KHONG duoc co nhan chu hien thi");
+        Assert.assertEquals(adminPage.getToolbarResetAriaLabel("products"), "Đặt lại bộ lọc",
+                "Nut 'Đặt lại' dot 24/26 phai co aria-label 'Đặt lại bộ lọc'");
         Assert.assertFalse(adminPage.isElementDisplayed("css=[data-testid='products-refresh-btn']"),
                 "Dot 18 da bo nut 'Làm mới' khoi toolbar — khong duoc co products-refresh-btn");
         Assert.assertFalse(adminPage.isExportButtonDisplayed(),
@@ -209,12 +213,14 @@ public class AdminCatalogBrowseTest extends BaseTest {
                     "Bam 'Đặt lại' phai ve trang 1");
         }
 
-        // Toolbar chuan ap cho moi muc: Danh muc cung co nut Dat lai + Tim.
+        // Toolbar chuan ap cho moi muc: Danh muc cung co nut Dat lai icon + icon Tim trong o tim.
         adminPage.clickAdminNav("categories");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("categories"),
                 "Toolbar muc Danh muc phai co nut icon 'Đặt lại'");
-        Assert.assertTrue(adminPage.isToolbarSearchButtonDisplayed("categories"),
-                "Toolbar muc Danh muc phai co nut icon 'Tìm'");
+        Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("categories"),
+                "Toolbar muc Danh muc dot 24/26 KHONG con nut icon 'Tìm' rieng");
+        Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("categories"),
+                "Toolbar muc Danh muc dot 24/26 phai co icon Tim kiem (Lucide Search) TRONG o tim");
     }
 
     @Story("Sản phẩm")
@@ -341,7 +347,7 @@ public class AdminCatalogBrowseTest extends BaseTest {
     // ---------- Wave 19: gap SCR_04/SCR_05 (UI bang + xem chi tiet + loc/phân trang) ----------
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-104 (TC_SCRA04_UI_001, đợt 21): Bảng SP có 8 cột (STT/Mã SP/Sản phẩm/Danh mục/Giá/Tồn kho/Trạng thái/Thao tác — ĐÃ BỎ cột Đánh giá) + toolbar chuẩn: cột Mã bắt đầu 'SP-', cột Trạng thái là Switch, mỗi dòng có đúng 3 nút thao tác (Xem/Sửa/Xóa), ô tìm kiếm placeholder 'Tìm tên hoặc mã sản phẩm...', dropdown Lọc danh mục có 'Tất cả danh mục' + tên DM thật, dropdown Trạng thái có đủ 3 lựa chọn (Tất cả/Đang hoạt động/Ngừng hoạt động), nút + Thêm mới nằm cuối toolbar (phải nhất), KHÔNG nút icon Tìm, nút 'Đặt lại bộ lọc' là nút chữ, KHÔNG có nút Export")
+    @Test(description = "ADM19-104 (TC_SCRA04_UI_001, đợt 24/26 viết lại — dropdown mặc định 'Tất cả danh mục'/'Tất cả' -> 'Danh mục'/'Trạng thái', nút Đặt lại chỉ còn icon): Bảng SP có 8 cột (STT/Mã SP/Sản phẩm/Danh mục/Giá/Tồn kho/Trạng thái/Thao tác — ĐÃ BỎ cột Đánh giá) + toolbar chuẩn: cột Mã bắt đầu 'SP-', cột Trạng thái là Switch, mỗi dòng có đúng 3 nút thao tác (Xem/Sửa/Xóa), ô tìm kiếm placeholder 'Tìm tên hoặc mã sản phẩm...', dropdown Lọc danh mục có 'Danh mục' + tên DM thật, dropdown Trạng thái có đủ 3 lựa chọn (Trạng thái/Đang hoạt động/Ngừng hoạt động), nút + Thêm mới nằm cuối toolbar (phải nhất), KHÔNG nút icon Tìm riêng, nút 'Đặt lại bộ lọc' là nút icon, KHÔNG có nút Export")
     public void adminProductsTableShowsAllColumnsAndStandardToolbar() {
         AdminPageObject adminPage = openAdminTab("products");
         java.util.List<String> headers = adminPage.getAdminTableHeaderTexts();
@@ -367,23 +373,23 @@ public class AdminCatalogBrowseTest extends BaseTest {
                 "O tim kiem SP phai co placeholder 'Tìm tên hoặc mã sản phẩm...'");
         java.util.List<String> catOptions = adminPage.getProductCategoryFilterOptionTexts();
         Assert.assertFalse(catOptions.isEmpty(), "Dropdown Loc danh muc SP phai co it nhat 1 lua chon");
-        Assert.assertEquals(catOptions.get(0), "Tất cả danh mục",
-                "Lua chon dau tien cua dropdown Loc danh muc SP phai la 'Tất cả danh mục', dang thay: " + catOptions);
+        Assert.assertEquals(catOptions.get(0), "Danh mục",
+                "Lua chon dau tien cua dropdown Loc danh muc SP phai la 'Danh mục', dang thay: " + catOptions);
         Assert.assertTrue(catOptions.size() > 1,
-                "Dropdown Loc danh muc SP phai co ten DM that ngoai 'Tất cả danh mục', dang thay: " + catOptions);
+                "Dropdown Loc danh muc SP phai co ten DM that ngoai 'Danh mục', dang thay: " + catOptions);
         Assert.assertEquals(adminPage.getStatusFilterOptionTexts(),
-                java.util.Arrays.asList("Tất cả", "Đang hoạt động", "Ngừng hoạt động"),
-                "Dropdown Trang thai SP phai co du 3 lua chon Tất cả/Đang hoạt động/Ngừng hoạt động");
+                java.util.Arrays.asList("Trạng thái", "Đang hoạt động", "Ngừng hoạt động"),
+                "Dropdown Trang thai SP phai co du 3 lua chon Trạng thái/Đang hoạt động/Ngừng hoạt động");
         Assert.assertTrue(adminPage.isToolbarAddButtonLast("products"),
                 "Nut '+ Thêm mới' phai nam cuoi toolbar (phai nhat) o muc San pham");
         Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("products"),
-                "Toolbar SP dot 21 KHONG con nut icon Tim kiem (loc tu dong khi go)");
-        Assert.assertFalse(adminPage.isToolbarSearchIconDisplayed("products"),
-                "Toolbar SP dot 21 KHONG con icon Tim kiem o nut Tim");
+                "Toolbar SP dot 24/26 KHONG con nut icon Tim kiem rieng (loc tu dong khi go)");
+        Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("products"),
+                "Toolbar SP dot 24/26 phai co icon Tim kiem (Lucide Search) TRONG o tim");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("products"),
-                "Toolbar SP phai co nut chu 'Đặt lại bộ lọc' (products-reset-btn)");
-        Assert.assertFalse(adminPage.isToolbarResetIconDisplayed("products"),
-                "Nut 'Đặt lại' dot 21 la nut chu, KHONG con icon Dat lai (Lucide RotateCcw)");
+                "Toolbar SP phai co nut icon 'Đặt lại bộ lọc' (products-reset-btn)");
+        Assert.assertTrue(adminPage.isToolbarResetIconDisplayed("products"),
+                "Nut 'Đặt lại' dot 24/26 la nut icon, phai chua icon Dat lai (Lucide RotateCcw)");
         Assert.assertFalse(adminPage.isExportButtonDisplayed(),
                 "Toolbar SP dot 21 KHONG duoc co nut Export");
     }
@@ -460,13 +466,13 @@ public class AdminCatalogBrowseTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-107 (TC_SCRA04_FUNC_053): Lọc SP theo Danh mục — chọn 1 DM thật ở dropdown 'Lọc danh mục' thì mọi dòng đều thuộc DM đó (cột Danh mục = tên DM); chọn lại 'Tất cả danh mục' thì bộ lọc về mặc định, bảng hiện lại đầy đủ (số dòng > số dòng đã lọc)")
+    @Test(description = "ADM19-107 (TC_SCRA04_FUNC_053, đợt 24/26 viết lại — lựa chọn mặc định 'Tất cả danh mục' -> 'Danh mục'): Lọc SP theo Danh mục — chọn 1 DM thật ở dropdown 'Lọc danh mục' thì mọi dòng đều thuộc DM đó (cột Danh mục = tên DM); chọn lại 'Danh mục' thì bộ lọc về mặc định, bảng hiện lại đầy đủ (số dòng > số dòng đã lọc)")
     public void adminProductCategoryFilterFiltersRows() {
         AdminPageObject adminPage = openAdminTab("products");
         java.util.List<String> catOptions = adminPage.getProductCategoryFilterOptionTexts();
         String categoryName = null;
         for (String option : catOptions) {
-            if (!"Tất cả danh mục".equals(option)) {
+            if (!"Danh mục".equals(option)) {
                 categoryName = option;
                 break;
             }
@@ -489,14 +495,14 @@ public class AdminCatalogBrowseTest extends BaseTest {
 
         adminPage.selectProductCategoryFilterAll();
         adminPage.sleepInSecond(1);
-        Assert.assertEquals(adminPage.getProductCategoryFilterSelectedText(), "Tất cả danh mục",
-                "Chon lai 'Tất cả danh mục' thi bo loc Danh muc phai ve mac dinh");
+        Assert.assertEquals(adminPage.getProductCategoryFilterSelectedText(), "Danh mục",
+                "Chon lai 'Danh mục' thi bo loc Danh muc phai ve mac dinh");
         Assert.assertTrue(adminPage.getPaginationTotalRows("products") >= totalBefore,
                 "Bo loc Danh muc xong tong so dong phai ve day du nhu ban dau (" + totalBefore + ")");
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-108 (TC_SCRA04_FUNC_056): Nút 'Đặt lại' xóa hết bộ lọc SP — nhập từ khóa 'Mặt nạ' + chọn 1 DM + lọc Trạng thái 'Ngừng hoạt động' (và sang trang 2 nếu đủ dữ liệu), bấm 'Đặt lại' thì ô tìm kiếm trống, dropdown Danh mục về 'Tất cả danh mục', dropdown Trạng thái về '', về trang 1, bảng hiện lại đầy đủ")
+    @Test(description = "ADM19-108 (TC_SCRA04_FUNC_056): Nút 'Đặt lại' xóa hết bộ lọc SP — nhập từ khóa 'Mặt nạ' + chọn 1 DM + lọc Trạng thái 'Ngừng hoạt động' (và sang trang 2 nếu đủ dữ liệu), bấm 'Đặt lại' thì ô tìm kiếm trống, dropdown Danh mục về 'Danh mục', dropdown Trạng thái về 'Trạng thái', về trang 1, bảng hiện lại đầy đủ")
     public void adminProductResetClearsAllFiltersAndReturnsToPageOne() {
         AdminPageObject adminPage = openAdminTab("products");
         int totalBefore = adminPage.getPaginationTotalRows("products");
@@ -510,7 +516,7 @@ public class AdminCatalogBrowseTest extends BaseTest {
         java.util.List<String> catOptions = adminPage.getProductCategoryFilterOptionTexts();
         String categoryName = null;
         for (String option : catOptions) {
-            if (!"Tất cả danh mục".equals(option)) {
+            if (!"Danh mục".equals(option)) {
                 categoryName = option;
                 break;
             }
@@ -525,16 +531,44 @@ public class AdminCatalogBrowseTest extends BaseTest {
         adminPage.sleepInSecond(1);
         Assert.assertEquals(adminPage.getProductSearchValue(), "",
                 "Bam 'Đặt lại' xong o tim kiem SP phai trong");
-        Assert.assertEquals(adminPage.getProductCategoryFilterSelectedText(), "Tất cả danh mục",
-                "Bam 'Đặt lại' xong dropdown Loc danh muc SP phai ve 'Tất cả danh mục'");
+        Assert.assertEquals(adminPage.getProductCategoryFilterSelectedText(), "Danh mục",
+                "Bam 'Đặt lại' xong dropdown Loc danh muc SP phai ve 'Danh mục'");
         Assert.assertEquals(adminPage.getStatusFilterValue(), "",
-                "Bam 'Đặt lại' xong dropdown Trang thai SP phai ve '' (Tất cả)");
+                "Bam 'Đặt lại' xong dropdown Trang thai SP phai ve '' ('Trạng thái')");
         if (adminPage.isPaginationDisplayed("products")) {
             Assert.assertEquals(adminPage.getPaginationCurrentPage("products"), 1,
                     "Bam 'Đặt lại' xong phai ve trang 1");
         }
         Assert.assertEquals(adminPage.getPaginationTotalRows("products"), totalBefore,
                 "Bam 'Đặt lại' xong tong so dong SP phai ve day du nhu ban dau (" + totalBefore + ")");
+    }
+
+    @Story("Sản phẩm")
+    @Test(description = "ADM26-05 (đợt 24/26): Nút icon 'Đặt lại bộ lọc' ở mục Sản phẩm — chưa lọc thì disabled; có từ khóa thì bật; bấm thì xóa từ khóa + về trang 1 + lại disabled; empty state khi tìm không có kết quả có nút 'Xóa bộ lọc' (admin-products-clear-filters-btn), bấm thì khôi phục bảng")
+    public void adminProductResetIconDisabledEnabledAndEmptyStateClearFilters() {
+        AdminPageObject adminPage = openAdminTab("products");
+        Assert.assertFalse(adminPage.isToolbarResetButtonEnabled("products"),
+                "Chua co tu khoa/bo loc thi nut icon 'Đặt lại' phai bi disable");
+        Assert.assertEquals(adminPage.getToolbarResetAriaLabel("products"), "Đặt lại bộ lọc",
+                "Nut icon 'Đặt lại' phai co aria-label 'Đặt lại bộ lọc'");
+
+        adminPage.searchProducts("zzzz-khong-co-san-pham");
+        Assert.assertEquals(adminPage.getAdminTableRowCount(), 0,
+                "Tim tu khoa la phai ra 0 dong truoc khi kiem tra empty state");
+        Assert.assertTrue(adminPage.isToolbarResetButtonEnabled("products"),
+                "Co tu khoa thi nut icon 'Đặt lại' phai bat len");
+        Assert.assertTrue(adminPage.isEmptyProductsMessageDisplayed(),
+                "Tim tu khoa la phai hien empty state 'Không tìm thấy sản phẩm'");
+        Assert.assertTrue(adminPage.isProductsClearFiltersButtonDisplayed(),
+                "Empty state khi tim phai co nut 'Xóa bộ lọc' (admin-products-clear-filters-btn)");
+
+        adminPage.clickProductsClearFiltersButton();
+        Assert.assertEquals(adminPage.getProductSearchValue(), "",
+                "Bam 'Xóa bộ lọc' o empty state thi o tim kiem SP phai trong");
+        Assert.assertTrue(adminPage.getAdminTableRowCount() > 0,
+                "Bam 'Xóa bộ lọc' o empty state xong bang SP phai hien lai du lieu");
+        Assert.assertFalse(adminPage.isToolbarResetButtonEnabled("products"),
+                "Xoa bo loc xong (khong con tu khoa) thi nut icon 'Đặt lại' phai lai bi disable");
     }
 
     @Story("Sản phẩm")

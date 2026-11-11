@@ -204,7 +204,7 @@ public class AdminPromoTest extends BaseTest {
             Assert.assertTrue(adminPage.isPromoFormModalDisplayed(),
                     "Luu trung ma that bai thi form phai van mo (khong dong, khong tao voucher)");
 
-            // Dong form (dirty -> hop 'Thoát mà chưa lưu?' -> bam Thoat).
+            // Dong form (dirty -> hop 'Hủy các thay đổi?' -> bam 'Rời trang').
             adminPage.cancelPromoForm();
             Assert.assertFalse(adminPage.isPromoFormModalPresent(),
                     "Dong form xong khong duoc con thay form khuyen mai");
@@ -380,7 +380,7 @@ public class AdminPromoTest extends BaseTest {
     }
 
     @Story("Khuyến mãi")
-    @Test(description = "ADM19-161 (TC_SCRA06_UI_003, đợt 21): Toolbar khuyến mãi: trái là ô tìm 'Tìm mã, mô tả khuyến mãi...' + dropdown lọc trạng thái (Tất cả trạng thái/Nháp/Đang hoạt động/Tạm ngưng/Đã hết hạn); phải là icon Tìm kiếm + icon Đặt lại (Lucide) + nút '+ Thêm mới' sát phải nhất; KHÔNG có nút Export, KHÔNG nút 'Lọc' riêng, KHÔNG nút 'Làm mới'")
+    @Test(description = "ADM19-161 (TC_SCRA06_UI_003, đợt 24/26 viết lại — dropdown mặc định 'Tất cả trạng thái' -> 'Trạng thái', KHÔNG còn nút Tìm riêng): Toolbar khuyến mãi: trái là ô tìm 'Tìm mã, mô tả khuyến mãi...' (icon Tìm trong ô tìm) + dropdown lọc trạng thái (Trạng thái/Nháp/Đang hoạt động/Tạm ngưng/Đã hết hạn); phải là icon Đặt lại (Lucide) + nút '+ Thêm mới' sát phải nhất; KHÔNG có nút Export, KHÔNG nút 'Lọc' riêng, KHÔNG nút 'Làm mới'")
     public void adminPromoToolbarHasSearchFilterAndAddButton() {
         AdminPageObject adminPage = openPromosOrSkip();
 
@@ -388,7 +388,7 @@ public class AdminPromoTest extends BaseTest {
                 "O tim kiem Khuyen mai phai co placeholder 'Tìm mã, mô tả khuyến mãi...'");
         java.util.List<String> options = adminPage.getStatusFilterOptionTexts();
         Assert.assertEquals(options, java.util.Arrays.asList(
-                        "Tất cả trạng thái", "Nháp", "Đang hoạt động", "Tạm ngưng", "Đã hết hạn"),
+                        "Trạng thái", "Nháp", "Đang hoạt động", "Tạm ngưng", "Đã hết hạn"),
                 "Dropdown loc trang thai voucher phai co dung 5 lua chon, dang thay: " + options);
         Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("promotions"),
                 "Nut Tim o toolbar Khuyen mai phai chua icon Lucide Search (svg.lucide-search)");
@@ -405,7 +405,7 @@ public class AdminPromoTest extends BaseTest {
     }
 
     @Story("Khuyến mãi")
-    @Test(description = "ADM19-162 (TC_SCRA06_UI_004, đợt 21): Bấm '+ Thêm mới' mở TRANG Thêm mới full page (/promotions/new): breadcrumb 'Quản lý khuyến mãi / Thêm mới', tiêu đề 'Thêm mới khuyến mãi' + mô tả 'Thiết lập thông tin và điều kiện áp dụng cho chương trình khuyến mãi', nút [Lưu] + [Hủy] ở trên cùng; KHÔNG phải Drawer/modal, KHÔNG nút Quay lại; bảng KM KHÔNG còn trong DOM; Hủy (form sạch) về danh sách")
+    @Test(description = "ADM19-162 (TC_SCRA06_UI_004, đợt 24/25 viết lại — mô tả trang ĐÃ BỎ, nút 'Quay lại' ĐÃ THÊM): Bấm '+ Thêm mới' mở TRANG Thêm mới full page (/promotions/new): breadcrumb 'Quản lý khuyến mãi / Thêm mới', tiêu đề 'Thêm mới khuyến mãi', KHÔNG còn mô tả 'Thiết lập thông tin và điều kiện áp dụng cho chương trình khuyến mãi', nút [Quay lại] + [Hủy] + [Lưu] ở trên cùng; KHÔNG phải Drawer/modal; bảng KM KHÔNG còn trong DOM; Hủy (form sạch) về danh sách")
     public void adminPromoAddOpensDrawer680() {
         AdminPageObject adminPage = openPromosOrSkip();
         adminPage.openPromoForm();
@@ -417,8 +417,10 @@ public class AdminPromoTest extends BaseTest {
         String pageText = adminPage.getPromoCreatePageText();
         Assert.assertTrue(pageText.contains("Thêm mới khuyến mãi"),
                 "Trang tao khuyen mai phai co tieu de 'Thêm mới khuyến mãi', dang thay: " + pageText);
-        Assert.assertTrue(pageText.contains("Thiết lập thông tin và điều kiện áp dụng cho chương trình khuyến mãi"),
-                "Trang tao khuyen mai phai co mo ta 'Thiết lập thông tin và điều kiện áp dụng cho chương trình khuyến mãi', dang thay: " + pageText);
+        Assert.assertFalse(pageText.contains("Thiết lập thông tin và điều kiện áp dụng cho chương trình khuyến mãi"),
+                "Dot 26 da bo mo ta trang — trang tao khuyen mai KHONG duoc con mo ta 'Thiết lập thông tin và điều kiện áp dụng cho chương trình khuyến mãi', dang thay: " + pageText);
+        Assert.assertTrue(adminPage.isPromoFormBackBtnDisplayed(),
+                "Trang tao khuyen mai dot 24/25 PHAI co nut '← Quay lại' o header sticky (admin-promo-form-back-btn)");
         Assert.assertTrue(pageText.contains("Quản lý khuyến mãi") && pageText.contains("Thêm mới"),
                 "Trang tao khuyen mai phai co breadcrumb 'Quản lý khuyến mãi / Thêm mới', dang thay: " + pageText);
         Assert.assertTrue(pageText.contains("Lưu") && pageText.contains("Hủy"),
@@ -445,8 +447,8 @@ public class AdminPromoTest extends BaseTest {
                     "Bam '+ Thêm mới' phai mo trang tao khuyen mai full page");
             Assert.assertFalse(adminPage.isPromoStatusToggleDisplayed(),
                     "Trang tao khuyen mai dot 21 KHONG duoc co toggle 'Kích hoạt ngay sau khi tạo'");
-            Assert.assertTrue(adminPage.getPromoStatusText().contains("Nháp"),
-                    "Trang tao khuyen mai phai ghi chu trang thai 'Nháp — khuyến mãi mới được tạo ở trạng thái Nháp.', dang thay: " + adminPage.getPromoStatusText());
+            Assert.assertFalse(adminPage.getPromoFormText().contains("Nháp"),
+                    "Dot 24/26: trang tao khuyen mai KHONG con dong trang thai — form KHONG duoc ghi chu 'Nháp', dang thay: " + adminPage.getPromoFormText());
             adminPage.fillPromoForm(code, "Voucher test ADM19-47 kich hoat ngay",
                     "Percentage", "10", "0", "", "", "2027-12-31");
             adminPage.savePromoForm();
@@ -641,14 +643,15 @@ public class AdminPromoTest extends BaseTest {
     }
 
     @Story("Khuyến mãi")
-    @Test(description = "ADM19-168 (TC_SCRA06_FUNC_029, đợt 21): Dropdown Trạng thái lọc voucher theo Nháp/Đang hoạt động/Tạm ngưng/Đã hết hạn (server-side): chọn dropdown rồi bấm icon Tìm mới tải lại danh sách (chỉ chọn mà KHÔNG bấm Tìm thì bảng CHƯA đổi); chọn 'Nháp' + Tìm thì bảng chỉ hiện voucher Nháp (đều có Switch TẮT), về trang 1; chọn 'Đang chạy' + Tìm thì chỉ hiện voucher Đang chạy (Switch đều bật)")
+    @Test(description = "ADM19-168 (TC_SCRA06_FUNC_029, đợt 24/26 VIẾT LẠI — BUG #2, TEST NÀY SẼ FAIL CHO ĐẾN KHI FE SỬA: đợt 24/26 bỏ nút Tìm nhưng KHÔNG thêm effect tự tải lại cho khuyến mãi như mục Khách hàng/Đánh giá, nên dropdown Trạng thái hiện KHÔNG lọc gì; hành vi ĐÚNG phải là: chọn dropdown thì bảng tự lọc ngay, KHÔNG cần bấm Tìm): Dropdown Trạng thái lọc voucher theo Nháp/Đang hoạt động (server-side, tự tải lại khi đổi dropdown): chọn 'Nháp' thì bảng chỉ hiện voucher Nháp (đều có Switch TẮT), về trang 1; chọn 'Đang chạy' thì chỉ hiện voucher Đang chạy (Switch đều bật)")
     public void adminPromoStatusFilterServerSideReloadsList() {
         AdminPageObject adminPage = openPromosOrSkip();
-        java.util.List<String> rowsBeforeSelect = adminPage.getAdminTableRowTexts();
+        // BUG #2 (worker C, dot 24/26): AdminPage.tsx khong co useEffect goi
+        // loadPromos() khi promoStatusFilter doi (chi co o customers/reviews),
+        // nen chon dropdown xong bang KHONG doi. Test nay khang dinh hanh vi
+        // DUNG (tu loc ngay khi chon); neu fail o day thi FE chua sua bug.
         adminPage.selectStatusFilterByValue("Draft");
-        Assert.assertEquals(adminPage.getAdminTableRowTexts(), rowsBeforeSelect,
-                "Chi chon dropdown 'Nháp' chua bam Tim thi bang khuyen mai khong duoc doi (loc server-side)");
-        adminPage.clickPromoSearchButton();
+        adminPage.sleepInSecond(2); // cho GET /api/admin/promotions?status=Draft (neu co)
         if (adminPage.getAdminTableRowCount() == 0) {
             Assert.assertTrue(adminPage.isEmptyPromosMessageDisplayed(),
                     "Loc 'Nháp' khong co voucher thi phai hien 'Không tìm thấy khuyến mãi'");
@@ -656,12 +659,12 @@ public class AdminPromoTest extends BaseTest {
             boolean allDraft = adminPage.getAdminTableRowTexts().stream()
                     .allMatch(text -> text.contains("Nháp"));
             Assert.assertTrue(allDraft,
-                    "Loc 'Nháp' roi bam Tim thi moi dong deu phai o trang thai Nháp");
+                    "Loc 'Nháp' thi moi dong deu phai o trang thai Nháp (BUG #2: dropdown hien khong loc)");
             java.util.List<Boolean> draftStates = adminPage.getAllRowStatusSwitchStates();
             Assert.assertFalse(draftStates.isEmpty(),
-                    "Voucher Nhap dot 21 CO Switch trang thai trong dong (tat, bam de kich hoat)");
+                    "Voucher Nhap CO Switch trang thai trong dong (tat, bam de kich hoat)");
             Assert.assertTrue(draftStates.stream().noneMatch(Boolean::booleanValue),
-                    "Loc 'Nháp' roi bam Tim thi moi Switch deu phai tat (Draft)");
+                    "Loc 'Nháp' thi moi Switch deu phai tat (Draft)");
             int currentPage = adminPage.getPaginationCurrentPage("promotions");
             if (currentPage != -1) {
                 Assert.assertEquals(currentPage, 1,
@@ -670,7 +673,7 @@ public class AdminPromoTest extends BaseTest {
         }
 
         adminPage.selectStatusFilterByValue("Active");
-        adminPage.clickPromoSearchButton();
+        adminPage.sleepInSecond(2); // cho GET /api/admin/promotions?status=Active (neu co)
         if (adminPage.getAdminTableRowCount() == 0) {
             Assert.assertTrue(adminPage.isEmptyPromosMessageDisplayed(),
                     "Loc 'Đang chạy' khong co voucher thi phai hien 'Không tìm thấy khuyến mãi'");
@@ -679,7 +682,7 @@ public class AdminPromoTest extends BaseTest {
             Assert.assertFalse(states.isEmpty(),
                     "Voucher Dang chay phai co Switch trang thai trong dong");
             Assert.assertTrue(states.stream().allMatch(Boolean::booleanValue),
-                    "Loc 'Đang chạy' roi bam Tim thi moi Switch deu phai bat (Active)");
+                    "Loc 'Đang chạy' thi moi Switch deu phai bat (Active)");
         }
         adminPage.clickToolbarReset("promotions");
     }

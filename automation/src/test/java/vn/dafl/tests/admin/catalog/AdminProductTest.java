@@ -10,6 +10,9 @@ import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
 import vn.dafl.pageUIs.AdminPageUI;
 
+import java.io.File;
+import java.net.URL;
+
 /**
  * Test CRUD san pham tren app Admin rieng localhost:3001 (dot 9, tach tu
  * AdminCrudTest cu khi chia thu muc admin dot 17 — moi lop chi lo 1 phan he).
@@ -37,6 +40,20 @@ import vn.dafl.pageUIs.AdminPageUI;
  */
 @Feature("Quản lý sản phẩm")
 public class AdminProductTest extends BaseTest {
+
+    private static final String IMAGE_1 = "upload/test-product-1.png";
+    private static final String IMAGE_2 = "upload/test-product-2.png";
+
+    /** Duong dan tuyet doi cua file trong automation/src/test/resources/upload/. */
+    private String getTestResourcePath(String resourceName) {
+        URL url = getClass().getClassLoader().getResource(resourceName);
+        Assert.assertNotNull(url, "Khong tim thay file test trong resources: " + resourceName);
+        try {
+            return new File(url.toURI()).getAbsolutePath();
+        } catch (Exception e) {
+            throw new AssertionError("Khong doc duoc duong dan file test " + resourceName + ": " + e.getMessage());
+        }
+    }
 
     // Trang thai de don dep (chi du lieu do test tao); moi test method co browser moi
     // nen cac truong nay chi song trong pham vi 1 test.
@@ -318,7 +335,7 @@ public class AdminProductTest extends BaseTest {
             Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
                     "Luu trung ma that bai thi form phai van mo (khong dong, khong tao SP)");
 
-            // Dong form (dirty -> hop 'Thoát mà chưa lưu?' -> bam Thoat).
+            // Dong form (dirty -> hop 'Hủy các thay đổi?' -> bam 'Rời trang').
             adminPage.cancelProductForm();
             Assert.assertFalse(adminPage.isProductFormModalPresent(),
                     "Dong form xong khong duoc con thay form san pham");
@@ -333,7 +350,7 @@ public class AdminProductTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM17-04 (đợt 17): Mở form sửa SP → ô Mã bị disable (hiện đúng mã SP-...), ô Tên sửa được; bấm Hủy + 'Thoát' thì không đổi gì (tên cũ vẫn còn, tên mới không có)")
+    @Test(description = "ADM17-04 (đợt 17, đợt 24/25: nút 'Thoát' -> 'Rời trang'): Mở form sửa SP → ô Mã bị disable (hiện đúng mã SP-...), ô Tên sửa được; bấm Hủy + 'Rời trang' thì không đổi gì (tên cũ vẫn còn, tên mới không có)")
     public void adminEditProductFormDisablesCodeInput() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -359,7 +376,7 @@ public class AdminProductTest extends BaseTest {
             Assert.assertEquals(adminPage.getProductNameInputValue(), editedName,
                     "Go ten moi vao o Ten phai hien dung ten moi trong form");
 
-            // Huy: form dirty -> hop 'Thoát mà chưa lưu?' -> bam Thoat.
+            // Huy: form dirty -> hop 'Hủy các thay đổi?' -> bam 'Rời trang'.
             adminPage.cancelProductForm();
             Assert.assertFalse(adminPage.isProductFormModalPresent(),
                     "Dong form xong khong duoc con thay form sua san pham");
@@ -762,7 +779,7 @@ public class AdminProductTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-84 (TC_SCRA04_VAL_033): Mô tả quá dài (5001 ký tự) thì BE từ chối — nhập mô tả 5001 ký tự + các trường khác hợp lệ rồi bấm Lưu: FE không chặn, BE trả lỗi 'Mô tả tối đa 5000 ký tự.' dạng formError trong form, form vẫn mở, không tạo sản phẩm; đóng bằng Hủy")
+    @Test(description = "ADM19-84 (TC_SCRA04_VAL_033, đợt 26 viết lại — bộ đếm mô tả '5001/2000' ĐÃ BỎ): Mô tả quá dài (5001 ký tự, nhập bằng JS qua maxLength=2000) thì BE từ chối — các trường khác hợp lệ rồi bấm Lưu: BE trả lỗi 'Mô tả tối đa 5000 ký tự.' dạng formError trong form, form vẫn mở, không tạo sản phẩm; đóng bằng Hủy")
     public void adminCreateProductWithTooLongDescriptionRejected() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -775,8 +792,8 @@ public class AdminProductTest extends BaseTest {
         // Nhap mo ta 5001 ky tu bang JS (go tung ky tu qua sendKeys qua cham).
         adminPage.setInputValueByJs(AdminPageUI.ADMIN_PRODUCT_DESCRIPTION_INPUT, "M".repeat(5001));
         adminPage.sleepInSecond(1);
-        Assert.assertEquals(adminPage.getProductDescriptionCountText(), "5001/2000",
-                "Mo ta 5001 ky tu thi bo dem mo ta phai hien '5001/2000' (FE chi dem, khong chan)");
+        Assert.assertFalse(adminPage.getProductFormModalText().contains("/2000"),
+                "Dot 26 da bo bo dem ky tu — form SP KHONG duoc con chuoi '/2000' duoi o Mo ta");
         adminPage.clickProductSaveButton();
         adminPage.sleepInSecond(2); // cho POST /api/admin/products tra ve
         Assert.assertTrue(adminPage.getProductFormErrorText().contains("Mô tả tối đa 5000 ký tự."),
@@ -792,7 +809,7 @@ public class AdminProductTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-85 (TC_SCRA04_FUNC_038): Thêm SP tồn kho = 0 — ngoài toast thành công 'Đã thêm sản phẩm' còn toast phụ 'Sản phẩm đã hết hàng'; dòng SP mới trong bảng có badge đỏ 'Hết hàng' ở cột Tồn kho; xóa SP sau test")
+    @Test(description = "ADM19-85 (TC_SCRA04_FUNC_038, đợt 24/25/26 viết lại — toast lưu SP 'Đã thêm sản phẩm' -> 'Đã lưu sản phẩm'): Thêm SP tồn kho = 0 — ngoài toast thành công 'Đã lưu sản phẩm' còn toast phụ 'Sản phẩm đã hết hàng'; dòng SP mới trong bảng có badge đỏ 'Hết hàng' ở cột Tồn kho; xóa SP sau test")
     public void adminCreateProductWithZeroStockShowsOutOfStockToast() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -809,8 +826,8 @@ public class AdminProductTest extends BaseTest {
             adminPage.clickProductSaveButton();
             adminPage.sleepInSecond(1);
             java.util.List<String> toasts = adminPage.getAllToastTexts();
-            Assert.assertTrue(toasts.stream().anyMatch(t -> t.contains("Đã thêm sản phẩm")),
-                    "Tao SP ton kho 0 xong phai hien toast 'Đã thêm sản phẩm', dang thay: " + toasts);
+            Assert.assertTrue(toasts.stream().anyMatch(t -> t.contains("Đã lưu sản phẩm")),
+                    "Tao SP ton kho 0 xong phai hien toast 'Đã lưu sản phẩm', dang thay: " + toasts);
             Assert.assertTrue(toasts.stream().anyMatch(t -> t.contains("Sản phẩm đã hết hàng")),
                     "Tao SP ton kho 0 xong phai hien them toast phu 'Sản phẩm đã hết hàng', dang thay: " + toasts);
             createdProductName = productName;
@@ -863,9 +880,9 @@ public class AdminProductTest extends BaseTest {
 
             adminPage.fillProductForm(productName, categoryName, "100000", "150000", "10",
                     "Mo ta SP test FUNC-040");
-            adminPage.addProductImageByUrl("https://example.com/sp-040.jpg");
+            adminPage.uploadProductImage(getTestResourcePath(IMAGE_1));
             Assert.assertTrue(adminPage.isProductImageThumbDisplayed(0),
-                    "Them anh bang link xong phai thay thumbnail anh thu 0 trong form");
+                    "Upload 1 file anh xong phai thay thumbnail anh thu 0 trong form");
             adminPage.saveProductForm();
             createdProductName = productName;
             Assert.assertTrue(adminPage.isToastDisplayed(), "Tao san pham xong phai hien toast thanh cong (admin-toast)");
@@ -1051,7 +1068,7 @@ public class AdminProductTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM21-03 (đợt 21): Trang Thêm mới SP full page — bấm '+ Thêm mới' mở /products/new (không Drawer/Modal, bảng không còn trong DOM), tiêu đề 'Thêm mới sản phẩm', lưu hợp lệ → toast 'Đã thêm sản phẩm' ghi tên SP + về danh sách")
+    @Test(description = "ADM21-03 (đợt 21, đợt 24/25/26 viết lại — toast lưu SP 'Đã thêm sản phẩm' + tên -> 'Đã lưu sản phẩm' / 'Sản phẩm đã được lưu.'): Trang Thêm mới SP full page — bấm '+ Thêm mới' mở /products/new (không Drawer/Modal, bảng không còn trong DOM), tiêu đề 'Thêm mới sản phẩm', lưu hợp lệ → toast 'Đã lưu sản phẩm' + về danh sách")
     public void adminProductCreateFullPageAddsProduct() {
         String productName = uniqueProductName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -1079,10 +1096,10 @@ public class AdminProductTest extends BaseTest {
                     "Mo ta san pham test ADM21-03");
             createdProductName = productName;
             String toastTitle = adminPage.getToastTitleText();
-            Assert.assertTrue(toastTitle.contains("Đã thêm sản phẩm"),
-                    "Tao SP xong toast phai ghi 'Đã thêm sản phẩm', dang thay: " + toastTitle);
-            Assert.assertTrue(adminPage.getToastDescText().contains(productName),
-                    "Toast tao SP phai ghi ten SP '" + productName + "'");
+            Assert.assertTrue(toastTitle.contains("Đã lưu sản phẩm"),
+                    "Tao SP xong toast phai ghi 'Đã lưu sản phẩm', dang thay: " + toastTitle);
+            Assert.assertEquals(adminPage.getToastDescText(), "Sản phẩm đã được lưu.",
+                    "Toast tao SP dot 24/25/26 phai ghi 'Sản phẩm đã được lưu.' (khong neu ten SP), dang thay: " + adminPage.getToastDescText());
 
             adminPage.searchProducts(productName);
             Assert.assertTrue(adminPage.isRowWithTextDisplayed(productName),

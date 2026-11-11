@@ -19,12 +19,15 @@ import java.util.List;
  *  mat khau admin - tru khi doi tuong do chinh test tao ra.
  *  Dot 12: form them/sua San pham / Danh muc / Khuyen mai mo trong MODAL (testid
  *  admin-*-form-modal); toolbar chuan tren moi bang (nut Them moi ben trai, o tim
- *  + nut Tim/Dat lai/Lam moi/Export ben phai); phan trang client-side 10 dong/trang
- *  (admin-*-pagination); o search tren topbar + breadcrumb da bo han.
+ *  (icon Tim trong o tim) + nut icon Dat lai ben phai); phan trang client-side
+ *  10 dong/trang (admin-*-pagination); o search tren topbar + breadcrumb da bo han.
+ *  Dot 24/26: nut Tim rieng (search-btn) DA BO khoi moi toolbar — loc ap dung
+ *  TU DONG (client-side debounce 300ms hoac server reload tu dong).
  *  Dot 17: form them/sua doi thanh TRANG RIENG 2 cot (class sa-form-page,
  *  role='dialog', khong overlay, bang danh sach thay the khoi DOM) nhung GIU
  *  testid container cu nen cac ham mo/dong form cu van dung; dong form dirty
- *  thi hoi 'Thoát mà không lưu?'; bang them cot STT + cot Ma + Switch trang thai
+ *  thi hoi 'Hủy các thay đổi?' (dot 24/25, truoc do 'Thoát mà không lưu?'); bang
+ *  them cot STT + cot Ma + Switch trang thai
  *  (aria-checked); xoa dong dang Hoat dong bi chan boi popup 'Không thể xoá'
  *  (phai chuyen Ngung hoat dong truoc); tat voucher Active bang Switch mo modal
  *  nhap ly do (khong con nut 'Tắt khuyến mãi' rieng). */
@@ -614,43 +617,53 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Dong form them/sua san pham KHONG luu: bam nut 'Hủy' o footer trang form;
-     *  form dirty thi FE hien hop xac nhan 'Thoát mà không lưu?' (dung chung
-     *  admin-confirm-modal) — bam 'Thoát' (admin-confirm-yes-btn) de dong that. */
+     *  form dirty thi FE hien hop xac nhan 'Hủy các thay đổi?' (dung chung
+     *  admin-confirm-modal) — bam 'Rời trang' (admin-confirm-yes-btn) de dong that. */
     public void closeProductForm() {
         cancelProductForm();
     }
 
     /** Dong form san pham bang nut 'Hủy' (khong luu, khong doi du lieu); neu
-     *  form dirty thi xac nhan 'Thoát' o hop 'Thoát mà không lưu?' hien ra. */
+     *  form dirty thi xac nhan 'Rời trang' o hop 'Hủy các thay đổi?' hien ra. */
     public void cancelProductForm() {
         clickToElement(AdminPageUI.ADMIN_PRODUCT_CANCEL_BTN);
         confirmDiscardFormIfShown();
         waitForElementInvisible(AdminPageUI.ADMIN_PRODUCT_FORM);
     }
 
-    /** Hop 'Thoát mà không lưu?' (ConfirmDialog dot 18) chi hien khi dong form
-     *  DIRTY: bam 'Thoát' (nut xac nhan cua confirm-dialog); form sach thi
+    /** Nut "← Quay lại" o header sticky form SP (dot 24/25: history-back;
+     *  form dirty thi hoi 'Hủy các thay đổi?' truoc). */
+    public boolean isProductFormBackBtnDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_FORM_BACK_BTN);
+    }
+
+    public void clickProductFormBackBtn() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCT_FORM_BACK_BTN);
+        sleepInSecond(1);
+    }
+
+    /** Hop 'Hủy các thay đổi?' (ConfirmDialog dot 24/26) chi hien khi dong form
+     *  DIRTY: bam 'Rời trang' (nut xac nhan cua confirm-dialog); form sach thi
      *  khong co hop nay. */
     public void confirmDiscardFormIfShown() {
-        sleepInSecond(1); // cho hop xac nhan 'Thoát mà không lưu?' hien ra (neu co)
+        sleepInSecond(1); // cho hop xac nhan 'Hủy các thay đổi?' hien ra (neu co)
         if (isElementDisplayed(AdminPageUI.CONFIRM_DIALOG)) {
             String title = getConfirmDialogTitle();
-            if (title.contains("Thoát mà chưa lưu?")) {
+            if (title.contains("Hủy các thay đổi?")) {
                 clickToElement(AdminPageUI.CONFIRM_DIALOG_CONFIRM_BTN);
-                sleepInSecond(1); // cho form dong sau khi xac nhan Thoat
+                sleepInSecond(1); // cho form dong sau khi xac nhan Roi trang
             }
         }
     }
 
     // ---------- Tim kiem / loc o cac bang (dot 18, PageToolbar) ----------
-    // Tim kiem SP: loc client-side theo tu khoa go vao (debounce 120ms, dot 21
-    // — KHONG con nut Tim de bam, giong don hang). Tim DM: loc client-side
-    // theo tu khoa go vao (go xong bam nut Tim de ve trang 1). Tim KH/voucher/
-    // danh gia/tra hang/nhat ky: loc server-side — BAT BUOC bam nut Tim
-    // (search-btn) moi tai lai du lieu.
+    // Tim kiem SP/DM/voucher/nhat ky: loc client-side theo tu khoa go vao
+    // (debounce 300ms, dot 24/26). Tim KH/danh gia/tra hang: loc server-side
+    // TU DONG (effect tai lai khi tu khoa/dropdown doi) — KHONG con nut Tim
+    // o bat cu toolbar nao (dot 24/26 da bo search-btn).
     public void searchProducts(String keyword) {
         sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_SEARCH, keyword);
-        sleepInSecond(2); // cho debounce 120ms + loc client-side ap dung
+        sleepInSecond(2); // cho debounce 300ms + loc client-side ap dung
     }
 
     public void searchCustomers(String keyword) {
@@ -659,11 +672,11 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Dot 21 — Tim kiem don hang theo tu khoa: go xong TU LOC sau debounce
-     *  120ms (loc client-side tren 100 don da tai, khong dau), KHONG con nut
+     *  300ms (loc client-side tren 100 don da tai, khong dau), KHONG con nut
      *  'Tim' de bam. Cho 2s de debounce + React render xong. */
     public void searchOrders(String keyword) {
         sendKeyToElement(AdminPageUI.ADMIN_ORDER_SEARCH, keyword);
-        sleepInSecond(2); // cho debounce 120ms + loc client-side ap dung
+        sleepInSecond(2); // cho debounce 300ms + loc client-side ap dung
     }
 
     /** O search tren topbar DA BI BO (dot 12) - chi dung de khang dinh am: topbar
@@ -709,7 +722,7 @@ public class AdminPageObject extends BasePage {
 
     /** Dot 21 — KHONG con nut icon 'Tìm' o toolbar Don hang: chon dropdown
      *  loc thi bang loc ngay (client-side), go tu khoa thi loc sau debounce
-     *  120ms. Ham nay chi cho 1s de loc ap dung (giu ten + chu ky cu de cac
+     *  300ms. Ham nay chi cho 1s de loc ap dung (giu ten + chu ky cu de cac
      *  test goi no khong vo). */
     public void clickOrderFilterSearch() {
         sleepInSecond(1); // cho loc client-side ap dung (khong con goi API)
@@ -737,13 +750,16 @@ public class AdminPageObject extends BasePage {
                 getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey), 10);
     }
 
-    /** Nut icon "Tìm kiếm" (Lucide Search) o ben phai toolbar cua muc cho truoc. */
+    /** Nut icon "Tìm kiếm" rieng o ben phai toolbar — dot 24/26 DA BO (chi con
+     *  icon Tim TRONG o tim kiem); giu ham de test khang dinh am. */
     public boolean isToolbarSearchButtonDisplayed(String sectionKey) {
         return isElementDisplayedWithWait(
                 getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_SEARCH_BTN, sectionKey), 10);
     }
 
-    /** Nut "Tìm kiếm" co chua icon Lucide Search (svg.lucide-search) khong. */
+    /** O tim kiem co chua icon Lucide Search (svg.lucide-search) khong — dot
+     *  24/26 icon nam trong o tim (span.sa-page-toolbar-search-icon), KHONG
+     *  con nut Tim rieng. */
     public boolean isToolbarSearchIconDisplayed(String sectionKey) {
         return isElementDisplayed(
                 getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_SEARCH_ICON, sectionKey));
@@ -773,7 +789,7 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Nut "Thêm mới" co phai la nut CUOI CUNG trong nhom phai cua toolbar khong
-     *  (dot 18: Them moi sat phai nhat, sau nut Tim + nut Dat lai). */
+     *  (dot 18: Them moi sat phai nhat, sau nut Dat lai). */
     public boolean isToolbarAddButtonLast(String sectionKey) {
         java.util.List<org.openqa.selenium.WebElement> rightButtons = getListWebElements(
                 "xpath=//div[contains(@class,'sa-page-toolbar-right')]//button");
@@ -788,6 +804,23 @@ public class AdminPageObject extends BasePage {
     public void clickToolbarReset(String sectionKey) {
         clickToElement(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey);
         sleepInSecond(1); // cho loc ap dung
+    }
+
+    /** Nut icon "Đặt lại" cua muc co bam duoc khong (disable khi chua loc). */
+    public boolean isToolbarResetButtonEnabled(String sectionKey) {
+        return isElementEnabled(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey));
+    }
+
+    /** aria-label cua nut icon "Đặt lại" (dot 24/26: nut chi con icon, khong
+     *  con nhan chu — aria-label/title la "Đặt lại bộ lọc"). */
+    public String getToolbarResetAriaLabel(String sectionKey) {
+        return getElementAttribute(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey), "aria-label");
+    }
+
+    /** Text hien thi cua nut icon "Đặt lại" — dot 24/26 nut chi con icon nen
+     *  tra "" (dung de khang dinh am: khong con nhan chu "Đặt lại bộ lọc"). */
+    public String getToolbarResetButtonText(String sectionKey) {
+        return getElementText(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, sectionKey));
     }
 
     /** Khoi phan trang cua muc co hien khong (chi hien khi bang co du lieu). */
@@ -1083,7 +1116,7 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Tim kiem don hang theo ma/tu khoa (dot 21: go xong tu loc sau debounce
-     *  120ms, khong con nut 'Tìm' de bam). */
+     *  300ms, khong con nut 'Tìm' de bam). */
     public void searchOrdersAndApply(String keyword) {
         searchOrders(keyword); // searchOrders da go tu khoa + cho debounce
     }
@@ -1189,16 +1222,6 @@ public class AdminPageObject extends BasePage {
         return normalizePriceInput(getElementValue(AdminPageUI.ADMIN_PRODUCT_PRICE_INPUT));
     }
 
-    /** So ky tu ten san pham dang hien o bo dem (admin-product-name-count). */
-    public String getProductNameCountText() {
-        return getElementText(AdminPageUI.ADMIN_PRODUCT_NAME_COUNT);
-    }
-
-    /** So ky tu mo ta dang hien o bo dem (admin-product-description-count). */
-    public String getProductDescriptionCountText() {
-        return getElementText(AdminPageUI.ADMIN_PRODUCT_DESCRIPTION_COUNT);
-    }
-
     /** Badge % giam trong form (chi hien khi co gia goc > gia ban); "" neu khong co. */
     public boolean isDiscountBadgeDisplayed() {
         return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_DISCOUNT_BADGE);
@@ -1224,6 +1247,19 @@ public class AdminPageObject extends BasePage {
     /** Khoi xem truoc (preview) cua san pham trong drawer co dang hien khong. */
     public boolean isProductPreviewDisplayed() {
         return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_PREVIEW);
+    }
+
+    /** Nhan trang thai ton kho ben canh o Ton kho (dot 24/25: 'Còn hàng' /
+     *  'Sắp hết hàng' / 'Hết hàng'; an khi o Ton kho trong); "" neu khong hien. */
+    public String getProductStockStatusText() {
+        if (!isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_STOCK_STATUS)) {
+            return "";
+        }
+        return getElementText(AdminPageUI.ADMIN_PRODUCT_STOCK_STATUS);
+    }
+
+    public boolean isProductStockStatusDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_STOCK_STATUS);
     }
 
     /** Tang/giam ton kho bang nut +/- trong form (moi lan bam doi 1 don vi). */
@@ -1260,6 +1296,11 @@ public class AdminPageObject extends BasePage {
     /** O Ma san pham co dang bi disable khong (khi sua thi disable). */
     public boolean isProductCodeInputDisabled() {
         return !isElementEnabled(AdminPageUI.ADMIN_PRODUCT_CODE_INPUT);
+    }
+
+    /** Icon khoa ben canh o Ma SP o trang sua (dot 24/25: ma khong doi duoc). */
+    public boolean isProductCodeLockDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_CODE_LOCK);
     }
 
     /** Nhap ten san pham vao o Ten (sendKey xoa het roi go lai). */
@@ -1350,13 +1391,6 @@ public class AdminPageObject extends BasePage {
     public String getProductImageErrorText() {
         waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_IMAGE_ERROR);
         return getElementText(AdminPageUI.ADMIN_PRODUCT_IMAGE_ERROR);
-    }
-
-    /** Them anh bang URL: bat che do nhap link roi dien URL (khong upload file). */
-    public void setProductImageByUrl(String imageUrl) {
-        clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE);
-        sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT, imageUrl);
-        sleepInSecond(1);
     }
 
     /** Modal chi tiet san pham co hien anh (<img>) khong. */
@@ -1470,7 +1504,7 @@ public class AdminPageObject extends BasePage {
     // ----- Danh muc -----
     public void searchCategories(String keyword) {
         sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_SEARCH, keyword);
-        sleepInSecond(2); // cho debounce 120ms + loc client-side ap dung + ve trang 1
+        sleepInSecond(2); // cho debounce 300ms + loc client-side ap dung + ve trang 1
     }
 
     /** Tao danh muc moi (ten 2-150 ky tu); thanh cong thi form trang dong va hien toast. */
@@ -1582,15 +1616,25 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Dong form danh muc bang nut 'Hủy' (khong luu); form dirty thi xac nhan
-     *  'Thoát' o hop 'Thoát mà không lưu?' hien ra. */
+     *  'Rời trang' o hop 'Hủy các thay đổi?' hien ra. */
     public void cancelCategoryForm() {
         clickToElement(AdminPageUI.ADMIN_CATEGORY_CANCEL_BTN);
         confirmDiscardFormIfShown();
         waitForElementInvisible(AdminPageUI.ADMIN_CATEGORY_FORM);
     }
 
+    /** Nut "← Quay lại" o header sticky form DM (dot 24/25). */
+    public boolean isCategoryFormBackBtnDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_FORM_BACK_BTN);
+    }
+
+    public void clickCategoryFormBackBtn() {
+        clickToElement(AdminPageUI.ADMIN_CATEGORY_FORM_BACK_BTN);
+        sleepInSecond(1);
+    }
+
     /** Dong form khuyen mai bang nut 'Hủy' (khong luu); form dirty thi xac nhan
-     *  'Thoát' o hop 'Thoát mà không lưu?' hien ra. */
+     *  'Rời trang' o hop 'Hủy các thay đổi?' hien ra. */
     public void cancelPromoForm() {
         clickToElement(AdminPageUI.ADMIN_PROMO_CANCEL_BTN);
         confirmDiscardFormIfShown();
@@ -1598,7 +1642,7 @@ public class AdminPageObject extends BasePage {
     }
 
     /** Dong form sua khach hang bang nut 'Hủy' (khong luu); form dirty thi xac
-     *  nhan 'Thoát' o hop 'Thoát mà không lưu?' hien ra. */
+     *  nhan 'Rời trang' o hop 'Hủy các thay đổi?' hien ra. */
     public void cancelCustomerForm() {
         clickToElement(AdminPageUI.ADMIN_CUSTOMER_CANCEL_BTN);
         confirmDiscardFormIfShown();
@@ -1690,9 +1734,10 @@ public class AdminPageObject extends BasePage {
     // Draft) + hop xac nhan chung khi xoa; tao moi (trang thai Nhap), kich hoat
     // (Nhap -> Dang chay) va tat co ly do (Dang chay -> Da tat) giu nguyen.
     public void searchPromos(String keyword) {
+        // Dot 24/26: KHONG con nut Tim (promotions-search-btn) — go xong loc
+        // client-side tu ap dung sau debounce 300ms.
         sendKeyToElement(AdminPageUI.ADMIN_PROMO_SEARCH, keyword);
-        clickToElement(AdminPageUI.ADMIN_PROMO_SEARCH_BTN);
-        sleepInSecond(2); // cho GET /api/admin/promotions tai lai
+        sleepInSecond(2); // cho debounce 300ms + loc client-side ap dung
     }
 
     /** Tao voucher moi (ma 3-50 ky tu, giam % 1-100, mac dinh toan san, khong gioi han
@@ -1826,23 +1871,27 @@ public class AdminPageObject extends BasePage {
         sleepInSecond(1);
     }
 
-    /** Chon loai giam 'Miễn phí ship' (radio card, dot 21): chon xong KHONG co
-     *  o Gia tri giam, chi hien ghi chu 'Miễn phí phí vận chuyển — không cần
-     *  nhập giá trị.'; luu gui discountValue = 0. */
-    public void clickPromoDiscountTypeFreeShip() {
-        clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FREESHIP);
+    /** Bam phim mui ten Phai tren radio card loai giam dang focus (dot 24:
+     *  radiogroup chuyen loai theo vong Fixed -> Percentage -> FreeShip). */
+    public void pressArrowRightOnPromoDiscountType(String type) {
+        String locator;
+        if ("Fixed".equalsIgnoreCase(type)) {
+            locator = AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FIXED;
+        } else if ("FreeShip".equalsIgnoreCase(type)) {
+            locator = AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FREESHIP;
+        } else {
+            locator = AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_PERCENT;
+        }
+        getWebElement(locator).sendKeys(org.openqa.selenium.Keys.ARROW_RIGHT);
         sleepInSecond(1);
     }
 
-    /** Ghi chu FreeShip co dang hien khong (thay o Gia tri giam). */
-    public boolean isPromoFreeShipNoteDisplayed() {
-        return isElementDisplayed(AdminPageUI.ADMIN_PROMO_FREESHIP_NOTE);
-    }
-
-    /** Dong trang thai o muc Trang thai cua form tao/sua ('Nháp — ...' khi tao
-     *  moi; 'Trạng thái hiện tại: ...' khi sua). */
-    public String getPromoStatusText() {
-        return getElementText(AdminPageUI.ADMIN_PROMO_STATUS_TEXT);
+    /** Chon loai giam 'Miễn phí ship' (radio card, dot 24): chon xong KHONG co
+     *  o Gia tri giam; dai xem truoc hien 'Miễn phí vận chuyển cho ...';
+     *  luu gui discountValue = 0. */
+    public void clickPromoDiscountTypeFreeShip() {
+        clickToElement(AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FREESHIP);
+        sleepInSecond(1);
     }
 
     /** Nhap ngay het han khuyen mai (input type="date", dinh dang yyyy-MM-dd). */
@@ -2160,6 +2209,17 @@ public class AdminPageObject extends BasePage {
         return getElementText(AdminPageUI.ADMIN_RETURN_DETAIL_PAGE);
     }
 
+    /** Nut "← Quay lại" o header trang chi tiet tra hang (dot 24/25). */
+    public boolean isReturnDetailBackBtnDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_RETURN_DETAIL_BACK_BTN);
+    }
+
+    /** Bam nut "← Quay lại" o trang chi tiet tra hang (history-back). */
+    public void clickReturnDetailBackBtn() {
+        clickToElement(AdminPageUI.ADMIN_RETURN_DETAIL_BACK_BTN);
+        waitForElementInvisible(AdminPageUI.ADMIN_RETURN_DETAIL_PAGE);
+    }
+
     /** Ve danh sach tra hang bang breadcrumb [Trả hàng] o dau trang chi tiet
      *  full page (dot 21: khong con nut X Đóng cua Drawer/Modal). */
     public void closeReturnDetailPage() {
@@ -2179,10 +2239,10 @@ public class AdminPageObject extends BasePage {
         sendKeyToElement(AdminPageUI.ADMIN_LOG_DATE_TO, dateTo);
     }
 
-    /** Bam nut icon 'Tìm' o toolbar Nhat ky de ap dung khoang ngay (dot 18:
-     *  nut 'Lọc' rieng da bo, khoang ngay ap dung khi bam Tim). */
+    /** Dot 24/26: nut Tim (logs-search-btn) DA BO — khoang ngay + tu khoa ap
+     *  dung NGAY khi doi (AdminPage onChange); ham nay chi doi loc ap dung.
+     *  Giu ten + chu ky cu de test cu goi duoc. */
     public void clickAuditFilter() {
-        clickToElement(AdminPageUI.ADMIN_LOG_SEARCH_BTN);
         sleepInSecond(2); // cho loc ap dung
     }
 
@@ -2257,6 +2317,23 @@ public class AdminPageObject extends BasePage {
     public void closeOrderCancelPanel() {
         clickToElement(AdminPageUI.ADMIN_ORDER_CANCEL_KEEP_BTN);
         waitForElementInvisible(AdminPageUI.ADMIN_ORDER_CANCEL_PANEL);
+    }
+
+    /** Nut "← Quay lại" o header trang chi tiet don (dot 24/25) co hien khong. */
+    public boolean isOrderDetailBackBtnDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_ORDER_DETAIL_BACK_BTN);
+    }
+
+    /** Breadcrumb "Đơn hàng" o trang chi tiet don (span, khong phai nut). */
+    public boolean isOrderDetailBreadcrumbDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_ORDER_DETAIL_BREADCRUMB);
+    }
+
+    /** Bam nut "← Quay lại" o trang chi tiet don (history-back ve danh sach). */
+    public void clickOrderDetailBackBtn() {
+        clickToElement(AdminPageUI.ADMIN_ORDER_DETAIL_BACK_BTN);
+        waitForElementInvisible(AdminPageUI.ADMIN_ORDER_DETAIL);
+        waitForElementVisible(AdminPageUI.ADMIN_ORDER_SEARCH);
     }
 
     /** Ve danh sach don tu TRANG chi tiet: bam breadcrumb [← Đơn hàng]
@@ -3023,20 +3100,6 @@ public class AdminPageObject extends BasePage {
 
     // ----- Dot 19: method moi tu file test case manual admin v18 -----
 
-    public void addCategoryImageByUrl(String imageUrl) {
-            clickToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_LINK_TOGGLE);
-            sendKeyToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_INPUT, imageUrl);
-            clickToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_ADD_BTN);
-            sleepInSecond(1);
-        }
-
-    public void addProductImageByUrl(String imageUrl) {
-            clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE);
-            sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT, imageUrl);
-            clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_ADD_BTN);
-            sleepInSecond(1); // cho thumbnail them vao form
-        }
-
     public void clickAdjustPointsButton() {
         clickToElement(AdminPageUI.ADMIN_ADJUST_POINTS_BTN);
         sleepInSecond(1); // cho popup F2/F3 hoac loi inline hien ra
@@ -3045,11 +3108,6 @@ public class AdminPageObject extends BasePage {
     public void clickAuditReset() {
             clickToElement(AdminPageUI.ADMIN_LOG_RESET_BTN);
             sleepInSecond(1); // cho loc reset
-        }
-
-    public void clickCategoryImageLinkToggle() {
-            clickToElement(AdminPageUI.ADMIN_CATEGORY_IMAGE_LINK_TOGGLE);
-            sleepInSecond(1);
         }
 
     public void clickChangePasswordCancelButton() {
@@ -3169,12 +3227,17 @@ public class AdminPageObject extends BasePage {
 
     public void clickPromoCancelButton() {
             clickToElement(AdminPageUI.ADMIN_PROMO_CANCEL_BTN);
-            sleepInSecond(1); // cho hop 'Thoát mà chưa lưu?' hien ra (neu form dirty)
+            sleepInSecond(1); // cho hop 'Hủy các thay đổi?' hien ra (neu form dirty)
         }
 
-    public void clickPromoSearchButton() {
-            clickToElement(AdminPageUI.ADMIN_PROMO_SEARCH_BTN);
-            sleepInSecond(2); // cho GET /api/admin/promotions tai lai
+    /** Nut "← Quay lại" o header sticky form KM (dot 24/25). */
+    public boolean isPromoFormBackBtnDisplayed() {
+            return isElementDisplayed(AdminPageUI.ADMIN_PROMO_FORM_BACK_BTN);
+        }
+
+    public void clickPromoFormBackBtn() {
+            clickToElement(AdminPageUI.ADMIN_PROMO_FORM_BACK_BTN);
+            sleepInSecond(1);
         }
 
     /** Bam icon Lượt sử dụng (History) o dong voucher -> mo TRANG Lich su su
@@ -4004,10 +4067,6 @@ public class AdminPageObject extends BasePage {
             return isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_IMAGE_ERROR);
         }
 
-    public boolean isCategoryImageLinkInputDisplayed() {
-            return isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_IMAGE_URL_INPUT);
-        }
-
     public boolean isCategoryImageRetryButtonDisplayed() {
             return isElementDisplayed(AdminPageUI.ADMIN_CATEGORY_IMAGE_RETRY_BTN);
         }
@@ -4163,6 +4222,37 @@ public class AdminPageObject extends BasePage {
     public boolean isPromoDiscountValueInputDisplayed() {
             return isElementDisplayed(AdminPageUI.ADMIN_PROMO_VALUE_INPUT);
         }
+
+    /** Dai xem truoc muc giam (dot 24 phase 1): text realtime theo loai + gia
+     *  tri + don toi thieu; "" neu dai khong hien. */
+    public String getPromoPreviewText() {
+        if (!isElementDisplayed(AdminPageUI.ADMIN_PROMO_VALUE_PREVIEW)) {
+            return "";
+        }
+        return getElementText(AdminPageUI.ADMIN_PROMO_VALUE_PREVIEW);
+    }
+
+    public boolean isPromoPreviewDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PROMO_VALUE_PREVIEW);
+    }
+
+    /** Gia tri dang hien trong o Gia tri giam (da dinh dang dau cham nghin). */
+    public String getPromoDiscountValueInputValue() {
+        return getElementValue(AdminPageUI.ADMIN_PROMO_VALUE_INPUT);
+    }
+
+    /** Radio card loai giam co dang duoc chon khong (aria-checked). */
+    public boolean isPromoDiscountTypeSelected(String type) {
+        String locator;
+        if ("Fixed".equalsIgnoreCase(type)) {
+            locator = AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FIXED;
+        } else if ("FreeShip".equalsIgnoreCase(type)) {
+            locator = AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_FREESHIP;
+        } else {
+            locator = AdminPageUI.ADMIN_PROMO_DISCOUNT_TYPE_PERCENT;
+        }
+        return "true".equals(getElementAttribute(locator, "aria-checked"));
+    }
 
     public boolean isPromoDiscountValueInputEnabled() {
             return isElementEnabled(AdminPageUI.ADMIN_PROMO_VALUE_INPUT);
@@ -4321,11 +4411,11 @@ public class AdminPageObject extends BasePage {
         }
 
     /** Dot 21 — Enter trong o tim don KHONG con tac dung gi (khong co onSearch):
-     *  loc da ap dung ngay khi go (debounce 120ms). Giu ham de test cu goi
+     *  loc da ap dung ngay khi go (debounce 300ms). Giu ham de test cu goi
      *  khong vo; chi cho debounce xong. */
     public void pressEnterInOrderSearch() {
             getWebElement(AdminPageUI.ADMIN_ORDER_SEARCH).sendKeys(org.openqa.selenium.Keys.ENTER);
-            sleepInSecond(2); // cho debounce 120ms + loc client-side ap dung
+            sleepInSecond(2); // cho debounce 300ms + loc client-side ap dung
         }
 
     public void pressEscapeInOrderDetail() {
@@ -4608,7 +4698,7 @@ public class AdminPageObject extends BasePage {
         return isElementDisplayed(AdminPageUI.ADMIN_ORDER_SEARCH_CLEAR_BTN);
     }
 
-    /** Bam nut "×" xoa nhanh: o tim trong, bang ve du don (cho debounce 120ms). */
+    /** Bam nut "×" xoa nhanh: o tim trong, bang ve du don (cho debounce 300ms). */
     public void clickOrderSearchClearButton() {
         clickToElement(AdminPageUI.ADMIN_ORDER_SEARCH_CLEAR_BTN);
         sleepInSecond(1); // cho debounce + loc client-side ap dung
@@ -4629,7 +4719,8 @@ public class AdminPageObject extends BasePage {
         return isElementEnabled(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, "orders"));
     }
 
-    /** Nhan chu cua nut Dat lai o toolbar Don hang (dot 21: "Đặt lại bộ lọc"). */
+    /** Nhan chu cua nut Dat lai o toolbar Don hang — dot 24/26 nut chi con
+     *  icon RotateCcw nen tra "" (nhan "Đặt lại bộ lọc" chi con o aria-label). */
     public String getOrderResetButtonText() {
         return getElementText(getDynamicLocator(AdminPageUI.DYNAMIC_ADMIN_TOOLBAR_RESET_BTN, "orders"));
     }
@@ -4642,6 +4733,28 @@ public class AdminPageObject extends BasePage {
     /** Bam nut "Xóa bộ lọc" trong EmptyState: xoa ca tu khoa + trang thai. */
     public void clickOrderClearFiltersButton() {
         clickToElement(AdminPageUI.ADMIN_ORDER_CLEAR_FILTERS_BTN);
+        sleepInSecond(1); // cho loc client-side ap dung
+    }
+
+    /** Nut "Xóa bộ lọc" trong EmptyState SP (dot 24/26) khi tim/loc khong co ket qua. */
+    public boolean isProductsClearFiltersButtonDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCTS_CLEAR_FILTERS_BTN);
+    }
+
+    /** Bam nut "Xóa bộ lọc" trong EmptyState SP: xoa ca tu khoa + bo loc. */
+    public void clickProductsClearFiltersButton() {
+        clickToElement(AdminPageUI.ADMIN_PRODUCTS_CLEAR_FILTERS_BTN);
+        sleepInSecond(1); // cho loc client-side ap dung
+    }
+
+    /** Nut "Xóa bộ lọc" trong EmptyState KM (dot 24/26) khi tim/loc khong co ket qua. */
+    public boolean isPromosClearFiltersButtonDisplayed() {
+        return isElementDisplayed(AdminPageUI.ADMIN_PROMOS_CLEAR_FILTERS_BTN);
+    }
+
+    /** Bam nut "Xóa bộ lọc" trong EmptyState KM: xoa ca tu khoa + bo loc. */
+    public void clickPromosClearFiltersButton() {
+        clickToElement(AdminPageUI.ADMIN_PROMOS_CLEAR_FILTERS_BTN);
         sleepInSecond(1); // cho loc client-side ap dung
     }
 

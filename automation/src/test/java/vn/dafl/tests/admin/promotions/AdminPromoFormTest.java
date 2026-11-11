@@ -7,6 +7,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import vn.dafl.commons.BaseTest;
 import vn.dafl.pageObjects.AdminPageObject;
+import vn.dafl.pageUIs.AdminPageUI;
 
 /**
  * Test form tao/sua voucher (validation + hanh vi form) tren app Admin rieng localhost:3001
@@ -113,8 +114,8 @@ public class AdminPromoFormTest extends BaseTest {
                 "Form tao voucher phai co o Pham vi ap dung (admin-promo-scope)");
         Assert.assertFalse(adminPage.isPromoStatusToggleDisplayed(),
                 "Trang tao khuyen mai dot 21 KHONG duoc co toggle 'Kích hoạt ngay sau khi tạo'");
-        Assert.assertTrue(adminPage.getPromoStatusText().contains("Nháp"),
-                "Trang tao khuyen mai phai co ghi chu trang thai 'Nháp — khuyến mãi mới được tạo ở trạng thái Nháp.', dang thay: " + adminPage.getPromoStatusText());
+        Assert.assertFalse(adminPage.getPromoFormText().contains("Nháp"),
+                "Dot 24/26: trang tao khuyen mai KHONG con dong trang thai — form KHONG duoc ghi chu 'Nháp', dang thay: " + adminPage.getPromoFormText());
         Assert.assertFalse(adminPage.isPromoFormImageUploadPresent(),
                 "Khuyen mai KHONG co upload anh — form tao voucher khong duoc co muc upload anh");
 
@@ -318,7 +319,7 @@ public class AdminPromoFormTest extends BaseTest {
     }
 
     @Story("Khuyến mãi — form voucher")
-    @Test(description = "ADM19-183 (TC_SCRA06_FUNC_035 + TC_SCRA06_FUNC_036, đợt 21): Đã sửa mà bấm Hủy thì hỏi 'Thoát mà chưa lưu?': mở TRANG sửa voucher Draft thì nút 'Lưu thay đổi' bị disable khi chưa sửa gì, bật lên sau khi sửa Mô tả, lại disable khi trả Mô tả về giá trị ban đầu; sửa Mô tả rồi bấm Hủy → hộp 'Thoát mà chưa lưu?' (2 nút [Ở lại][Thoát]): 'Ở lại' thì trang sửa vẫn mở, dữ liệu đã sửa còn nguyên; 'Thoát' thì về danh sách không lưu")
+    @Test(description = "ADM19-183 (TC_SCRA06_FUNC_035 + TC_SCRA06_FUNC_036, đợt 24/25 viết lại — dialog 'Thoát mà chưa lưu?' -> 'Hủy các thay đổi?', nút 'Thoát' -> 'Rời trang'): Đã sửa mà bấm Hủy thì hỏi 'Hủy các thay đổi?': mở TRANG sửa voucher Draft thì nút 'Lưu thay đổi' bị disable khi chưa sửa gì, bật lên sau khi sửa Mô tả, lại disable khi trả Mô tả về giá trị ban đầu; sửa Mô tả rồi bấm Hủy → hộp 'Hủy các thay đổi?' (2 nút [Ở lại][Rời trang]): 'Ở lại' thì trang sửa vẫn mở, dữ liệu đã sửa còn nguyên; 'Rời trang' thì về danh sách không lưu")
     public void adminPromoEditFormDirtyBehavior() {
         String code = uniquePromoCode();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -343,21 +344,21 @@ public class AdminPromoFormTest extends BaseTest {
                     "Sua o Mo ta lan nua thi nut 'Lưu thay đổi' phai bat len");
             adminPage.clickPromoCancelButton();
             Assert.assertTrue(adminPage.isConfirmDialogDisplayed(),
-                    "Bam 'Hủy' khi form dirty phai mo hop 'Thoát mà chưa lưu?'");
-            Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Thoát mà chưa lưu?",
-                    "Hop dong form dirty phai co tieu de 'Thoát mà chưa lưu?'");
+                    "Bam 'Hủy' khi form dirty phai mo hop 'Hủy các thay đổi?'");
+            Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Hủy các thay đổi?",
+                    "Hop dong form dirty phai co tieu de 'Hủy các thay đổi?'");
             Assert.assertTrue(adminPage.getConfirmDialogText().contains("Các thay đổi bạn vừa nhập sẽ bị mất."),
                     "Hop dong form dirty phai co thong diep 'Các thay đổi bạn vừa nhập sẽ bị mất.'");
             Assert.assertEquals(adminPage.getConfirmDialogFooterButtonCount(), 2,
-                    "Hop 'Thoát mà chưa lưu?' phai CHI co dung 2 nut");
+                    "Hop 'Hủy các thay đổi?' phai CHI co dung 2 nut");
             Assert.assertEquals(adminPage.getConfirmDialogCancelText(), "Ở lại",
                     "Nut trai hop dong form dirty phai la 'Ở lại'");
-            Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Thoát",
-                    "Nut phai hop dong form dirty phai la 'Thoát'");
+            Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Rời trang",
+                    "Nut phai hop dong form dirty phai la 'Rời trang'");
 
             adminPage.clickConfirmNo();
             Assert.assertFalse(adminPage.isConfirmDialogPresent(),
-                    "Bam 'Ở lại' thi hop 'Thoát mà chưa lưu?' phai dong");
+                    "Bam 'Ở lại' thi hop 'Hủy các thay đổi?' phai dong");
             Assert.assertTrue(adminPage.isPromoFormModalDisplayed(),
                     "Bam 'Ở lại' thi trang sua phai van mo");
             Assert.assertEquals(adminPage.getPromoDescriptionInputValue(), editedDescription,
@@ -366,7 +367,7 @@ public class AdminPromoFormTest extends BaseTest {
             adminPage.clickPromoCancelButton();
             adminPage.clickConfirmYes();
             Assert.assertFalse(adminPage.isPromoFormModalPresent(),
-                    "Bam 'Thoát' thi trang sua phai dong ma khong luu (ve danh sach)");
+                    "Bam 'Rời trang' thi trang sua phai dong ma khong luu (ve danh sach)");
         } finally {
             deleteDraftPromoQuietly(adminPage, code);
         }
@@ -396,10 +397,83 @@ public class AdminPromoFormTest extends BaseTest {
         }
     }
 
+    // ---------- Dot 24 phase 1: khoi "Gia tri giam" (radio card / input-group / xem truoc realtime) ----------
+
+    @Story("Khuyến mãi — form voucher")
+    @Test(description = "ADM26-06 (đợt 24 phase 1, MỚI): Khối 'Giá trị giảm' ở trang tạo khuyến mãi — mặc định loại Phần trăm + xem trước mờ 'Nhập mức giảm để xem trước'; chọn Cố định + nhập 1000000 thì ô hiện '1.000.000' (dấu chấm nghìn, hậu tố ₫) + xem trước 'Giảm 1.000.000₫ cho đơn từ 50.000₫' khi đơn tối thiểu 50000; chọn Phần trăm + nhập 15 + giảm tối đa 50000 thì xem trước 'Giảm 15% (tối đa 50.000₫) cho mọi đơn hàng'; phím ArrowRight trên radio card chuyển loại (Phần trăm -> Miễn phí ship) + ô Giá trị biến mất; để trống giá trị rồi Lưu thì lỗi 'Vui lòng bổ sung thông tin bắt buộc.' dưới ô Giá trị, form vẫn mở, không tạo voucher; đóng bằng Hủy")
+    public void adminPromoDiscountBlockTypesPreviewAndEmptySave() {
+        String code = uniquePromoCode();
+        AdminPageObject adminPage = loginAsAdminOrSkip();
+        adminPage.clickAdminNav("promotions");
+        try {
+            adminPage.openPromoForm();
+            Assert.assertTrue(adminPage.isPromoCreatePageDisplayed(),
+                    "Bam '+ Thêm mới' phai mo trang tao khuyen mai full page");
+            // Mac dinh: loai Phan tram + xem truoc mo.
+            Assert.assertTrue(adminPage.isPromoDiscountTypeSelected("Percentage"),
+                    "Mo trang tao khuyen mai thi loai giam mac dinh phai la 'Phần trăm'");
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("Nhập mức giảm để xem trước"),
+                    "Chua nhap muc giam thi dai xem truoc phai ghi 'Nhập mức giảm để xem trước', dang thay: " + adminPage.getPromoPreviewText());
+
+            // (1) Co dinh 1000000 + don toi thieu 50000.
+            adminPage.clickPromoDiscountTypeFixed();
+            Assert.assertTrue(adminPage.isPromoDiscountTypeSelected("Fixed"),
+                    "Bam radio card 'Cố định' thi loai giam phai la 'Cố định'");
+            adminPage.setPromoDiscountValue("1000000");
+            Assert.assertEquals(adminPage.getPromoDiscountValueInputValue(), "1.000.000",
+                    "Nhap 1000000 vao o Gia tri giam (Co dinh) thi o phai hien '1.000.000' (dau cham nghin)");
+            adminPage.sendKeyToElement(AdminPageUI.ADMIN_PROMO_MIN_ORDER_INPUT, "50000");
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("Giảm 1.000.000"),
+                    "Nhap Co dinh 1000000 thi xem truoc phai ghi 'Giảm 1.000.000₫...', dang thay: " + adminPage.getPromoPreviewText());
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("đơn từ 50.000"),
+                    "Nhap don toi thieu 50000 thi xem truoc phai ghi 'cho đơn từ 50.000₫', dang thay: " + adminPage.getPromoPreviewText());
+
+            // (2) Phan tram 15 + giam toi da 50000.
+            adminPage.clickPromoDiscountTypePercent();
+            adminPage.setPromoDiscountValue("15");
+            adminPage.sendKeyToElement(AdminPageUI.ADMIN_PROMO_MAX_DISCOUNT_INPUT, "50000");
+            Assert.assertEquals(adminPage.getPromoDiscountValueInputValue(), "15",
+                    "Nhap 15 vao o Gia tri giam (Phan tram) thi o phai hien '15'");
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("Giảm 15%"),
+                    "Nhap Phan tram 15 thi xem truoc phai ghi 'Giảm 15%...', dang thay: " + adminPage.getPromoPreviewText());
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("tối đa 50.000"),
+                    "Nhap giam toi da 50000 thi xem truoc phai ghi '(tối đa 50.000₫)', dang thay: " + adminPage.getPromoPreviewText());
+
+            // (3) Dieu huong bang phim: ArrowRight tu Phan tram -> Mien phi ship.
+            adminPage.pressArrowRightOnPromoDiscountType("Percentage");
+            Assert.assertTrue(adminPage.isPromoDiscountTypeSelected("FreeShip"),
+                    "Bam ArrowRight tren radio card 'Phần trăm' thi loai giam phai chuyen sang 'Miễn phí ship'");
+            Assert.assertFalse(adminPage.isPromoDiscountValueInputDisplayed(),
+                    "Chon loai 'Miễn phí ship' thi o Gia tri giam phai bien mat");
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("Miễn phí vận chuyển"),
+                    "Chon loai 'Miễn phí ship' thi xem truoc phai ghi 'Miễn phí vận chuyển...', dang thay: " + adminPage.getPromoPreviewText());
+
+            // (4) De trong gia tri (quay lai Phan tram) roi Luu -> loi, khong tao voucher.
+            adminPage.clickPromoDiscountTypePercent();
+            adminPage.setPromoDiscountValue("");
+            adminPage.fillPromoForm(code, "Voucher test ADM26-06 de trong gia tri", "Percentage", "", "", "", "", "2027-12-31");
+            adminPage.clickPromoSaveButton();
+            adminPage.sleepInSecond(1);
+            Assert.assertEquals(adminPage.getPromoFieldErrorText("value"), "Vui lòng bổ sung thông tin bắt buộc.",
+                    "De trong Gia tri giam (Phan tram) roi Luu thi loi duoi o Gia tri giam phai la 'Vui lòng bổ sung thông tin bắt buộc.'");
+            Assert.assertTrue(adminPage.isPromoFormModalDisplayed(),
+                    "Luu that bai do thieu Gia tri giam thi form phai van mo (khong goi POST)");
+
+            adminPage.cancelPromoForm();
+            Assert.assertFalse(adminPage.isPromoFormModalPresent(),
+                    "Dong form xong khong duoc con thay form khuyen mai");
+            adminPage.searchPromos(code);
+            Assert.assertEquals(adminPage.getAdminTableRowCount(), 0,
+                    "Luu that bai thi khong duoc tao voucher '" + code + "'");
+        } finally {
+            deleteDraftPromoQuietly(adminPage, code);
+        }
+    }
+
     // ---------- Dot 21: FreeShip khong yeu cau nhap gia tri (chot diem [CAN XAC MINH] cu) ----------
 
     @Story("Khuyến mãi — form voucher")
-    @Test(description = "ADM21-01 (đợt 21, FreeShip — chốt điểm [CẦN XÁC MINH] cũ: FreeShip KHÔNG yêu cầu nhập giá trị, 0 được phép): Chọn radio card 'Miễn phí ship' ở trang tạo mới → ô Giá trị giảm biến mất, hiện ghi chú 'Miễn phí phí vận chuyển — không cần nhập giá trị.'; nhập mã + mô tả + đơn tối thiểu rồi Lưu → tạo thành công ở trạng thái Nháp, bảng hiện giá trị 'Freeship'; dọn dẹp: xóa voucher Draft")
+    @Test(description = "ADM21-01 (đợt 21, FreeShip — chốt điểm [CẦN XÁC MINH] cũ: FreeShip KHÔNG yêu cầu nhập giá trị, 0 được phép; đợt 24 viết lại — ghi chú FreeShip ĐÃ BỎ, thay bằng dải xem trước): Chọn radio card 'Miễn phí ship' ở trang tạo mới → ô Giá trị giảm biến mất, dải xem trước hiện 'Miễn phí vận chuyển cho mọi đơn hàng'; nhập mã + mô tả + đơn tối thiểu rồi Lưu → tạo thành công ở trạng thái Nháp, bảng hiện giá trị 'Freeship'; dọn dẹp: xóa voucher Draft")
     public void adminPromoCreateFreeShipWithoutValue() {
         String code = uniquePromoCode();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -411,8 +485,10 @@ public class AdminPromoFormTest extends BaseTest {
             adminPage.clickPromoDiscountTypeFreeShip();
             Assert.assertFalse(adminPage.isPromoDiscountValueInputDisplayed(),
                     "Chon loai 'Miễn phí ship' thi o Gia tri giam phai bien mat (khong can nhap gia tri)");
-            Assert.assertTrue(adminPage.isPromoFreeShipNoteDisplayed(),
-                    "Chon loai 'Miễn phí ship' thi phai hien ghi chu 'Miễn phí phí vận chuyển — không cần nhập giá trị.'");
+            Assert.assertTrue(adminPage.isPromoPreviewDisplayed(),
+                    "Chon loai 'Miễn phí ship' thi dai xem truoc muc giam phai hien");
+            Assert.assertTrue(adminPage.getPromoPreviewText().contains("Miễn phí vận chuyển"),
+                    "Chon loai 'Miễn phí ship' thi dai xem truoc phai ghi 'Miễn phí vận chuyển...', dang thay: " + adminPage.getPromoPreviewText());
             adminPage.fillPromoForm(code, "Voucher test ADM21-01 FreeShip", "FreeShip",
                     "", "0", "", "", "2027-12-31");
             adminPage.savePromoForm();

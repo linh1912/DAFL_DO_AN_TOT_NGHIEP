@@ -265,7 +265,7 @@ public class AdminUploadTest extends BaseTest {
     // ---------- Wave 19: gap SCR_04 (hanh vi upload anh form SP) ----------
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-112 (TC_SCRA04_FUNC_066): Dropzone upload ảnh SP — mở form Thêm SP: dropzone hiển thị hint 'Kéo thả ảnh vào đây hoặc bấm để chọn từ máy tính' + 'PNG, JPG, WEBP – tối đa 5MB – tối đa 8 ảnh'; input file thật (admin-product-image-input) hiển thị + bật được (visually-hidden để Selenium sendKeys); nút 'Hoặc dán link ảnh' hiển thị; đóng form không lưu")
+    @Test(description = "ADM19-112 (TC_SCRA04_FUNC_066, đợt 26 viết lại — nút 'Hoặc dán link ảnh' ĐÃ BỎ): Dropzone upload ảnh SP — mở form Thêm SP: dropzone hiển thị hint 'Kéo thả ảnh vào đây hoặc bấm để chọn từ máy tính' + 'PNG, JPG, WEBP – tối đa 5MB – tối đa 8 ảnh'; input file thật (admin-product-image-input) hiển thị + bật được (visually-hidden để Selenium sendKeys); KHÔNG còn nút 'Hoặc dán link ảnh'; đóng form không lưu")
     public void adminProductImageDropzoneShowsHintTextAndRealFileInput() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("products");
@@ -281,8 +281,8 @@ public class AdminUploadTest extends BaseTest {
                 "Form them SP phai co input file that (admin-product-image-input) de Selenium sendKeys");
         Assert.assertTrue(adminPage.isElementEnabled(AdminPageUI.ADMIN_PRODUCT_IMAGE_INPUT),
                 "Input file anh SP phai bat duoc (khong disabled)");
-        Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE),
-                "Form them SP phai co nut 'Hoặc dán link ảnh'");
+        Assert.assertFalse(adminPage.getProductFormModalText().contains("Hoặc dán link ảnh"),
+                "Dot 26 da bo dan link anh — form them SP KHONG duoc con nut 'Hoặc dán link ảnh'");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
@@ -290,26 +290,19 @@ public class AdminUploadTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-113 (TC_SCRA04_FUNC_074/080): Thêm ảnh SP bằng dán link — bấm 'Hoặc dán link ảnh' thì ô nhập link hiện; bấm lại thì ô ẩn; dán link 'https://example.com/a.jpg' rồi bấm 'Thêm' thì hiện thumbnail-0 + nhận 'Ảnh chính', ô nhập link đóng lại sau khi thêm; đóng form không lưu")
+    @Test(description = "ADM19-113 (TC_SCRA04_FUNC_074/080, đợt 26 viết lại — dán link ảnh ĐÃ BỎ): Thêm ảnh SP bằng file upload — chọn 1 file ảnh qua dropzone thì hiện thumbnail-0 + nhận 'Ảnh chính'; form KHÔNG còn nút 'Hoặc dán link ảnh'; đóng form không lưu")
     public void adminAddProductImageByUrlAddsThumbnail() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("products");
         adminPage.openProductFormModal();
+        Assert.assertFalse(adminPage.getProductFormModalText().contains("Hoặc dán link ảnh"),
+                "Dot 26 da bo dan link anh — form them SP KHONG duoc con nut 'Hoặc dán link ảnh'");
 
-        adminPage.clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE);
-        Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT),
-                "Bam 'Hoặc dán link ảnh' thi o nhap link anh SP phai hien");
-        adminPage.clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE);
-        Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT),
-                "Bam lai 'Hoặc dán link ảnh' thi o nhap link anh SP phai an");
-
-        adminPage.addProductImageByUrl("https://example.com/a.jpg");
+        adminPage.uploadProductImage(getTestResourcePath(IMAGE_1));
         Assert.assertTrue(adminPage.isProductImageThumbDisplayed(0),
-                "Dan link 'https://example.com/a.jpg' roi bam 'Thêm' thi phai hien thumbnail anh thu 0");
+                "Upload 1 file anh xong phai hien thumbnail anh thu 0");
         Assert.assertTrue(adminPage.isProductImageMainBadgeDisplayed(0),
-                "Anh dau tien them bang link phai la anh chinh (nhan 'Ảnh chính' tren thumbnail 0)");
-        Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT),
-                "Them link anh xong o nhap link phai dong lai");
+                "Anh dau tien upload phai la anh chinh (nhan 'Ảnh chính' tren thumbnail 0)");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
@@ -317,20 +310,18 @@ public class AdminUploadTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-114 (TC_SCRA04_FUNC_075): Dán link ảnh SP không phải http(s) → từ chối inline — dán link 'ftp://example.com/a.jpg' rồi bấm 'Thêm' thì lỗi inline 'Link ảnh phải bắt đầu bằng http:// hoặc https://.' (admin-product-image-error), không thêm thumbnail nào; đóng form không lưu")
+    @Test(description = "ADM19-114 (TC_SCRA04_FUNC_075, đợt 26 viết lại — dán link ảnh ĐÃ BỎ, ca ftp link không còn): Upload file sai định dạng (.txt) → từ chối inline — chọn file .txt thì thumbnail lỗi hiện 'Định dạng không được hỗ trợ (chỉ PNG, JPG, WEBP).' + toast 'Định dạng ảnh không hỗ trợ', không có thumbnail ready nào; đóng form không lưu")
     public void adminAddProductImageByInvalidUrlShowsInlineError() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("products");
         adminPage.openProductFormModal();
 
-        adminPage.clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE);
-        adminPage.sendKeyToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_INPUT, "ftp://example.com/a.jpg");
-        adminPage.clickToElement(AdminPageUI.ADMIN_PRODUCT_IMAGE_URL_ADD_BTN);
-        adminPage.sleepInSecond(1);
-        Assert.assertEquals(adminPage.getProductImageErrorText(), "Link ảnh phải bắt đầu bằng http:// hoặc https://.",
-                "Dan link 'ftp://...' thi phai bao loi inline 'Link ảnh phải bắt đầu bằng http:// hoặc https://.'");
-        Assert.assertEquals(adminPage.getProductImageThumbCount(), 0,
-                "Dan link anh khong hop le thi khong duoc them thumbnail nao");
+        adminPage.uploadProductImage(getTestResourcePath(INVALID_FILE));
+        java.util.List<String> toasts = adminPage.getAllToastTexts();
+        Assert.assertTrue(toasts.stream().anyMatch(t -> t.contains("Định dạng ảnh không hỗ trợ")),
+                "Upload file .txt lam anh SP thi phai hien toast 'Định dạng ảnh không hỗ trợ', dang thay: " + toasts);
+        Assert.assertEquals(adminPage.getProductImageThumbErrorText(0), "Định dạng không được hỗ trợ (chỉ PNG, JPG, WEBP).",
+                "Upload file .txt lam anh SP thi thumbnail loi phai hien 'Định dạng không được hỗ trợ (chỉ PNG, JPG, WEBP).'");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
@@ -338,16 +329,16 @@ public class AdminUploadTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-115 (TC_SCRA04_FUNC_078): Xóa 1 ảnh khỏi danh sách thumbnail — thêm 2 ảnh bằng link, bấm nút Xóa ở thumbnail 0 thì còn 1 thumbnail, ảnh còn lại trở thành ảnh chính (nhận 'Ảnh chính' ở thumbnail 0); đóng form không lưu")
+    @Test(description = "ADM19-115 (TC_SCRA04_FUNC_078, đợt 26 viết lại — dán link ảnh ĐÃ BỎ): Xóa 1 ảnh khỏi danh sách thumbnail — upload 2 ảnh bằng file, bấm nút Xóa ở thumbnail 0 thì còn 1 thumbnail, ảnh còn lại trở thành ảnh chính (nhận 'Ảnh chính' ở thumbnail 0); đóng form không lưu")
     public void adminRemoveProductImageByThumbnailButton() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("products");
         adminPage.openProductFormModal();
 
-        adminPage.addProductImageByUrl("https://example.com/xoa-1.jpg");
-        adminPage.addProductImageByUrl("https://example.com/xoa-2.jpg");
+        adminPage.uploadProductImage(getTestResourcePath(IMAGE_1));
+        adminPage.uploadProductImage(getTestResourcePath(IMAGE_2));
         Assert.assertEquals(adminPage.getProductImageThumbCount(), 2,
-                "Them 2 anh bang link xong form phai co dung 2 thumbnail");
+                "Upload 2 anh bang file xong form phai co dung 2 thumbnail");
         Assert.assertTrue(adminPage.isProductImageMainBadgeDisplayed(0),
                 "Truoc khi xoa, nhan 'Ảnh chính' phai o thumbnail 0 (anh dau tien)");
 
@@ -363,23 +354,24 @@ public class AdminUploadTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-116 (TC_SCRA04_FUNC_079): Tối đa 8 ảnh cho 1 SP — thêm 8 ảnh bằng link thì đủ 8 thumbnail; thêm link thứ 9 thì lỗi inline 'Tối đa 8 ảnh.', vẫn 8 thumbnail; chọn thêm 1 file ảnh từ máy khi đã đủ 8 thì toast 'Đã đạt số ảnh tối đa' + lỗi inline 'Tối đa 8 ảnh.', vẫn 8 thumbnail; đóng form không lưu")
+    @Test(description = "ADM19-116 (TC_SCRA04_FUNC_079, đợt 26 viết lại — dán link ảnh ĐÃ BỎ, chỉ còn upload file): Tối đa 8 ảnh cho 1 SP — upload 8 ảnh bằng file (xen kẽ 2 file test) thì đủ 8 thumbnail; upload file thứ 9 thì lỗi inline 'Tối đa 8 ảnh.' + toast 'Đã đạt số ảnh tối đa', vẫn 8 thumbnail; đóng form không lưu")
     public void adminProductImageMaxEightLimit() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("products");
         adminPage.openProductFormModal();
 
+        // Dot 26: chi con upload file — xen ke 2 file test de du 8 anh.
         for (int i = 1; i <= 8; i++) {
-            adminPage.addProductImageByUrl("https://example.com/max-" + i + ".jpg");
+            adminPage.uploadProductImage(getTestResourcePath(i % 2 == 1 ? IMAGE_1 : IMAGE_2));
         }
         Assert.assertEquals(adminPage.getProductImageThumbCount(), 8,
-                "Them 8 anh bang link xong form phai co dung 8 thumbnail");
+                "Upload 8 anh bang file xong form phai co dung 8 thumbnail");
 
-        adminPage.addProductImageByUrl("https://example.com/max-9.jpg");
+        adminPage.uploadProductImage(getTestResourcePath(IMAGE_1));
         Assert.assertEquals(adminPage.getProductImageErrorText(), "Tối đa 8 ảnh.",
-                "Them link anh thu 9 thi phai bao loi inline 'Tối đa 8 ảnh.'");
+                "Upload file anh thu 9 thi phai bao loi inline 'Tối đa 8 ảnh.'");
         Assert.assertEquals(adminPage.getProductImageThumbCount(), 8,
-                "Them link anh thu 9 bi chan thi van chi co 8 thumbnail");
+                "Upload file anh thu 9 bi chan thi van chi co 8 thumbnail");
 
         adminPage.uploadProductImage(getTestResourcePath(IMAGE_1));
         java.util.List<String> toasts = adminPage.getAllToastTexts();

@@ -176,10 +176,10 @@ public class AdminCustomerTest extends BaseTest {
         Assert.assertFalse(modalText.contains("Đơn hàng gần đây"),
                 "Trang xem KH dot 21 KHONG con muc don gan day, dang thay: " + modalText);
         java.util.List<String> footerTexts = adminPage.getPageHeadButtonTexts("admin-customer-detail-page");
-        Assert.assertEquals(footerTexts.size(), 2,
-                "Header trang xem dot 21 phai CHI co dung 2 nut, dang thay: " + footerTexts);
-        Assert.assertTrue(footerTexts.contains("Đóng") && footerTexts.contains("Chỉnh sửa"),
-                "Header trang xem phai la [Đóng] + [Chỉnh sửa], dang thay: " + footerTexts);
+        Assert.assertEquals(footerTexts.size(), 3,
+                "Header trang xem dot 24/25 phai co dung 3 nut, dang thay: " + footerTexts);
+        Assert.assertTrue(footerTexts.contains("Quay lại") && footerTexts.contains("Đóng") && footerTexts.contains("Chỉnh sửa"),
+                "Header trang xem phai la [Quay lại] + [Đóng] + [Chỉnh sửa], dang thay: " + footerTexts);
 
         adminPage.closeCustomerDetailModal();
         Assert.assertFalse(adminPage.isCustomerDetailPageDisplayed(),
@@ -348,7 +348,7 @@ public class AdminCustomerTest extends BaseTest {
     }
 
     @Story("Khách hàng")
-    @Test(description = "ADM19-187 (TC_SCRA07_UI_005): Toolbar Khách hàng đợt 18 có ô tìm placeholder 'Tìm email, tên, SĐT...', dropdown lọc hạng (Tất cả hạng/Thường/Bạc/Vàng/Kim cương, locate bằng aria-label 'Lọc hạng' vì chưa có testid), dropdown lọc trạng thái, nút icon Tìm (Lucide Search) + nút icon Đặt lại (Lucide RotateCcw); KHÔNG có nút Thêm mới/Export/Làm mới")
+    @Test(description = "ADM19-187 (TC_SCRA07_UI_005, đợt 24/26 viết lại — dropdown mặc định 'Tất cả hạng'/'Tất cả' -> 'Hạng'/'Trạng thái', KHÔNG còn nút Tìm riêng): Toolbar Khách hàng đợt 18 có ô tìm placeholder 'Tìm email, tên, SĐT...' (icon Tìm trong ô tìm), dropdown lọc hạng (Hạng/Thường/Bạc/Vàng/Kim cương, locate bằng aria-label 'Lọc hạng' vì chưa có testid), dropdown lọc trạng thái, nút icon Đặt lại (Lucide RotateCcw); KHÔNG có nút Thêm mới/Export/Làm mới")
     public void adminCustomerToolbarHasSearchTierStatusFilters() {
         AdminPageObject adminPage = openAdminTab("customers");
         Assert.assertEquals(adminPage.getCustomerSearchPlaceholder(), "Tìm email, tên, SĐT...",
@@ -356,13 +356,13 @@ public class AdminCustomerTest extends BaseTest {
         Assert.assertTrue(adminPage.isCustomerTierFilterDisplayed(),
                 "Toolbar Khach hang phai co dropdown loc hang (aria-label 'Lọc hạng')");
         Assert.assertEquals(adminPage.getCustomerTierFilterOptions(),
-                Arrays.asList("Tất cả hạng", "Thường", "Bạc", "Vàng", "Kim cương"),
+                Arrays.asList("Hạng", "Thường", "Bạc", "Vàng", "Kim cương"),
                 "Dropdown loc hang phai co du 5 lua chon");
         Assert.assertEquals(adminPage.getCustomerStatusFilterOptions(),
-                Arrays.asList("Tất cả", "Hoạt động", "Đã khoá"),
+                Arrays.asList("Trạng thái", "Hoạt động", "Đã khoá"),
                 "Dropdown loc trang thai phai co du 3 lua chon");
-        Assert.assertTrue(adminPage.isToolbarSearchButtonDisplayed("customers"),
-                "Toolbar Khach hang phai co nut icon Tim");
+        Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("customers"),
+                "Toolbar Khach hang dot 24/26 KHONG con nut icon Tim rieng");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("customers"),
                 "Toolbar Khach hang phai co nut icon Dat lai");
         Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("customers"),
@@ -412,7 +412,7 @@ public class AdminCustomerTest extends BaseTest {
     }
 
     @Story("Khách hàng")
-    @Test(description = "ADM19-189 (TC_SCRA07_FUNC_008 + TC_SCRA07_FUNC_009): Dropdown Trạng thái lọc client-side — chọn 'Đã khoá' chỉ hiện khách bị khoá (Switch tắt), 'Hoạt động' chỉ hiện khách chưa khoá (Switch bật), 'Tất cả' hiện lại toàn bộ khách đã tải")
+    @Test(description = "ADM19-189 (TC_SCRA07_FUNC_008 + TC_SCRA07_FUNC_009, đợt 24/26: lựa chọn mặc định 'Tất cả' -> 'Trạng thái'): Dropdown Trạng thái lọc client-side — chọn 'Đã khoá' chỉ hiện khách bị khoá (Switch tắt), 'Hoạt động' chỉ hiện khách chưa khoá (Switch bật), 'Trạng thái' hiện lại toàn bộ khách đã tải")
     public void adminCustomerStatusFilterActiveLockedAll() {
         AdminPageObject adminPage = openAdminTab("customers");
         int total = adminPage.getPaginationTotalRows("customers");
@@ -442,7 +442,7 @@ public class AdminCustomerTest extends BaseTest {
             }
             adminPage.selectStatusFilterByValue("");
             Assert.assertEquals(adminPage.getPaginationTotalRows("customers"), total,
-                    "Chon 'Tất cả' phai hien lai toan bo " + total + " khach da tai");
+                    "Chon 'Trạng thái' phai hien lai toan bo " + total + " khach da tai");
         } finally {
             adminPage.selectStatusFilterByValue("");
         }
@@ -465,9 +465,9 @@ public class AdminCustomerTest extends BaseTest {
         Assert.assertEquals(adminPage.getCustomerSearchValue(), "",
                 "Bam Dat lai xong o tim phai trong");
         Assert.assertEquals(adminPage.getCustomerTierFilterValue(), "",
-                "Bam Dat lai xong loc hang phai ve 'Tất cả hạng'");
+                "Bam Dat lai xong loc hang phai ve 'Hạng'");
         Assert.assertEquals(adminPage.getStatusFilterValue(), "",
-                "Bam Dat lai xong loc trang thai phai ve 'Tất cả'");
+                "Bam Dat lai xong loc trang thai phai ve 'Trạng thái'");
         Assert.assertEquals(adminPage.getPaginationCurrentPage("customers"), 1,
                 "Bam Dat lai xong phan trang phai ve trang 1");
         Assert.assertEquals(adminPage.getPaginationTotalRows("customers"), total,
@@ -762,7 +762,7 @@ public class AdminCustomerTest extends BaseTest {
     }
 
     @Story("Khách hàng")
-    @Test(description = "ADM19-198 (TC_SCRA07_FUNC_028): Sửa Họ tên rồi bấm Hủy → hộp 'Thoát mà chưa lưu?' đúng 2 nút [Ở lại]+[Thoát]; bấm 'Ở lại' thì form vẫn mở, dữ liệu đã sửa còn nguyên; bấm 'Thoát' thì đóng form không lưu; chưa sửa gì mà bấm Hủy thì đóng luôn không hỏi")
+    @Test(description = "ADM19-198 (TC_SCRA07_FUNC_028, đợt 24/25 viết lại — dialog 'Thoát mà chưa lưu?' -> 'Hủy các thay đổi?', nút 'Thoát' -> 'Rời trang'): Sửa Họ tên rồi bấm Hủy → hộp 'Hủy các thay đổi?' đúng 2 nút [Ở lại]+[Rời trang]; bấm 'Ở lại' thì form vẫn mở, dữ liệu đã sửa còn nguyên; bấm 'Rời trang' thì đóng form không lưu; chưa sửa gì mà bấm Hủy thì đóng luôn không hỏi")
     public void adminCustomerEditDirtyConfirmOnCancel() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("customers");
@@ -777,14 +777,14 @@ public class AdminCustomerTest extends BaseTest {
         adminPage.setCustomerName(editedName);
         adminPage.clickCustomerCancelButtonOnly();
         adminPage.waitForElementVisible(AdminPageUI.CONFIRM_DIALOG);
-        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Thoát mà chưa lưu?",
-                "Sua roi bam Huy phai hoi 'Thoát mà chưa lưu?', dang thay: " + adminPage.getConfirmDialogTitle());
+        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Hủy các thay đổi?",
+                "Sua roi bam Huy phai hoi 'Hủy các thay đổi?', dang thay: " + adminPage.getConfirmDialogTitle());
         Assert.assertEquals(adminPage.getConfirmDialogFooterButtonCount(), 2,
-                "Hop 'Thoát mà chưa lưu?' phai CHI co dung 2 nut");
+                "Hop 'Hủy các thay đổi?' phai CHI co dung 2 nut");
         Assert.assertEquals(adminPage.getConfirmDialogCancelText(), "Ở lại",
                 "Nut trai cua hop dirty phai la 'Ở lại', dang thay: " + adminPage.getConfirmDialogCancelText());
-        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Thoát",
-                "Nut phai cua hop dirty phai la 'Thoát', dang thay: " + adminPage.getConfirmDialogConfirmText());
+        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Rời trang",
+                "Nut phai cua hop dirty phai la 'Rời trang', dang thay: " + adminPage.getConfirmDialogConfirmText());
         adminPage.clickConfirmDialogCancel();
         adminPage.waitForElementInvisible(AdminPageUI.CONFIRM_DIALOG);
         Assert.assertTrue(adminPage.isCustomerFormDisplayed(),
@@ -796,20 +796,20 @@ public class AdminCustomerTest extends BaseTest {
         adminPage.clickConfirmDialogConfirm();
         adminPage.waitForElementInvisible(AdminPageUI.ADMIN_CUSTOMER_FORM);
         Assert.assertFalse(adminPage.isCustomerFormDisplayed(),
-                "Bam 'Thoát' thi form phai dong khong luu");
+                "Bam 'Rời trang' thi form phai dong khong luu");
 
         // Mo lai form: chua sua gi ma bam Huy thi dong luon, khong hoi.
         adminPage.openCustomerEditForm(GlobalConstants.DEMO_FULL_NAME);
         adminPage.clickCustomerCancelButtonOnly();
         sleepInSecond(1);
         Assert.assertFalse(adminPage.isConfirmDialogPresent(),
-                "Chua sua gi ma bam Huy thi KHONG duoc hoi 'Thoát mà chưa lưu?'");
+                "Chua sua gi ma bam Huy thi KHONG duoc hoi 'Hủy các thay đổi?'");
         Assert.assertFalse(adminPage.isCustomerFormDisplayed(),
                 "Chua sua gi ma bam Huy thi form phai dong luon");
     }
 
     @Story("Khách hàng")
-    @Test(description = "ADM19-199 (TC_SCRA07_UI_029 + TC_SCRA07_UI_030): KHÔNG có form tạo khách mới và KHÔNG xóa khách — toolbar không nút Thêm mới/Export, cột Thao tác chỉ có mắt Xem + bút Sửa (không nút Xóa), form xem footer chỉ [Đóng]+[Chỉnh sửa]")
+    @Test(description = "ADM19-199 (TC_SCRA07_UI_029 + TC_SCRA07_UI_030, đợt 24/25: footer trang xem thêm nút 'Quay lại'): KHÔNG có form tạo khách mới và KHÔNG xóa khách — toolbar không nút Thêm mới/Export, cột Thao tác chỉ có mắt Xem + bút Sửa (không nút Xóa), form xem header [Quay lại]+[Đóng]+[Chỉnh sửa]")
     public void adminCustomerHasNoCreateOrDeleteCustomer() {
         AdminPageObject adminPage = openAdminTab("customers");
         Assert.assertFalse(adminPage.isToolbarAddButtonPresent("customers"),
@@ -833,10 +833,10 @@ public class AdminCustomerTest extends BaseTest {
         Assert.assertTrue(adminPage.isCustomerDetailPageDisplayed(),
                 "Phai mo duoc trang xem khach hang full page (admin-customer-detail-page)");
         List<String> footerTexts = adminPage.getPageHeadButtonTexts("admin-customer-detail-page");
-        Assert.assertEquals(footerTexts.size(), 2,
-                "Header trang xem KH phai CHI co dung 2 nut, dang thay: " + footerTexts);
-        Assert.assertTrue(footerTexts.contains("Đóng") && footerTexts.contains("Chỉnh sửa"),
-                "Header trang xem KH phai la [Đóng] + [Chỉnh sửa], dang thay: " + footerTexts);
+        Assert.assertEquals(footerTexts.size(), 3,
+                "Header trang xem KH dot 24/25 phai co dung 3 nut, dang thay: " + footerTexts);
+        Assert.assertTrue(footerTexts.contains("Quay lại") && footerTexts.contains("Đóng") && footerTexts.contains("Chỉnh sửa"),
+                "Header trang xem KH phai la [Quay lại] + [Đóng] + [Chỉnh sửa], dang thay: " + footerTexts);
         adminPage.closeCustomerDetailModal();
         Assert.assertFalse(adminPage.isCustomerDetailPageDisplayed(),
                 "Dong trang xem xong khong duoc con thay trang xem khach hang");

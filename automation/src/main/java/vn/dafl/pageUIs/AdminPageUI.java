@@ -21,8 +21,10 @@ package vn.dafl.pageUIs;
  *  A3 chan xoa DM [Đã hiểu] + link, G4 phien het han [Đăng nhập lại];
  *  ly do khoa co bo dem confirm-dialog-reason-counter, toi da 300 ky tu;
  *  XOA khong phan biet hoa thuong); toolbar chuan PageToolbar
- *  ({prefix}-search-input/-search-btn/-reset-btn/-add-btn, prefix tran
+ *  ({prefix}-search-input/-reset-btn/-add-btn, prefix tran
  *  orders/products/categories/promotions/customers/reviews/returns/logs, KHÔNG
+ *  con -search-btn tu dot 24/26 (chi giu DYNAMIC_ADMIN_TOOLBAR_SEARCH_BTN lam
+ *  locator khang dinh am);
  *  refresh, Thêm mới sát phải nhất, icon Lucide Search/RotateCcw);
  *  menu PHANG (wave D: tieu de nhom admin-nav-group-{sales|products|
  *  customers|system} la <div> KHONG bam duoc, ten dang tieu de 'Bán hàng /
@@ -70,8 +72,10 @@ public class AdminPageUI {
     // trong EmptyState khi tim/loc khong co ket qua.
     public static final String ADMIN_ORDER_RESULT_COUNT = "css=[data-testid='admin-orders-result-count']";
     public static final String ADMIN_ORDER_CLEAR_FILTERS_BTN = "css=[data-testid='admin-orders-clear-filters-btn']";
+    public static final String ADMIN_PRODUCTS_CLEAR_FILTERS_BTN = "css=[data-testid='admin-products-clear-filters-btn']";
+    public static final String ADMIN_PROMOS_CLEAR_FILTERS_BTN = "css=[data-testid='admin-promos-clear-filters-btn']";
     public static final String ADMIN_PRODUCT_SEARCH = "css=[data-testid='products-search-input']";
-    // Dot 21 — toolbar SP loc ngay (debounce 120ms) nen KHONG con nut icon
+    // Dot 21 — toolbar SP loc ngay (debounce 300ms) nen KHONG con nut icon
     // 'Tìm' (products-search-btn da bo) — tim chi go tu khoa + cho loc ap dung.
     public static final String ADMIN_PRODUCT_SEARCH_CLEAR_BTN = "css=[data-testid='products-search-clear-btn']";
     public static final String ADMIN_PRODUCT_RESET_BTN = "css=[data-testid='products-reset-btn']";
@@ -218,21 +222,25 @@ public class AdminPageUI {
 
     // ---------- Toolbar chuan + phan trang + form Drawer (dot 18 wave D) ----------
     // Toolbar moi (PageToolbar) ngay tren moi bang: ben TRAI o tim kiem cua muc
-    // + filter; ben PHAI nut icon "Tìm" + nut icon "Đặt lại" + nut "Thêm mới"
+    // + filter; ben PHAI nut icon "Đặt lại" (RotateCcw) + nut "Thêm mới"
     // primary SAT PHAI NHAT (chi muc nao co them moi). KHONG co nut "Làm mới",
-    // KHONG co Export. Muc Tong quan KHONG co toolbar/phan trang; bang hang hoi
-    // vien chi 4 dong nen KHONG phan trang. Icon nut Tim / Dat lai la Lucide
+    // KHONG co Export, KHONG con nut Tim rieng, KHONG con nut chu "Đặt lại bộ
+    // lọc" (dot 24/26: nut Dat lai chi con icon vuong 38px, aria-label/title
+    // "Đặt lại bộ lọc", disabled khi chua loc; icon Tim (Lucide Search) nam
+    // TRONG o tim kiem). Muc Tong quan KHONG co toolbar/phan trang; bang hang
+    // hoi vien chi 4 dong nen KHONG phan trang. Icon Tim / Dat lai la Lucide
     // Search / RotateCcw (svg 18px), KHONG con emoji 🔍/↺.
-    // Dot 21 NGOAI LE chi muc Don hang: KHONG nut Tim; nut Dat lai la nut chu
-    // "Đặt lại bộ lọc" (disable khi chua loc); o tim co nut "×" xoa nhanh.
+    // Dot 21: muc Don hang co nut "×" xoa nhanh trong o tim khi co chu.
     // Nut "Đặt lại" cua tung muc (prefix tran: orders/products/categories/
     // promotions/customers/reviews/returns/logs — KHONG con tien to 'admin-').
     public static final String DYNAMIC_ADMIN_TOOLBAR_RESET_BTN = "css=[data-testid='%s-reset-btn']";
     public static final String DYNAMIC_ADMIN_TOOLBAR_SEARCH_BTN = "css=[data-testid='%s-search-btn']";
     public static final String DYNAMIC_ADMIN_TOOLBAR_ADD_BTN = "css=[data-testid='%s-add-btn']";
-    // Icon Lucide trong nut Tim / Dat lai cua toolbar (prefix tran).
+    // Icon Lucide trong o tim kiem / nut Dat lai cua toolbar (prefix tran).
+    // Dot 24/26: icon Tim nam trong <span class="sa-page-toolbar-search-icon">
+    // ke truoc input (KHONG con nut Tim rieng %s-search-btn).
     public static final String DYNAMIC_ADMIN_TOOLBAR_SEARCH_ICON =
-            "css=[data-testid='%s-search-btn'] svg.lucide-search";
+            "xpath=//*[@data-testid='%s-search-input']/preceding-sibling::span[contains(@class,'sa-page-toolbar-search-icon')]//svg[contains(@class,'lucide-search')]";
     public static final String DYNAMIC_ADMIN_TOOLBAR_RESET_ICON =
             "css=[data-testid='%s-reset-btn'] svg.lucide-rotate-ccw";
     // Khoi toolbar dau tien tren trang (dung de khang dinh am: khong emoji).
@@ -283,6 +291,7 @@ public class AdminPageUI {
     public static final String ADMIN_CATEGORY_SEARCH = "css=[data-testid='categories-search-input']";
     public static final String ADMIN_CATEGORY_SEARCH_BTN = "css=[data-testid='categories-search-btn']";
     public static final String ADMIN_CATEGORY_FORM = "css=[data-testid='admin-category-form']";
+    public static final String ADMIN_CATEGORY_FORM_BACK_BTN = "css=[data-testid='admin-category-form-back-btn']";
     public static final String ADMIN_CATEGORY_NAME_INPUT = "css=[data-testid='admin-category-name-input']";
     public static final String ADMIN_CATEGORY_SAVE_BTN =
             "css=[data-testid='admin-category-save-btn']";
@@ -291,14 +300,15 @@ public class AdminPageUI {
     public static final String ADMIN_EMPTY_CATEGORIES_MSG =
             "xpath=//p[contains(text(),'Không tìm thấy danh mục')]";
 
-    // Khuyen mai: o tim o toolbar (promotions-search-input, loc server-side:
-    // go xong phai bam nut Tim) + form tao; o 'Giá trị giảm' khong co testid
+    // Khuyen mai: o tim o toolbar (promotions-search-input, loc client-side
+    // theo tu khoa, debounce 300ms — KHONG con nut Tim) + form tao; o 'Giá trị
+    // giảm' khong co testid
     // nen dinh vi theo nhan <span> cua no trong form. Dot 13: giao dien DA CO
     // nut sua/xoa voucher Draft (admin-promo-edit-btn / admin-promo-delete-btn)
     // + hop xac nhan chung khi xoa; chi voucher Draft moi sua/xoa duoc.
     public static final String ADMIN_PROMO_SEARCH = "css=[data-testid='promotions-search-input']";
-    public static final String ADMIN_PROMO_SEARCH_BTN = "css=[data-testid='promotions-search-btn']";
     public static final String ADMIN_PROMO_FORM = "css=[data-testid='admin-promo-form']";
+    public static final String ADMIN_PROMO_FORM_BACK_BTN = "css=[data-testid='admin-promo-form-back-btn']";
     public static final String ADMIN_PROMO_CODE_INPUT = "css=[data-testid='admin-promo-code-input']";
     public static final String ADMIN_PROMO_DISCOUNT_VALUE_INPUT =
             "xpath=//*[@data-testid='admin-promo-form']//label[span[contains(text(),'Giá trị giảm')]]//input";
@@ -321,9 +331,12 @@ public class AdminPageUI {
     // đơn] + o ly do BAT BUOC (loi 'Vui lòng nhập lý do hủy đơn.'). Nut X
     // FormShell (admin-order-detail-close-btn) va nut [Đóng] o footer
     // (admin-order-detail-footer-close-btn) da xoa cung Drawer; ve danh sach
-    // bang breadcrumb [admin-order-detail-back] (ve /admin, tab orders).
+    // bang nut [Quay lại] (admin-order-detail-back-btn, history-back) hoac
+    // // breadcrumb [admin-order-detail-breadcrumb] (ve /admin, tab orders).
     public static final String DYNAMIC_ORDER_DETAIL_BTN = "xpath=//button[@aria-label='Xem chi tiết đơn %s']";
-    public static final String ADMIN_ORDER_DETAIL_BACK_BTN = "css=[data-testid='admin-order-detail-back']";
+    public static final String ADMIN_ORDER_DETAIL_BACK_BTN = "css=[data-testid='admin-order-detail-back-btn']";
+    public static final String ADMIN_ORDER_DETAIL_BREADCRUMB = "css=[data-testid='admin-order-detail-breadcrumb']";
+    public static final String ADMIN_RETURN_DETAIL_BACK_BTN = "css=[data-testid='admin-return-detail-back-btn']";
     public static final String ADMIN_ORDER_DETAIL_TITLE = "css=[data-testid='admin-order-detail-title']";
     public static final String ADMIN_ORDER_DETAIL_STATUS = "css=[data-testid='admin-order-detail-status']";
     public static final String ADMIN_ORDER_DETAIL_HEADER_BUTTONS =
@@ -423,14 +436,14 @@ public class AdminPageUI {
 
     // Loc ngay nhat ky he thong (muc 10): tab 'logs' rieng
     // (dot 17.1 tach khoi tab Tra hang). Dot 18: nut 'Lọc' rieng
-    // (admin-log-filter-btn) DA BO — khoang ngay Tu/Den ap dung khi bam nut
-    // icon Tim o toolbar Nhat ky (logs-search-btn). Export nhat ky DA BO HAN.
+    // (admin-log-filter-btn) DA BO; dot 24/26: nut Tim (logs-search-btn) CUNG
+    // DA BO — khoang ngay Tu/Den + tu khoa ap dung NGAY khi doi (khong bam
+    // nut nao). Export nhat ky DA BO HAN.
     // Tieu de muc la <h1> o pagehead cua tab (khong con <h2> rieng trong muc).
     public static final String ADMIN_AUDIT_LOG_HEADING =
             "xpath=//h1[contains(text(),'Nhật ký hệ thống')]";
     public static final String ADMIN_LOG_DATE_FROM = "css=[data-testid='admin-log-date-from']";
     public static final String ADMIN_LOG_DATE_TO = "css=[data-testid='admin-log-date-to']";
-    public static final String ADMIN_LOG_SEARCH_BTN = "css=[data-testid='logs-search-btn']";
     public static final String ADMIN_LOG_RESET_BTN = "css=[data-testid='logs-reset-btn']";
 
     // ---------- Dot redesign form admin + upload anh (drawer/modal form moi) ----------
@@ -460,14 +473,15 @@ public class AdminPageUI {
     // ----- Form san pham (drawer) -----
     public static final String ADMIN_PRODUCT_ORIGINAL_PRICE_INPUT = "css=[data-testid='admin-product-original-price-input']";
     public static final String ADMIN_PRODUCT_DESCRIPTION_INPUT = "css=[data-testid='admin-product-description-input']";
-    public static final String ADMIN_PRODUCT_NAME_COUNT = "css=[data-testid='admin-product-name-count']";
-    public static final String ADMIN_PRODUCT_DESCRIPTION_COUNT = "css=[data-testid='admin-product-description-count']";
     public static final String ADMIN_PRODUCT_DISCOUNT_BADGE = "css=[data-testid='admin-product-discount-badge']";
     public static final String ADMIN_PRODUCT_STATUS_TOGGLE = "css=[data-testid='admin-product-status-toggle']";
     public static final String ADMIN_PRODUCT_PREVIEW = "css=[data-testid='admin-product-preview']";
     public static final String ADMIN_PRODUCT_STOCK_MINUS_BTN = "css=[data-testid='admin-product-stock-minus-btn']";
     public static final String ADMIN_PRODUCT_STOCK_PLUS_BTN = "css=[data-testid='admin-product-stock-plus-btn']";
+    public static final String ADMIN_PRODUCT_STOCK_STATUS = "css=[data-testid='admin-product-stock-status']";
     public static final String ADMIN_PRODUCT_CANCEL_BTN = "css=[data-testid='admin-product-cancel-btn']";
+    public static final String ADMIN_PRODUCT_FORM_BACK_BTN = "css=[data-testid='admin-product-form-back-btn']";
+    public static final String ADMIN_PRODUCT_CODE_LOCK = "xpath=//*[@data-testid='admin-product-form']//span[@title='Mã sản phẩm không thể thay đổi']";
     // Loi tung truong trong form san pham (field = name/price/stock/category/...).
     public static final String DYNAMIC_PRODUCT_FIELD_ERROR = "css=[data-testid='admin-product-%s-error']";
     // Hang moi tao duoc highlight (class, khong phai testid).
@@ -490,8 +504,6 @@ public class AdminPageUI {
     // ----- Upload anh san pham (nhieu anh, anh chinh, tien trinh, loi) -----
     public static final String ADMIN_PRODUCT_IMAGE_DROPZONE = "css=[data-testid='admin-product-image-dropzone']";
     public static final String ADMIN_PRODUCT_IMAGE_INPUT = "css=[data-testid='admin-product-image-input']";
-    public static final String ADMIN_PRODUCT_IMAGE_LINK_TOGGLE = "css=[data-testid='admin-product-image-link-toggle']";
-    public static final String ADMIN_PRODUCT_IMAGE_URL_INPUT = "css=[data-testid='admin-product-image-url-input']";
     public static final String ADMIN_PRODUCT_IMAGE_ERROR = "css=[data-testid='admin-product-image-error']";
     public static final String DYNAMIC_PRODUCT_IMAGE_THUMB = "css=[data-testid='admin-product-image-thumb-%s']";
     public static final String DYNAMIC_PRODUCT_IMAGE_THUMB_IMG = "css=[data-testid='admin-product-image-thumb-%s'] img";
@@ -531,6 +543,7 @@ public class AdminPageUI {
     public static final String ADMIN_PROMO_DISCOUNT_TYPE_FIXED = "css=[data-testid='admin-promo-discount-type-fixed']";
     public static final String ADMIN_PROMO_DISCOUNT_TYPE_PERCENT = "css=[data-testid='admin-promo-discount-type-percent']";
     public static final String ADMIN_PROMO_VALUE_INPUT = "css=[data-testid='admin-promo-value-input']";
+    public static final String ADMIN_PROMO_VALUE_PREVIEW = "css=[data-testid='admin-promo-value-preview']";
     public static final String ADMIN_PROMO_MIN_ORDER_INPUT = "css=[data-testid='admin-promo-min-order-input']";
     public static final String ADMIN_PROMO_MAX_DISCOUNT_INPUT = "css=[data-testid='admin-promo-max-discount-input']";
     public static final String ADMIN_PROMO_MAX_USES_INPUT = "css=[data-testid='admin-promo-max-uses-input']";
@@ -619,12 +632,14 @@ public class AdminPageUI {
     // container GIU testid cu (admin-product-form-modal /
     // admin-category-form-modal / admin-promo-form-modal /
     // admin-customer-form-page). Khi form mo, bang danh sach VAN O LAI trong
-    // DOM (overlay). Nut 'Quay lai' (admin-form-back-btn) DA BO; form dirty
-    // thi hien ConfirmDialog 'Thoát mà chưa lưu?' [Ở lại] + [Thoát]. Footer
+    // DOM (overlay). Dot 24/25/26: form la TRANG FULL PAGE co nut 'Quay lại'
+    // (admin-{entity}-form-back-btn) dau header sticky; form dirty thi hien
+    // ConfirmDialog 'Hủy các thay đổi?' [Ở lại] + [Rời trang]. Footer
     // form xem CHI [Đóng] + [Chỉnh sửa]; footer create [Hủy] + [Lưu]; footer
     // edit [Hủy] + [Lưu thay đổi] (nut Luu disable toi khi dirty).
     public static final String ADMIN_CUSTOMER_FORM_PAGE = "css=[data-testid='admin-customer-form-page']";
     public static final String ADMIN_CUSTOMER_FORM = "css=[data-testid='admin-customer-form']";
+    public static final String ADMIN_CUSTOMER_FORM_BACK_BTN = "css=[data-testid='admin-customer-form-back-btn']";
     public static final String ADMIN_CUSTOMER_CANCEL_BTN = "css=[data-testid='admin-customer-cancel-btn']";
     public static final String ADMIN_CUSTOMER_SAVE_BTN = "css=[data-testid='admin-customer-save-btn']";
     public static final String ADMIN_PROMO_CANCEL_BTN = "css=[data-testid='admin-promo-cancel-btn']";
@@ -763,11 +778,8 @@ public class AdminPageUI {
     // ----- Dot 19: locator moi tu file test case manual admin v18 -----
     public static final String ADMIN_CATEGORY_FORM_ERROR = "xpath=//*[@data-testid='admin-category-form']//p[@role='alert']";
     public static final String ADMIN_CATEGORY_IMAGE_ERROR = "css=[data-testid='admin-category-image-error']";
-    public static final String ADMIN_CATEGORY_IMAGE_LINK_TOGGLE = "css=[data-testid='admin-category-image-link-toggle']";
     public static final String ADMIN_CATEGORY_IMAGE_RETRY_BTN = "xpath=//*[@data-testid='admin-category-image-thumb']//button[contains(@class,'sa-thumb-retry-btn')]";
     public static final String ADMIN_CATEGORY_IMAGE_THUMB_ERROR_TEXT = "xpath=//*[@data-testid='admin-category-image-thumb']//*[contains(@class,'sa-thumb-err-text')]";
-    public static final String ADMIN_CATEGORY_IMAGE_URL_ADD_BTN = "xpath=//*[@data-testid='admin-category-image-url-input']/following-sibling::button";
-    public static final String ADMIN_CATEGORY_IMAGE_URL_INPUT = "css=[data-testid='admin-category-image-url-input']";
     public static final String ADMIN_CUSTOMER_TIER_FILTER = "xpath=//select[@aria-label='Lọc hạng']";
     public static final String ADMIN_CUSTOMER_TIER_FILTER_OPTIONS =
                 "css=select[aria-label='Lọc hạng'] option";
@@ -834,7 +846,6 @@ public class AdminPageUI {
     public static final String ADMIN_PAGEHEAD = "css=.sa-pagehead";
     public static final String ADMIN_PRODUCT_CATEGORY_FILTER = "css=select[aria-label='Lọc danh mục']";
     public static final String ADMIN_PRODUCT_FORM_ERROR = "xpath=//*[@data-testid='admin-product-form']//p[@role='alert']";
-    public static final String ADMIN_PRODUCT_IMAGE_URL_ADD_BTN = "xpath=//*[@data-testid='admin-product-image-url-input']/following-sibling::button";
     public static final String ADMIN_PRODUCT_MONEY_SUFFIX = "xpath=//*[@data-testid='admin-product-form']//span[contains(@class,'sa-money-suffix')]";
     public static final String ADMIN_PROFILE_BACK_BTN = "css=[data-testid='admin-profile-back-btn']";
     public static final String ADMIN_PROMO_DISCOUNT_TYPE_FREESHIP = "css=[data-testid='admin-promo-discount-type-freeship']";
@@ -870,9 +881,9 @@ public class AdminPageUI {
             "xpath=//*[@data-testid='admin-promo-usages-page']//table//thead/tr/th";
     public static final String ADMIN_PROMO_USAGES_ROWS =
             "xpath=//*[@data-testid='admin-promo-usages-page']//table//tbody/tr";
-    // Ghi chu FreeShip (thay o Gia tri giam) + dong trang thai o trang tao/sua.
-    public static final String ADMIN_PROMO_FREESHIP_NOTE = "css=[data-testid='admin-promo-value-freeship-note']";
-    public static final String ADMIN_PROMO_STATUS_TEXT = "css=[data-testid='admin-promo-status-text']";
+    // Dot 24/26: ghi chu FreeShip (admin-promo-value-freeship-note) + dong trang
+    // thai (admin-promo-status-text) DA BO — FreeShip hien qua dai xem truoc
+    // (admin-promo-value-preview), trang tao khong con dong trang thai.
     public static final String ADMIN_PROMO_START_INPUT = "css=[data-testid='admin-promo-start-input']";
     public static final String ADMIN_REFUND_RECORD_CANCEL_BTN =
                 "xpath=//*[@data-testid='admin-refund-record-modal']//button[text()='Hủy']";

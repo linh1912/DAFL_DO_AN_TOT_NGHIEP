@@ -49,7 +49,7 @@ public class AdminProductFormTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-51 (TC_SCRA04_UI_006): Form Thêm SP có đủ 5 nhóm (Thông tin cơ bản, Giá & tồn kho, Hình ảnh, Mô tả, Xem trước); ô Mã SP đang focus khi mở form; dropzone chứa input file thật (không display:none); có nút 'Hoặc dán link ảnh', Toggle trạng thái, nút +/- tồn kho, khối xem trước; đóng bằng Hủy, không tạo dữ liệu")
+    @Test(description = "ADM19-51 (TC_SCRA04_UI_006, đợt 26 viết lại — dán link ảnh ĐÃ BỎ): Form Thêm SP có đủ 5 nhóm (Thông tin cơ bản, Giá & tồn kho, Hình ảnh, Mô tả, Xem trước); ô Mã SP đang focus khi mở form; dropzone chứa input file thật (không display:none); KHÔNG còn nút 'Hoặc dán link ảnh'; Toggle trạng thái, nút +/- tồn kho, khối xem trước; đóng bằng Hủy, không tạo dữ liệu")
     public void adminProductFormShowsAllSectionsAndAutofocusesCode() {
         AdminPageObject adminPage = openCreateForm();
         String modalText = adminPage.getProductFormModalText();
@@ -71,8 +71,8 @@ public class AdminProductFormTest extends BaseTest {
                 "Dropzone phai co input file that (admin-product-image-input) trong DOM, khong display:none");
         Assert.assertTrue(adminPage.isElementEnabled(AdminPageUI.ADMIN_PRODUCT_IMAGE_INPUT),
                 "Input file anh phai bat duoc (khong disable)");
-        Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_IMAGE_LINK_TOGGLE),
-                "Form them SP phai co nut 'Hoặc dán link ảnh'");
+        Assert.assertFalse(adminPage.getProductFormModalText().contains("Hoặc dán link ảnh"),
+                "Dot 26 da bo dan link anh — form them SP KHONG duoc con nut 'Hoặc dán link ảnh'");
         Assert.assertTrue(adminPage.isProductStatusToggleDisplayed(),
                 "Form them SP phai co Toggle trang thai (admin-product-status-toggle)");
         Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_STOCK_PLUS_BTN),
@@ -111,15 +111,15 @@ public class AdminProductFormTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-53 (TC_SCRA04_UI_008): Badge % giảm tự tính từ Giá bán + Giá gốc — nhập Giá bán 200000 + Giá gốc 250000 thì badge 'Giảm 20%' hiện ngay khi gõ; bỏ trống Giá gốc hoặc Giá gốc ≤ Giá bán thì badge ẩn; đóng bằng Hủy, không lưu")
+    @Test(description = "ADM19-53 (TC_SCRA04_UI_008, đợt 24/25 viết lại — chip 'Giảm x%' -> '-x%'): Badge % giảm tự tính từ Giá bán + Giá gốc — nhập Giá bán 200000 + Giá gốc 250000 thì chip '-20%' hiện ngay khi gõ; bỏ trống Giá gốc hoặc Giá gốc ≤ Giá bán thì chip ẩn; đóng bằng Hủy, không lưu")
     public void adminProductFormDiscountBadgeAppearsLiveWhileTyping() {
         AdminPageObject adminPage = openCreateForm();
         adminPage.setProductPrice("200000");
         adminPage.setProductOriginalPrice("250000");
         Assert.assertTrue(adminPage.isDiscountBadgeDisplayed(),
                 "Nhap Gia ban 200000 + Gia goc 250000 thi badge % giam phai hien ngay khi go");
-        Assert.assertEquals(adminPage.getDiscountBadgeText(), "Giảm 20%",
-                "Badge % giam phai hien 'Giảm 20%' (200000/250000), dang thay: " + adminPage.getDiscountBadgeText());
+        Assert.assertEquals(adminPage.getDiscountBadgeText(), "-20%",
+                "Chip % giam phai hien '-20%' (200000/250000), dang thay: " + adminPage.getDiscountBadgeText());
 
         adminPage.setProductOriginalPrice("");
         Assert.assertFalse(adminPage.isDiscountBadgeDisplayed(),
@@ -179,24 +179,29 @@ public class AdminProductFormTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-55 (TC_SCRA04_UI_010/011): Bộ đếm ký tự tên sản phẩm x/120 và mô tả x/2000 — trống thì '0/120' và '0/2000', nhập 'Son kem' thì '7/120', nhập mô tả 25 ký tự thì '25/2000'; đóng bằng Hủy, không lưu")
+    @Test(description = "ADM19-55 (TC_SCRA04_UI_010/011, đợt 26 viết lại — BỘ ĐẾM KÝ TỰ ĐÃ BỎ, không còn text dưới ô nhập): Không còn bộ đếm x/120, x/2000 dưới ô Tên/Mô tả; ô Tên maxLength=120 (gõ 121 ký tự thì giá trị chỉ giữ 120 ký tự), ô Mô tả maxLength=2000; đóng bằng Hủy, không lưu")
     public void adminProductFormNameAndDescriptionCounters() {
         AdminPageObject adminPage = openCreateForm();
-        Assert.assertEquals(adminPage.getProductNameCountText(), "0/120",
-                "Bo dem ten khi trong phai hien '0/120'");
-        Assert.assertEquals(adminPage.getProductDescriptionCountText(), "0/2000",
-                "Bo dem mo ta khi trong phai hien '0/2000'");
+        String formText = adminPage.getProductFormModalText();
+        Assert.assertFalse(formText.contains("/120"),
+                "Dot 26 da bo bo dem ky tu — form them SP KHONG duoc con chuoi '/120' duoi o Ten, dang thay: " + formText);
+        Assert.assertFalse(formText.contains("/2000"),
+                "Dot 26 da bo bo dem ky tu — form them SP KHONG duoc con chuoi '/2000' duoi o Mo ta");
 
         String name = "Son kem";
         adminPage.setProductName(name);
-        Assert.assertEquals(adminPage.getProductNameCountText(), name.length() + "/120",
-                "Nhap ten '" + name + "' thi bo dem ten phai hien '" + name.length() + "/120'");
+        Assert.assertEquals(adminPage.getProductNameInputValue(), name,
+                "Nhap ten '" + name + "' thi o Ten phai giu dung gia tri do");
 
         String description = "Mô tả sản phẩm test 25 ký";
         adminPage.setProductDescription(description);
-        Assert.assertEquals(adminPage.getProductDescriptionCountText(), description.length() + "/2000",
-                "Nhap mo ta " + description.length() + " ky tu thi bo dem mo ta phai hien '"
-                        + description.length() + "/2000'");
+        Assert.assertEquals(adminPage.getProductDescriptionInputValue(), description,
+                "Nhap mo ta thi o Mo ta phai giu dung gia tri do");
+
+        // Go 121 ky tu vao o Ten (maxLength=120): trinh duyet cat o 120 ky tu.
+        adminPage.setProductName("S".repeat(121));
+        Assert.assertEquals(adminPage.getProductNameInputValue().length(), 120,
+                "Go 121 ky tu vao o Ten (maxLength=120) thi gia tri chi duoc giu 120 ky tu");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
@@ -342,7 +347,7 @@ public class AdminProductFormTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-59 (TC_SCRA04_VAL_016/017): Tên sản phẩm ngắn hơn 3 ký tự ('So') và dài hơn 120 ký tự (121 ký tự) đều báo lỗi 'Tên sản phẩm phải có từ 3 đến 120 ký tự.' dưới ô Tên, không tạo sản phẩm; đóng bằng Hủy, không lưu")
+    @Test(description = "ADM19-59 (TC_SCRA04_VAL_016/017, đợt 26 viết lại — ô Tên maxLength=120 nên KHÔNG gõ được ký tự thứ 121): Tên ngắn hơn 3 ký tự ('So') báo lỗi 'Tên sản phẩm phải có từ 3 đến 120 ký tự.' dưới ô Tên; gõ 121 ký tự thì trình duyệt cắt ở 120 ký tự (không báo lỗi độ dài), không tạo sản phẩm; đóng bằng Hủy, không lưu")
     public void adminProductFormNameLengthValidation() {
         AdminPageObject adminPage = openCreateForm();
         // Cac truong khac dien hop le de chi con loi o Ten.
@@ -359,12 +364,12 @@ public class AdminProductFormTest extends BaseTest {
 
         String longName = "S".repeat(121);
         adminPage.setProductName(longName);
+        Assert.assertEquals(adminPage.getProductNameInputValue().length(), 120,
+                "Go 121 ky tu vao o Ten (maxLength=120) thi gia tri chi duoc giu 120 ky tu (khong bao loi do dai)");
+        Assert.assertEquals(adminPage.getProductFieldErrorText("name"), "",
+                "Ten 120 ky tu (da cat) la hop le nen KHONG duoc bao loi do dai duoi o Ten");
         adminPage.clickProductSaveButton();
         adminPage.sleepInSecond(1);
-        Assert.assertEquals(adminPage.getProductFieldErrorText("name"), "Tên sản phẩm phải có từ 3 đến 120 ký tự.",
-                "Ten 121 ky tu phai bao loi do dai duoi o Ten");
-        Assert.assertEquals(adminPage.getProductNameCountText(), "121/120",
-                "Ten 121 ky tu thi bo dem ten phai hien '121/120'");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
@@ -506,23 +511,23 @@ public class AdminProductFormTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-64 (TC_SCRA04_FUNC_045, đợt 21): Đã sửa mà bấm Hủy thì hỏi \"Thoát mà chưa lưu?\" — nhập tên 'Son mới' rồi bấm Hủy thì popup đúng 2 nút [Ở lại][Thoát]; bấm 'Ở lại' thì popup đóng, trang form vẫn mở, dữ liệu 'Son mới' còn nguyên; bấm Hủy rồi 'Thoát' thì về danh sách, không lưu, không tạo sản phẩm")
+    @Test(description = "ADM19-64 (TC_SCRA04_FUNC_045, đợt 24/25 viết lại — dialog 'Thoát mà chưa lưu?' -> 'Hủy các thay đổi?', nút 'Thoát' -> 'Rời trang'): Đã sửa mà bấm Hủy thì hỏi 'Hủy các thay đổi?' — nhập tên 'Son mới' rồi bấm Hủy thì popup đúng 2 nút [Ở lại][Rời trang]; bấm 'Ở lại' thì popup đóng, trang form vẫn mở, dữ liệu 'Son mới' còn nguyên; bấm Hủy rồi 'Rời trang' thì về danh sách, không lưu, không tạo sản phẩm")
     public void adminProductFormDirtyCancelShowsDiscardConfirm() {
         AdminPageObject adminPage = openCreateForm();
         adminPage.setProductName("Son mới");
         adminPage.clickToElement(AdminPageUI.ADMIN_PRODUCT_CANCEL_BTN);
         Assert.assertTrue(adminPage.isConfirmDialogDisplayed(),
-                "Bam Hủy khi form da sua thi phai hien hop 'Thoát mà chưa lưu?'");
-        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Thoát mà chưa lưu?",
-                "Hop dong form dirty phai co tieu de 'Thoát mà chưa lưu?'");
+                "Bam Hủy khi form da sua thi phai hien hop 'Hủy các thay đổi?'");
+        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Hủy các thay đổi?",
+                "Hop dong form dirty phai co tieu de 'Hủy các thay đổi?'");
         Assert.assertTrue(adminPage.getConfirmDialogText().contains("Các thay đổi bạn vừa nhập sẽ bị mất."),
                 "Hop dong form dirty phai co noi dung 'Các thay đổi bạn vừa nhập sẽ bị mất.'");
         Assert.assertEquals(adminPage.getConfirmDialogFooterButtonCount(), 2,
-                "Hop dong form dirty dot 18 phai CHI co dung 2 nut ([Ở lại] + [Thoát])");
+                "Hop dong form dirty dot 18 phai CHI co dung 2 nut ([Ở lại] + [Rời trang])");
         Assert.assertEquals(adminPage.getConfirmDialogCancelText(), "Ở lại",
                 "Nut trai hop dong form dirty phai la 'Ở lại'");
-        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Thoát",
-                "Nut phai hop dong form dirty phai la 'Thoát'");
+        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Rời trang",
+                "Nut phai hop dong form dirty phai la 'Rời trang'");
 
         // Nhanh 'Ở lại': popup dong, trang form van mo, du lieu con nguyen.
         adminPage.clickConfirmNo();
@@ -534,19 +539,19 @@ public class AdminProductFormTest extends BaseTest {
         Assert.assertEquals(adminPage.getProductNameInputValue(), "Son mới",
                 "Bam 'Ở lại' xong du lieu 'Son mới' trong form phai con nguyen");
 
-        // Nhanh 'Thoát': ve danh sach, khong luu, khong tao san pham.
+        // Nhanh 'Rời trang': ve danh sach, khong luu, khong tao san pham.
         adminPage.clickToElement(AdminPageUI.ADMIN_PRODUCT_CANCEL_BTN);
         adminPage.clickConfirmDialogConfirm();
         adminPage.sleepInSecond(1);
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
-                "Bam Hủy roi 'Thoát' xong form san pham phai dong (ve danh sach)");
+                "Bam Hủy roi 'Rời trang' xong form san pham phai dong (ve danh sach)");
         adminPage.searchProducts("Son mới");
         Assert.assertFalse(adminPage.isRowWithTextDisplayed("Son mới"),
                 "Thoat form chua luu thi khong duoc tao san pham 'Son mới'");
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-65 (TC_SCRA04_FUNC_046/047, đợt 21): Bấm ESC khi chưa sửa thì đóng trang form ngay, không hỏi; bấm ESC khi đã sửa thì hỏi \"Thoát mà chưa lưu?\" thay vì đóng ngay — bấm 'Ở lại' thì trang form vẫn mở, dữ liệu còn nguyên; bấm 'Thoát' thì về danh sách, không lưu")
+    @Test(description = "ADM19-65 (TC_SCRA04_FUNC_046/047, đợt 24/25 viết lại — dialog 'Thoát mà chưa lưu?' -> 'Hủy các thay đổi?'): Bấm ESC khi chưa sửa thì đóng trang form ngay, không hỏi; bấm ESC khi đã sửa thì hỏi 'Hủy các thay đổi?' thay vì đóng ngay — bấm 'Ở lại' thì trang form vẫn mở, dữ liệu còn nguyên; bấm 'Rời trang' thì về danh sách, không lưu")
     public void adminProductFormEscClosesWhenClean() {
         AdminPageObject adminPage = openCreateForm();
         // Form sach: ESC dong ngay, khong hoi.
@@ -556,14 +561,14 @@ public class AdminProductFormTest extends BaseTest {
         Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.CONFIRM_DIALOG),
                 "Bam ESC khi form chua sua thi khong duoc hien hop xac nhan");
 
-        // Form dirty: ESC hien hop 'Thoát mà chưa lưu?' thay vi dong ngay.
+        // Form dirty: ESC hien hop 'Hủy các thay đổi?' thay vi dong ngay.
         adminPage.openProductFormModal();
         adminPage.setProductName("Son mới");
         adminPage.pressEscapeKey();
         Assert.assertTrue(adminPage.isConfirmDialogDisplayed(),
-                "Bam ESC khi form da sua thi phai hien hop 'Thoát mà chưa lưu?' thay vi dong ngay");
-        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Thoát mà chưa lưu?",
-                "Hop hien khi bam ESC o form dirty phai co tieu de 'Thoát mà chưa lưu?'");
+                "Bam ESC khi form da sua thi phai hien hop 'Hủy các thay đổi?' thay vi dong ngay");
+        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Hủy các thay đổi?",
+                "Hop hien khi bam ESC o form dirty phai co tieu de 'Hủy các thay đổi?'");
         Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
                 "Bam ESC khi form da sua thi trang form van phai mo (cho xac nhan)");
 
@@ -578,10 +583,108 @@ public class AdminProductFormTest extends BaseTest {
 
         adminPage.pressEscapeKey();
         Assert.assertTrue(adminPage.isConfirmDialogDisplayed(),
-                "Bam ESC lan 2 khi form da sua thi phai hien lai hop 'Thoát mà chưa lưu?'");
+                "Bam ESC lan 2 khi form da sua thi phai hien lai hop 'Hủy các thay đổi?'");
         adminPage.clickConfirmDialogConfirm();
         adminPage.sleepInSecond(1);
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
-                "Bam ESC roi 'Thoát' xong form san pham phai dong (ve danh sach)");
+                "Bam ESC roi 'Rời trang' xong form san pham phai dong (ve danh sach)");
+    }
+
+    // ---------- Dot 24/25/26: nut Quay lai + nhan trang thai ton kho + o Ma khoa ----------
+
+    @Story("Sản phẩm")
+    @Test(description = "ADM26-02 (đợt 24/25): Nút '← Quay lại' ở header sticky form Thêm SP — form sạch thì bấm Quay lại về thẳng danh sách, không hỏi; form dirty thì hỏi 'Hủy các thay đổi?' ([Ở lại][Rời trang]): 'Ở lại' giữ form + dữ liệu, 'Rời trang' về danh sách không tạo sản phẩm")
+    public void adminProductFormBackButtonDirtyConfirm() {
+        AdminPageObject adminPage = openCreateForm();
+        Assert.assertTrue(adminPage.isProductFormBackBtnDisplayed(),
+                "Header sticky form them SP phai co nut '← Quay lại' (admin-product-form-back-btn)");
+
+        // Form sach: Quay lai ve thang danh sach, khong hoi.
+        adminPage.clickProductFormBackBtn();
+        Assert.assertFalse(adminPage.isProductFormModalPresent(),
+                "Bam 'Quay lại' khi form sach phai ve danh sach ngay, khong hoi");
+
+        // Form dirty: Quay lai hoi 'Hủy các thay đổi?'.
+        adminPage.openProductFormModal();
+        adminPage.setProductName("Son mới");
+        adminPage.clickProductFormBackBtn();
+        Assert.assertTrue(adminPage.isConfirmDialogDisplayed(),
+                "Bam 'Quay lại' khi form da sua thi phai hien hop 'Hủy các thay đổi?'");
+        Assert.assertEquals(adminPage.getConfirmDialogTitle(), "Hủy các thay đổi?",
+                "Hop dong form dirty phai co tieu de 'Hủy các thay đổi?'");
+        Assert.assertEquals(adminPage.getConfirmDialogConfirmText(), "Rời trang",
+                "Nut phai hop dong form dirty phai la 'Rời trang'");
+
+        adminPage.clickConfirmNo();
+        adminPage.sleepInSecond(1);
+        Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
+                "Bam 'Ở lại' xong trang form san pham van phai mo");
+        Assert.assertEquals(adminPage.getProductNameInputValue(), "Son mới",
+                "Bam 'Ở lại' xong du lieu 'Son mới' trong form phai con nguyen");
+
+        adminPage.clickProductFormBackBtn();
+        adminPage.clickConfirmDialogConfirm();
+        adminPage.sleepInSecond(1);
+        Assert.assertFalse(adminPage.isProductFormModalPresent(),
+                "Bam 'Quay lại' roi 'Rời trang' xong form san pham phai dong (ve danh sach)");
+        adminPage.searchProducts("Son mới");
+        Assert.assertFalse(adminPage.isRowWithTextDisplayed("Son mới"),
+                "Roi form chua luu thi khong duoc tao san pham 'Son mới'");
+    }
+
+    @Story("Sản phẩm")
+    @Test(description = "ADM26-03 (đợt 24/25): Nhãn trạng thái tồn kho bên cạnh ô Tồn kho — trống thì ẩn; 10 → 'Còn hàng'; 5 → 'Sắp hết hàng'; 0 → 'Hết hàng'; bấm +/- stepper vẫn đổi nhãn theo; đóng bằng Hủy, không lưu")
+    public void adminProductFormStockStatusLabels() {
+        AdminPageObject adminPage = openCreateForm();
+        Assert.assertFalse(adminPage.isProductStockStatusDisplayed(),
+                "O Ton kho dang trong thi khong duoc hien nhan trang thai ton kho");
+
+        adminPage.setProductStock("10");
+        Assert.assertEquals(adminPage.getProductStockStatusText(), "Còn hàng",
+                "Ton kho 10 thi nhan phai la 'Còn hàng', dang thay: " + adminPage.getProductStockStatusText());
+        adminPage.setProductStock("5");
+        Assert.assertEquals(adminPage.getProductStockStatusText(), "Sắp hết hàng",
+                "Ton kho 5 thi nhan phai la 'Sắp hết hàng', dang thay: " + adminPage.getProductStockStatusText());
+        adminPage.setProductStock("0");
+        Assert.assertEquals(adminPage.getProductStockStatusText(), "Hết hàng",
+                "Ton kho 0 thi nhan phai la 'Hết hàng', dang thay: " + adminPage.getProductStockStatusText());
+
+        // Stepper +: 0 -> 1 van 'Hết hàng'? 1 -> 'Sắp hết hàng'.
+        adminPage.clickProductStockPlus();
+        Assert.assertEquals(adminPage.getProductStockInputValue(), "1",
+                "Bam '+' tu 0 thi o Ton kho phai hien '1'");
+        Assert.assertEquals(adminPage.getProductStockStatusText(), "Sắp hết hàng",
+                "Ton kho 1 thi nhan phai la 'Sắp hết hàng'");
+
+        adminPage.cancelProductForm();
+        Assert.assertFalse(adminPage.isProductFormModalPresent(),
+                "Dong form bang nut Hủy xong khong duoc con thay form san pham");
+    }
+
+    @Story("Sản phẩm")
+    @Test(description = "ADM26-04 (đợt 24/25): Trang sửa SP — ô Mã bị khóa (disabled) + icon ổ khóa (title 'Mã sản phẩm không thể thay đổi'); các ô khác vẫn sửa được; đóng bằng Hủy, không lưu (skip nếu bảng SP trống)")
+    public void adminProductEditFormCodeIsLocked() {
+        AdminPageObject adminPage = loginAsAdminOrSkip();
+        adminPage.clickAdminNav("products");
+        if (adminPage.getAdminTableRowCount() == 0) {
+            throw new SkipException("Bo qua: muc San pham dang rong nen khong co SP de mo form sua");
+        }
+        String firstProductName = adminPage.getFirstDetailButtonLabel(
+                AdminPageUI.FIRST_PRODUCT_DETAIL_BTN, "Xem chi tiết sản phẩm ");
+        Assert.assertFalse(firstProductName == null || firstProductName.isEmpty(),
+                "Dong dau bang SP phai co ten de mo form sua");
+        adminPage.openProductEditForm(firstProductName);
+        Assert.assertTrue(adminPage.isProductFormModalDisplayed(),
+                "Form sua SP phai mo dang trang full page (/products/:code/edit)");
+        Assert.assertTrue(adminPage.isProductCodeInputDisabled(),
+                "O Ma SP o trang sua phai bi disable (khong doi duoc ma)");
+        Assert.assertTrue(adminPage.isProductCodeLockDisplayed(),
+                "O Ma SP o trang sua phai co icon o khoa (title 'Mã sản phẩm không thể thay đổi')");
+        Assert.assertFalse(adminPage.getProductCodeInputValue().isEmpty(),
+                "O Ma SP o trang sua phai dien san ma cua SP");
+
+        adminPage.cancelProductForm();
+        Assert.assertFalse(adminPage.isProductFormModalPresent(),
+                "Dong form bang nut Hủy xong khong duoc con thay form sua san pham");
     }
 }

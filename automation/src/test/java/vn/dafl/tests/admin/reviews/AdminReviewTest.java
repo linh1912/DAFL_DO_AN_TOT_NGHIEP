@@ -95,7 +95,7 @@ public class AdminReviewTest extends BaseTest {
     }
 
     @Story("Quản lý đánh giá")
-    @Test(description = "RVM-03 (đợt 16): Lọc 5 sao — chọn value \"5\" + bấm Tìm thì mọi dòng hiện đều có rating 5 (skip nếu sau lọc bảng trống vì không có đánh giá 5 sao; Đặt lại bộ lọc sau test)")
+    @Test(description = "RVM-03 (đợt 16, đợt 24/26: KHÔNG còn nút Tìm — chọn là lọc ngay): Lọc 5 sao — chọn value \"5\" thì mọi dòng hiện đều có rating 5 (skip nếu sau lọc bảng trống vì không có đánh giá 5 sao; Đặt lại bộ lọc sau test)")
     public void filterFiveStarShowsOnlyFiveStarReviews() {
         AdminPageObject adminPage = openReviewsOrSkip();
         skipIfReviewsEmpty(adminPage);
@@ -118,7 +118,7 @@ public class AdminReviewTest extends BaseTest {
     }
 
     @Story("Quản lý đánh giá")
-    @Test(description = "RVM-04 (đợt 16): Tìm kiếm theo tên sản phẩm — lấy tên SP của dòng đầu, gõ vào ô tìm kiếm + bấm Tìm thì dòng đầu vẫn hiện và tên khớp (skip nếu không khớp; Đặt lại bộ lọc sau test)")
+    @Test(description = "RVM-04 (đợt 16, đợt 24/26: KHÔNG còn nút Tìm — gõ là lọc ngay): Tìm kiếm theo tên sản phẩm — lấy tên SP của dòng đầu, gõ vào ô tìm kiếm thì dòng đầu vẫn hiện và tên khớp (skip nếu không khớp; Đặt lại bộ lọc sau test)")
     public void searchByFirstRowProductNameFindsIt() {
         AdminPageObject adminPage = openReviewsOrSkip();
         skipIfReviewsEmpty(adminPage);
@@ -297,7 +297,7 @@ public class AdminReviewTest extends BaseTest {
     }
 
     @Story("Quản lý đánh giá")
-    @Test(description = "ADM19-201 (TC_SCRA08_UI_005): Toolbar Đánh giá đợt 18 có ô tìm placeholder 'Tìm tên sản phẩm, khách hàng, nội dung...', dropdown lọc số sao (admin-review-rating-filter), nút icon Tìm + nút icon Đặt lại (Lucide); KHÔNG có nút Thêm mới/Làm mới/Export")
+    @Test(description = "ADM19-201 (TC_SCRA08_UI_005, đợt 24/26 viết lại — KHÔNG còn nút Tìm riêng, icon Tìm nằm TRONG ô tìm; dropdown mặc định 'Số sao'): Toolbar Đánh giá đợt 18 có ô tìm placeholder 'Tìm tên sản phẩm, khách hàng, nội dung...' (icon Tìm trong ô tìm), dropdown lọc số sao (admin-review-rating-filter), nút icon Đặt lại (Lucide); KHÔNG có nút Thêm mới/Làm mới/Export")
     public void adminReviewToolbarHasSearchRatingFilterAndNoAddRefreshExport() {
         AdminPageObject adminPage = openReviewsOrSkip();
         Assert.assertEquals(adminPage.getReviewSearchPlaceholder(),
@@ -305,12 +305,12 @@ public class AdminReviewTest extends BaseTest {
                 "O tim Danh gia phai co placeholder 'Tìm tên sản phẩm, khách hàng, nội dung...'");
         Assert.assertTrue(adminPage.isReviewRatingFilterDisplayed(),
                 "Toolbar Danh gia phai co dropdown loc so sao (admin-review-rating-filter)");
-        Assert.assertTrue(adminPage.isToolbarSearchButtonDisplayed("reviews"),
-                "Toolbar Danh gia phai co nut icon Tim");
+        Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("reviews"),
+                "Toolbar Danh gia dot 24/26 KHONG con nut icon Tim rieng");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("reviews"),
                 "Toolbar Danh gia phai co nut icon Dat lai");
         Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("reviews"),
-                "Nut Tim phai dung icon Lucide Search (svg.lucide-search)");
+                "O tim Danh gia phai co icon Lucide Search TRONG o tim (svg.lucide-search)");
         Assert.assertTrue(adminPage.isToolbarResetIconDisplayed("reviews"),
                 "Nut Dat lai phai dung icon Lucide RotateCcw (svg.lucide-rotate-ccw)");
         Assert.assertFalse(adminPage.isToolbarAddButtonPresent("reviews"),
@@ -346,7 +346,7 @@ public class AdminReviewTest extends BaseTest {
             Assert.assertEquals(adminPage.getReviewSearchValue(), "",
                     "Dat lai xong o tim phai trong");
             Assert.assertEquals(adminPage.getReviewRatingFilterValue(), "",
-                    "Dat lai xong loc sao phai ve 'Tất cả số sao'");
+                    "Dat lai xong loc sao phai ve 'Số sao'");
             adminPage.waitForReviewsTableLoaded();
             Assert.assertTrue(adminPage.getReviewRowCount() > 0,
                     "Dat lai xong bang phai tai lai toan bo danh gia");
@@ -360,7 +360,7 @@ public class AdminReviewTest extends BaseTest {
     }
 
     @Story("Quản lý đánh giá")
-    @Test(description = "ADM19-203 (TC_SCRA08_FUNC_008): Lọc đánh giá 1 sao — chọn '1 sao' + bấm Tìm thì bảng chỉ hiện đánh giá 1 sao (mirror RVM-03 lọc 5 sao; skip nếu DB không có đánh giá 1 sao; Đặt lại bộ lọc sau test)")
+    @Test(description = "ADM19-203 (TC_SCRA08_FUNC_008, đợt 24/26: KHÔNG còn nút Tìm — chọn là lọc ngay): Lọc đánh giá 1 sao — chọn '1 sao' thì bảng chỉ hiện đánh giá 1 sao (mirror RVM-03 lọc 5 sao; skip nếu DB không có đánh giá 1 sao; Đặt lại bộ lọc sau test)")
     public void adminReviewFilterOneStarShowsOnlyOneStar() {
         AdminPageObject adminPage = openReviewsOrSkip();
         skipIfReviewsEmpty(adminPage);

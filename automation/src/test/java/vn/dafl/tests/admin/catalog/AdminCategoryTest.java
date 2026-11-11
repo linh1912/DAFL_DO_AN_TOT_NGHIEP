@@ -10,6 +10,9 @@ import vn.dafl.commons.GlobalConstants;
 import vn.dafl.pageObjects.AdminPageObject;
 import vn.dafl.pageUIs.AdminPageUI;
 
+import java.io.File;
+import java.net.URL;
+
 /**
  * Test CRUD danh muc tren app Admin rieng localhost:3001 (dot 9, tach tu
  * AdminCrudTest cu khi chia thu muc admin dot 17 — moi lop chi lo 1 phan he).
@@ -25,7 +28,7 @@ import vn.dafl.pageUIs.AdminPageUI;
  * ('Mã danh mục đã tồn tại.').
  * Dot 21: them/sua/xem DM la TRANG FULL PAGE (/categories/new,
  * /categories/:code, /categories/:code/edit — KHONG con Drawer/Modal);
- * tim/loc TU DONG (debounce 120ms, KHONG con nut Tim kiem); gạt Switch dung
+ * tim/loc TU DONG (debounce 300ms, KHONG con nut Tim kiem); gạt Switch dung
  * modal xac nhan CHUNG 'Xác nhận thay đổi trạng thái?' + toast 'Đổi trạng
  * thái danh mục thành công!' (khong con popup C6/C7 'Ẩn/Hiển thị danh mục?').
  * Test tu bo qua (skip, khong tinh fail) khi service admin :3001 chua chay hoac
@@ -34,6 +37,19 @@ import vn.dafl.pageUIs.AdminPageUI;
  */
 @Feature("Quản lý danh mục")
 public class AdminCategoryTest extends BaseTest {
+
+    private static final String IMAGE_1 = "upload/test-product-1.png";
+
+    /** Duong dan tuyet doi cua file trong automation/src/test/resources/upload/. */
+    private String getTestResourcePath(String resourceName) {
+        URL url = getClass().getClassLoader().getResource(resourceName);
+        Assert.assertNotNull(url, "Khong tim thay file test trong resources: " + resourceName);
+        try {
+            return new File(url.toURI()).getAbsolutePath();
+        } catch (Exception e) {
+            throw new AssertionError("Khong doc duoc duong dan file test " + resourceName + ": " + e.getMessage());
+        }
+    }
 
     // Trang thai de don dep (chi du lieu do test tao); moi test method co browser moi
     // nen cac truong nay chi song trong pham vi 1 test.
@@ -192,7 +208,7 @@ public class AdminCategoryTest extends BaseTest {
             Assert.assertTrue(adminPage.isCategoryFormModalDisplayed(),
                     "Luu trung ma that bai thi form phai van mo (khong dong, khong tao DM)");
 
-            // Dong form (dirty -> hop 'Thoát mà chưa lưu?' -> bam Thoat).
+            // Dong form (dirty -> hop 'Hủy các thay đổi?' -> bam 'Rời trang').
             adminPage.cancelCategoryForm();
             Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
                     "Dong form xong khong duoc con thay form danh muc");
@@ -207,7 +223,7 @@ public class AdminCategoryTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM17-05 (đợt 17): Mở form sửa DM → ô Mã bị disable (hiện đúng mã DM-...), ô Tên sửa được; bấm Hủy + 'Thoát' thì không đổi gì (tên cũ vẫn còn, tên mới không có)")
+    @Test(description = "ADM17-05 (đợt 17, đợt 24/25: nút 'Thoát' -> 'Rời trang'): Mở form sửa DM → ô Mã bị disable (hiện đúng mã DM-...), ô Tên sửa được; bấm Hủy + 'Rời trang' thì không đổi gì (tên cũ vẫn còn, tên mới không có)")
     public void adminEditCategoryFormDisablesCodeInput() {
         String categoryName = uniqueCategoryName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -234,7 +250,7 @@ public class AdminCategoryTest extends BaseTest {
             Assert.assertEquals(adminPage.getCategoryNameInputValue(), editedName,
                     "Go ten moi vao o Ten phai hien dung ten moi trong form");
 
-            // Huy: form dirty -> hop 'Thoát mà chưa lưu?' -> bam Thoat.
+            // Huy: form dirty -> hop 'Hủy các thay đổi?' -> bam 'Rời trang'.
             adminPage.cancelCategoryForm();
             Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
                     "Dong form xong khong duoc con thay form sua danh muc");
@@ -275,7 +291,7 @@ public class AdminCategoryTest extends BaseTest {
     // ---------- Wave 19: gap SCR_05 (UI bang + validate BE + hanh vi bang/form) ----------
 
     @Story("Danh mục")
-    @Test(description = "ADM19-89 (TC_SCRA05_UI_001): Bảng DM có 9 cột (STT/Mã DM/Tên/Slug/Mô tả/Số SP/Thứ tự/Trạng thái/Thao tác) + toolbar chuẩn: cột Mã bắt đầu 'DM-', cột Trạng thái là Switch, mỗi dòng có đúng 3 nút thao tác (Xem/Sửa/Xóa), ô tìm kiếm placeholder 'Tìm tên, slug danh mục...', dropdown Trạng thái có đủ 3 lựa chọn (Tất cả/Hoạt động/Ngừng hoạt động), nút + Thêm nằm cuối toolbar (phải nhất), icon Tìm/Đặt lại hiện, KHÔNG có nút Export")
+    @Test(description = "ADM19-89 (TC_SCRA05_UI_001, đợt 24/26 viết lại — dropdown mặc định 'Tất cả' -> 'Trạng thái'): Bảng DM có 9 cột (STT/Mã DM/Tên/Slug/Mô tả/Số SP/Thứ tự/Trạng thái/Thao tác) + toolbar chuẩn: cột Mã bắt đầu 'DM-', cột Trạng thái là Switch, mỗi dòng có đúng 3 nút thao tác (Xem/Sửa/Xóa), ô tìm kiếm placeholder 'Tìm tên, slug danh mục...', dropdown Trạng thái có đủ 3 lựa chọn (Trạng thái/Hoạt động/Ngừng hoạt động), nút + Thêm nằm cuối toolbar (phải nhất), icon Tìm/Đặt lại hiện, KHÔNG có nút Export")
     public void adminCategoriesTableHasNineColumnsAndStandardToolbar() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("categories");
@@ -299,8 +315,8 @@ public class AdminCategoryTest extends BaseTest {
                 "Tìm tên, slug danh mục...",
                 "O tim kiem DM phai co placeholder 'Tìm tên, slug danh mục...'");
         Assert.assertEquals(adminPage.getStatusFilterOptionTexts(),
-                java.util.Arrays.asList("Tất cả", "Hoạt động", "Ngừng hoạt động"),
-                "Dropdown Trang thai DM phai co du 3 lua chon Tất cả/Hoạt động/Ngừng hoạt động");
+                java.util.Arrays.asList("Trạng thái", "Hoạt động", "Ngừng hoạt động"),
+                "Dropdown Trang thai DM phai co du 3 lua chon Trạng thái/Hoạt động/Ngừng hoạt động");
         Assert.assertTrue(adminPage.isToolbarAddButtonLast("categories"),
                 "Nut '+ Thêm mới' phai nam cuoi toolbar (phai nhat) o muc Danh muc");
         Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("categories"),
@@ -316,7 +332,7 @@ public class AdminCategoryTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM19-90 (TC_SCRA05_UI_002, dot 21): Bấm '+ Thêm mới' mở TRANG Thêm DM full page /categories/new — tiêu đề 'Thêm mới danh mục', phụ đề 'Thêm danh mục mới cho sàn.', bảng danh sách KHÔNG còn trong DOM (trang thay thế danh sách, không Drawer overlay), không có nút 'Quay lại' trong form; đóng bằng Hủy thì về danh sách")
+    @Test(description = "ADM19-90 (TC_SCRA05_UI_002, đợt 24/25 viết lại — phụ đề trang ĐÃ BỎ, nút 'Quay lại' ĐÃ THÊM): Bấm '+ Thêm mới' mở TRANG Thêm DM full page /categories/new — tiêu đề 'Thêm mới danh mục', KHÔNG còn phụ đề 'Thêm danh mục mới cho sàn.', bảng danh sách KHÔNG còn trong DOM (trang thay thế danh sách, không Drawer overlay), CÓ nút '← Quay lại' ở header sticky; đóng bằng Hủy thì về danh sách")
     public void adminCategoryAddOpensDrawer680() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("categories");
@@ -328,12 +344,12 @@ public class AdminCategoryTest extends BaseTest {
         String formText = adminPage.getCategoryFormModalText();
         Assert.assertTrue(formText.contains("Thêm mới danh mục"),
                 "Trang them DM phai co tieu de 'Thêm mới danh mục', dang thay: " + formText);
-        Assert.assertTrue(formText.contains("Thêm danh mục mới cho sàn."),
-                "Trang them DM phai co phu de 'Thêm danh mục mới cho sàn.', dang thay: " + formText);
+        Assert.assertFalse(formText.contains("Thêm danh mục mới cho sàn."),
+                "Dot 26 da bo phu de trang — trang them DM KHONG duoc con phu de 'Thêm danh mục mới cho sàn.', dang thay: " + formText);
         Assert.assertFalse(adminPage.isAdminTablePresent(),
                 "Mo trang them DM full page thi bang danh sach KHONG duoc con trong DOM (trang thay the danh sach)");
-        Assert.assertFalse(adminPage.isElementDisplayed("css=[data-testid='admin-form-back-btn']"),
-                "Trang them DM dot 21 KHONG duoc co nut 'Quay lại' (admin-form-back-btn da bo)");
+        Assert.assertTrue(adminPage.isCategoryFormBackBtnDisplayed(),
+                "Trang them DM dot 24/25 PHAI co nut '← Quay lại' o header sticky (admin-category-form-back-btn)");
 
         adminPage.cancelCategoryForm();
         Assert.assertFalse(adminPage.isCategoryFormModalPresent(),
@@ -426,9 +442,9 @@ public class AdminCategoryTest extends BaseTest {
             adminPage.setCategoryName(categoryName);
             adminPage.setCategoryDescription("Mo ta DM test FUNC-024");
             adminPage.setCategorySortOrder("7");
-            adminPage.addCategoryImageByUrl("https://example.com/dm-024.jpg");
+            adminPage.uploadCategoryImage(getTestResourcePath(IMAGE_1));
             Assert.assertTrue(adminPage.isCategoryImageThumbDisplayed(),
-                    "Them icon bang link xong phai thay thumbnail icon trong form");
+                    "Upload 1 file anh xong phai thay thumbnail icon trong form");
             adminPage.clickCategorySaveButton();
             adminPage.waitForFeedback();
             createdCategoryName = categoryName;
@@ -461,10 +477,10 @@ public class AdminCategoryTest extends BaseTest {
             Assert.assertTrue(adminPage.isCategoryImageThumbDisplayed(),
                     "Form sua DM phai hien du thumbnail icon da luu");
             java.util.List<String> footerTexts = adminPage.getPageHeadButtonTexts("admin-category-edit-page");
-            Assert.assertEquals(footerTexts.size(), 2,
-                    "Header trang sua DM phai CHI co dung 2 nut, dang thay: " + footerTexts);
-            Assert.assertTrue(footerTexts.contains("Hủy") && footerTexts.contains("Lưu thay đổi"),
-                    "Header trang sua DM phai la [Hủy] + [Lưu thay đổi], dang thay: " + footerTexts);
+            Assert.assertEquals(footerTexts.size(), 3,
+                    "Header trang sua DM dot 24/25 phai co dung 3 nut, dang thay: " + footerTexts);
+            Assert.assertTrue(footerTexts.contains("Quay lại") && footerTexts.contains("Hủy") && footerTexts.contains("Lưu thay đổi"),
+                    "Header trang sua DM phai la [Quay lại] + [Hủy] + [Lưu thay đổi], dang thay: " + footerTexts);
 
             // Dong bang Hủy, khong luu (form sach nen dong thang, khong hoi).
             adminPage.cancelCategoryForm();
@@ -550,7 +566,7 @@ public class AdminCategoryTest extends BaseTest {
             Assert.assertEquals(adminPage.getCategorySearchValue(), "",
                     "Bam 'Đặt lại' xong o tim kiem DM phai trong");
             Assert.assertEquals(adminPage.getStatusFilterValue(), "",
-                    "Bam 'Đặt lại' xong dropdown Trang thai DM phai ve '' (Tất cả)");
+                    "Bam 'Đặt lại' xong dropdown Trang thai DM phai ve '' ('Trạng thái')");
             if (adminPage.isPaginationDisplayed("categories")) {
                 Assert.assertEquals(adminPage.getPaginationCurrentPage("categories"), 1,
                         "Bam 'Đặt lại' xong phai ve trang 1");
@@ -571,7 +587,7 @@ public class AdminCategoryTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM19-96 (TC_SCRA05_FUNC_038, dot 21): Tìm kiếm TỰ ĐỘNG đưa về trang 1 — tìm 'Son' (phải có > 10 kết quả) rồi sang trang 2, gõ lại từ khóa tìm kiếm (debounce 120ms, KHÔNG còn nút Tìm kiếm) thì về trang 1, ô tìm kiếm vẫn 'Son', các dòng vẫn lọc theo 'Son'; tự bỏ qua khi không đủ dữ liệu phân trang")
+    @Test(description = "ADM19-96 (TC_SCRA05_FUNC_038, dot 21): Tìm kiếm TỰ ĐỘNG đưa về trang 1 — tìm 'Son' (phải có > 10 kết quả) rồi sang trang 2, gõ lại từ khóa tìm kiếm (debounce 300ms, KHÔNG còn nút Tìm kiếm) thì về trang 1, ô tìm kiếm vẫn 'Son', các dòng vẫn lọc theo 'Son'; tự bỏ qua khi không đủ dữ liệu phân trang")
     public void adminCategorySearchButtonReturnsToPageOne() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("categories");
@@ -584,7 +600,7 @@ public class AdminCategoryTest extends BaseTest {
                 "Sang trang 2 truoc khi go lai tu khoa thi phai dang o trang 2");
 
         // Dot 21: KHONG con nut Tim kiem de bam — go lai tu khoa thi loc tu dong
-        // chay lai (debounce 120ms) va ve trang 1.
+        // chay lai (debounce 300ms) va ve trang 1.
         adminPage.searchCategories("Son");
         Assert.assertEquals(adminPage.getPaginationCurrentPage("categories"), 1,
                 "Go lai tu khoa tim kiem khi dang o trang 2 thi phai ve trang 1");
@@ -862,7 +878,7 @@ public class AdminCategoryTest extends BaseTest {
     }
 
     @Story("Danh mục")
-    @Test(description = "ADM19-103 (TC_SCRA05_FUNC_052): Xóa thumbnail icon khỏi form sửa DM — tạo DM có icon qua dán link, mở form sửa, bấm nút Xóa ảnh (admin-category-image-remove-btn) thì thumbnail biến mất; bấm Lưu thì icon bị xóa thật, mở lại form sửa không còn thumbnail; xóa DM sau test")
+    @Test(description = "ADM19-103 (TC_SCRA05_FUNC_052, đợt 26 viết lại — dán link ảnh ĐÃ BỎ): Xóa thumbnail icon khỏi form sửa DM — tạo DM có icon qua upload file, mở form sửa, bấm nút Xóa ảnh (admin-category-image-remove-btn) thì thumbnail biến mất; bấm Lưu thì icon bị xóa thật, mở lại form sửa không còn thumbnail; xóa DM sau test")
     public void adminCategoryIconRemoveThumbnailClearsIcon() {
         String categoryName = uniqueCategoryName();
         AdminPageObject adminPage = loginAsAdminOrSkip();
@@ -870,9 +886,9 @@ public class AdminCategoryTest extends BaseTest {
             adminPage.clickAdminNav("categories");
             adminPage.openCategoryForm();
             adminPage.setCategoryName(categoryName);
-            adminPage.addCategoryImageByUrl("https://example.com/dm-052.jpg");
+            adminPage.uploadCategoryImage(getTestResourcePath(IMAGE_1));
             Assert.assertTrue(adminPage.isCategoryImageThumbDisplayed(),
-                    "Them icon bang link xong phai thay thumbnail icon trong form");
+                    "Upload 1 file anh xong phai thay thumbnail icon trong form");
             adminPage.clickCategorySaveButton();
             adminPage.waitForFeedback();
             createdCategoryName = categoryName;

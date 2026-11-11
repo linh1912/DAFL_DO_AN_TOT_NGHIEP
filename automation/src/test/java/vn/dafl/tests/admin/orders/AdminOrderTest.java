@@ -22,7 +22,7 @@ import vn.dafl.pageUIs.AdminPageUI;
  * lien tiep thi test sau se skip (don dau da doi trang thai).
  * Dot 21 — danh sach don loc CLIENT-SIDE tren toi da 100 don da tai: dropdown
  * 6 nhom ("Trạng thái" + Chờ xác nhận/Đã xác nhận/Đang giao/Hoàn thành/Đã hủy/
- * Hết hạn thanh toán), go tu khoa loc ngay sau debounce 120ms (khong dau,
+ * Hết hạn thanh toán), go tu khoa loc ngay sau debounce 300ms (khong dau,
  * khong con nut 'Tìm' de bam), nut 'Đặt lại bộ lọc' dang nut chu (disable khi
  * chua loc), so ket qua "N / M đơn", EmptyState co nut "Xóa bộ lọc"; bam dong
  * mo trang chi tiet dang route /orders/:code (test o muc navigate URL, noi
@@ -145,7 +145,7 @@ public class AdminOrderTest extends BaseTest {
     }
 
     @Story("Đơn hàng")
-    @Test(description = "ADM-10 (đợt 21, viết lại — Export đã bỏ hẳn khỏi mọi toolbar admin; nút Tìm đã bỏ khỏi toolbar Đơn hàng): Mục Đơn hàng KHÔNG còn nút Export, KHÔNG còn nút Tìm; toolbar có ô tìm kiếm + nút chữ 'Đặt lại bộ lọc' (disable khi chưa lọc) + số kết quả 'N / M đơn'")
+    @Test(description = "ADM-10 (đợt 21 viết lại, đợt 24/26 viết lại — nút 'Đặt lại bộ lọc' chỉ còn ICON RotateCcw, KHÔNG còn nút chữ): Mục Đơn hàng KHÔNG còn nút Export, KHÔNG còn nút Tìm; toolbar có ô tìm kiếm + nút icon 'Đặt lại bộ lọc' (aria-label, disable khi chưa lọc) + số kết quả 'N / M đơn'")
     public void adminOrdersToolbarHasNoExportButton() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -160,8 +160,12 @@ public class AdminOrderTest extends BaseTest {
                 "Dot 21 da bo nut Tim khoi toolbar Don hang (loc ap dung ngay khi go/doi dropdown)");
         Assert.assertTrue(adminPage.isToolbarResetButtonDisplayed("orders"),
                 "Toolbar Don hang phai co nut Dat lai (orders-reset-btn)");
-        Assert.assertEquals(adminPage.getOrderResetButtonText(), "Đặt lại bộ lọc",
-                "Dot 21 nut Dat lai don hang la nut chu 'Đặt lại bộ lọc', dang thay: " + adminPage.getOrderResetButtonText());
+        Assert.assertTrue(adminPage.isToolbarResetIconDisplayed("orders"),
+                "Nut Dat lai don hang dot 24/26 la nut icon, phai chua icon Lucide RotateCcw");
+        Assert.assertEquals(adminPage.getOrderResetButtonText(), "",
+                "Dot 24/26 nut Dat lai don hang chi con icon nen KHONG duoc co nhan chu hien thi, dang thay: '" + adminPage.getOrderResetButtonText() + "'");
+        Assert.assertEquals(adminPage.getToolbarResetAriaLabel("orders"), "Đặt lại bộ lọc",
+                "Nut Dat lai don hang dot 24/26 phai co aria-label 'Đặt lại bộ lọc'");
         Assert.assertFalse(adminPage.isOrderResetButtonEnabled(),
                 "Chua co tu khoa/trang thai thi nut 'Đặt lại bộ lọc' phai bi disable");
         Assert.assertFalse(adminPage.isOrderSearchClearButtonDisplayed(),
@@ -253,18 +257,64 @@ public class AdminOrderTest extends BaseTest {
         Assert.assertTrue(pageText.contains("DH") || pageText.contains("Trả hàng"),
                 "Trang chi tiet tra hang phai hien ma don hoac tieu de tra hang, dang thay: " + pageText);
 
-        // Dot 21: trang chi tiet tra hang KHONG co nut Huy — header chi dung 2
-        // nut [Từ chối] + [Duyệt] (ve danh sach bang breadcrumb [Trả hàng]).
+        // Dot 24/25: trang chi tiet tra hang CO nut [Quay lại] — header co 3
+        // nut [Quay lại] + [Từ chối] + [Duyệt] (ve danh sach bang nut Quay lai
+        // hoac breadcrumb [Trả hàng]).
         java.util.List<String> headerTexts = adminPage.getPageHeadButtonTexts("admin-return-detail-page");
-        Assert.assertEquals(headerTexts.size(), 2,
-                "Header chi tiet tra hang dot 21 phai CHI co dung 2 nut, dang thay: " + headerTexts);
-        Assert.assertTrue(headerTexts.contains("Từ chối") && headerTexts.contains("Duyệt"),
-                "Header chi tiet tra hang phai la [Từ chối] + [Duyệt], dang thay: " + headerTexts);
+        Assert.assertEquals(headerTexts.size(), 3,
+                "Header chi tiet tra hang dot 24/25 phai co dung 3 nut, dang thay: " + headerTexts);
+        Assert.assertTrue(headerTexts.contains("Quay lại") && headerTexts.contains("Từ chối") && headerTexts.contains("Duyệt"),
+                "Header chi tiet tra hang phai la [Quay lại] + [Từ chối] + [Duyệt], dang thay: " + headerTexts);
 
         // Chi ve danh sach, KHONG bam Duyet/Tu choi (khong doi trang thai tra hang).
         adminPage.closeReturnDetailPage();
         Assert.assertFalse(adminPage.isReturnDetailPageDisplayed(),
                 "Ve danh sach xong khong duoc con thay trang chi tiet tra hang");
+    }
+
+    // ---------- Dot 24/25: nut Quay lai o trang chi tiet don / tra hang ----------
+
+    @Story("Đơn hàng")
+    @Test(description = "ADM26-07 (đợt 24/25, MỚI): Trang chi tiết đơn có breadcrumb 'Đơn hàng' (span) + nút '← Quay lại' (admin-order-detail-back-btn); bấm Quay lại thì về danh sách đơn (skip nếu DB chưa có đơn)")
+    public void orderDetailBackButtonReturnsToList() {
+        AdminPageObject adminPage = openAdminTab("orders");
+        if (!adminPage.isElementDisplayedWithWait(AdminPageUI.FIRST_ORDER_DETAIL_BTN, 10)) {
+            throw new SkipException("Bo qua: DB nay chua co don hang nao de mo chi tiet");
+        }
+        adminPage.clickFirstOrderDetail();
+        Assert.assertTrue(adminPage.isDetailModalDisplayed(AdminPageUI.ADMIN_ORDER_DETAIL),
+                "Phai mo duoc trang chi tiet don hang");
+        Assert.assertTrue(adminPage.isOrderDetailBreadcrumbDisplayed(),
+                "Trang chi tiet don phai co breadcrumb 'Đơn hàng' (admin-order-detail-breadcrumb)");
+        Assert.assertTrue(adminPage.isOrderDetailBackBtnDisplayed(),
+                "Trang chi tiet don phai co nut '← Quay lại' (admin-order-detail-back-btn)");
+
+        adminPage.clickOrderDetailBackBtn();
+        Assert.assertFalse(adminPage.isDetailModalDisplayed(AdminPageUI.ADMIN_ORDER_DETAIL),
+                "Bam 'Quay lại' xong khong duoc con thay trang chi tiet don hang");
+        Assert.assertTrue(adminPage.isOrderSearchDisplayed(),
+                "Bam 'Quay lại' xong phai thay lai bang don hang");
+    }
+
+    @Story("Trả hàng")
+    @Test(description = "ADM26-08 (đợt 24/25, MỚI): Trang chi tiết trả hàng có nút '← Quay lại' (admin-return-detail-back-btn); bấm Quay lại thì về danh sách trả hàng, KHÔNG đổi trạng thái yêu cầu (skip nếu chưa có yêu cầu trả hàng)")
+    public void returnDetailBackButtonReturnsToList() {
+        AdminPageObject adminPage = openAdminTab("returns");
+        if (adminPage.isEmptyReturnsMessageDisplayed()) {
+            throw new SkipException("Bo qua: DB nay chua co yeu cau tra hang nao de mo chi tiet");
+        }
+        if (!adminPage.isElementDisplayedWithWait(AdminPageUI.FIRST_RETURN_REVIEW_BTN, 10)) {
+            throw new SkipException("Bo qua: muc Tra hang khong co nut 'Duyệt / Từ chối' de mo chi tiet");
+        }
+        adminPage.clickFirstReturnReview();
+        Assert.assertTrue(adminPage.isReturnDetailPageDisplayed(),
+                "Phai mo duoc trang chi tiet yeu cau tra hang full page (admin-return-detail-page)");
+        Assert.assertTrue(adminPage.isReturnDetailBackBtnDisplayed(),
+                "Trang chi tiet tra hang phai co nut '← Quay lại' (admin-return-detail-back-btn)");
+
+        adminPage.clickReturnDetailBackBtn();
+        Assert.assertFalse(adminPage.isReturnDetailPageDisplayed(),
+                "Bam 'Quay lại' xong khong duoc con thay trang chi tiet tra hang");
     }
 
     // ---------- Wave 19 (mapping SCR_03 / SCR_10): helper dung chung ----------
@@ -411,7 +461,7 @@ public class AdminOrderTest extends BaseTest {
     // ---------- Don hang: toolbar / bang / loc / tim kiem (SCR_03 UI + FUNC, chi doc) ----------
 
     @Story("Đơn hàng")
-    @Test(description = "ADM19-117 (TC_SCRA03_UI_001, đợt 21 viết lại): Toolbar mục Đơn hàng: KHÔNG có nút Thêm mới, KHÔNG còn nút Tìm (svg.lucide-search) và KHÔNG còn nút Đặt lại icon (svg.lucide-rotate-ccw); ô tìm kiếm có placeholder 'Tìm mã đơn, tên khách, email...'; nút Đặt lại là nút chữ 'Đặt lại bộ lọc'")
+    @Test(description = "ADM19-117 (TC_SCRA03_UI_001, đợt 24/26 viết lại — nút Đặt lại ĐÃ ĐỔI từ nút chữ sang nút icon, icon Tìm nằm TRONG ô tìm): Toolbar mục Đơn hàng: KHÔNG có nút Thêm mới, KHÔNG còn nút Tìm riêng (icon Tìm nằm trong ô tìm, svg.lucide-search) và nút Đặt lại là nút icon (svg.lucide-rotate-ccw); ô tìm kiếm có placeholder 'Tìm mã đơn, tên khách, email...'; nút Đặt lại KHÔNG còn nhan chữ 'Đặt lại bộ lọc' (chỉ aria-label)")
     public void adminOrdersToolbarHasNoAddButton() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -424,12 +474,12 @@ public class AdminOrderTest extends BaseTest {
                 "O tim kiem Don hang phai co placeholder 'Tìm mã đơn, tên khách, email...'");
         Assert.assertFalse(adminPage.isToolbarSearchButtonDisplayed("orders"),
                 "Dot 21 toolbar Don hang khong duoc co nut Tim (orders-search-btn)");
-        Assert.assertFalse(adminPage.isToolbarSearchIconDisplayed("orders"),
-                "Dot 21 toolbar Don hang khong duoc co icon Lucide Search cua nut Tim");
-        Assert.assertFalse(adminPage.isToolbarResetIconDisplayed("orders"),
-                "Dot 21 nut Dat lai don hang la nut chu, khong duoc co icon Lucide RotateCcw");
-        Assert.assertEquals(adminPage.getOrderResetButtonText(), "Đặt lại bộ lọc",
-                "Dot 21 nut Dat lai don hang phai la nut chu 'Đặt lại bộ lọc', dang thay: " + adminPage.getOrderResetButtonText());
+        Assert.assertTrue(adminPage.isToolbarSearchIconDisplayed("orders"),
+                "Dot 24/26 toolbar Don hang phai co icon Lucide Search TRONG o tim");
+        Assert.assertTrue(adminPage.isToolbarResetIconDisplayed("orders"),
+                "Dot 24/26 nut Dat lai don hang la nut icon, phai chua icon Lucide RotateCcw");
+        Assert.assertEquals(adminPage.getOrderResetButtonText(), "",
+                "Dot 24/26 nut Dat lai don hang chi con icon nen KHONG duoc co nhan chu, dang thay: '" + adminPage.getOrderResetButtonText() + "'");
         Assert.assertFalse(adminPage.isExportButtonDisplayed(),
                 "Dot 18 da bo han Export — toolbar Don hang khong duoc co nut Export");
     }
@@ -575,7 +625,7 @@ public class AdminOrderTest extends BaseTest {
     }
 
     @Story("Đơn hàng")
-    @Test(description = "ADM19-122 (TC_SCRA03_FUNC_008, đợt 21 viết lại): Nút 'Đặt lại bộ lọc' xóa bộ lọc/tìm kiếm đơn hàng (ô tìm trống, dropdown về 'Trạng thái', về trang 1, tổng số đơn khôi phục) và lại bị disable sau khi đặt lại")
+    @Test(description = "ADM19-122 (TC_SCRA03_FUNC_008, đợt 21 viết lại, đợt 24/26: nút chỉ còn icon): Nút icon 'Đặt lại bộ lọc' xóa bộ lọc/tìm kiếm đơn hàng (ô tìm trống, dropdown về 'Trạng thái', về trang 1, tổng số đơn khôi phục) và lại bị disable sau khi đặt lại")
     public void adminOrderResetClearsFilterAndSearch() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("orders");
@@ -603,7 +653,7 @@ public class AdminOrderTest extends BaseTest {
     }
 
     @Story("Đơn hàng")
-    @Test(description = "ADM19-123 (TC_SCRA03_FUNC_009, đợt 21 viết lại — ĐẢO NGƯỢC hành vi cũ: không còn nút Tìm/Enter, gõ là lọc sau debounce 120ms): Gõ từ khóa 'ZZZ999' nhưng chưa đủ 120ms thì bảng chưa đổi; đủ debounce thì bảng lọc chỉ còn đơn khớp (ở đây là rỗng + 'Không tìm thấy đơn hàng'); bấm Enter không làm gì thêm; bấm nút '×' xóa nhanh thì bảng khôi phục")
+    @Test(description = "ADM19-123 (TC_SCRA03_FUNC_009, đợt 21 viết lại, đợt 24/26: debounce 120ms -> 300ms — ĐẢO NGƯỢC hành vi cũ: không còn nút Tìm/Enter, gõ là lọc sau debounce 300ms): Gõ từ khóa 'ZZZ999' nhưng chưa đủ 300ms thì bảng chưa đổi; đủ debounce thì bảng lọc chỉ còn đơn khớp (ở đây là rỗng + 'Không tìm thấy đơn hàng'); bấm Enter không làm gì thêm; bấm nút '×' xóa nhanh thì bảng khôi phục")
     public void adminOrderTypingWithoutSearchDoesNotReloadTable() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("orders");
@@ -612,17 +662,17 @@ public class AdminOrderTest extends BaseTest {
         }
         java.util.List<String> rowsBefore = adminPage.getAdminTableRowTexts();
 
-        // Go xong doc NGAY (chua du 120ms debounce): bang phai giu nguyen.
+        // Go xong doc NGAY (chua du 300ms debounce): bang phai giu nguyen.
         adminPage.setOrderSearch("ZZZ999");
         Assert.assertEquals(adminPage.getAdminTableRowTexts(), rowsBefore,
-                "Vua go xong (chua du 120ms debounce) thi noi dung bang don hang khong duoc doi");
+                "Vua go xong (chua du 300ms debounce) thi noi dung bang don hang khong duoc doi");
         Assert.assertTrue(adminPage.isOrderSearchClearButtonDisplayed(),
                 "Go tu khoa xong thi nut '×' xoa nhanh phai hien trong o tim");
 
         // Cho debounce xong: bang loc chi con don khop (o day la rong).
         sleepInSecond(2);
         Assert.assertTrue(adminPage.isEmptyOrdersMessageDisplayed(),
-                "Cho debounce 120ms xong thi bang phai loc chi con don khop (o day la rong + 'Không tìm thấy đơn hàng')");
+                "Cho debounce 300ms xong thi bang phai loc chi con don khop (o day la rong + 'Không tìm thấy đơn hàng')");
 
         // Bam Enter khong lam gi them (khong co onSearch): van la EmptyState.
         adminPage.pressEnterInOrderSearch();
@@ -684,7 +734,7 @@ public class AdminOrderTest extends BaseTest {
     }
 
     @Story("Đơn hàng")
-    @Test(description = "ADM19-125 (TC_SCRA03_FUNC_019/020/021, đợt 21 viết lại — tìm lọc ngay khi gõ, debounce 120ms, không còn nút Tìm): Tìm đơn hàng theo mã đơn / tên khách / email khách (lấy động từ dòng đầu, không hardcode): tìm theo mã chỉ còn đúng đơn đó; tìm theo tên/email thì đơn đó vẫn hiện; Đặt lại sau mỗi lần tìm (skip nếu DB chưa có đơn)")
+    @Test(description = "ADM19-125 (TC_SCRA03_FUNC_019/020/021, đợt 21 viết lại — tìm lọc ngay khi gõ, debounce 300ms, không còn nút Tìm): Tìm đơn hàng theo mã đơn / tên khách / email khách (lấy động từ dòng đầu, không hardcode): tìm theo mã chỉ còn đúng đơn đó; tìm theo tên/email thì đơn đó vẫn hiện; Đặt lại sau mỗi lần tìm (skip nếu DB chưa có đơn)")
     public void adminOrderSearchFindsOrderByCodeCustomerNameAndEmail() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("orders");
@@ -1317,7 +1367,7 @@ public class AdminOrderTest extends BaseTest {
     // ---------- Tra hang (SCR_10, muc 'returns') ----------
 
     @Story("Trả hàng")
-    @Test(description = "ADM19-147 (TC_SCRA10_UI_001 + TC_SCRA10_UI_002): Toolbar mục Trả hàng: ô tìm 'Tìm mã đơn, sản phẩm, lý do...' + icon Tìm (Lucide Search) + icon Đặt lại (RotateCcw), dropdown trạng thái có 4 lựa chọn (Tất cả/Chờ duyệt/Đã duyệt/Đã từ chối), KHÔNG có nút Làm mới/Thêm mới/Export, không nút 'Lọc' dạng text")
+    @Test(description = "ADM19-147 (TC_SCRA10_UI_001 + TC_SCRA10_UI_002, đợt 24/26 viết lại — dropdown mặc định 'Tất cả' -> 'Trạng thái', icon Tìm nằm TRONG ô tìm): Toolbar mục Trả hàng: ô tìm 'Tìm mã đơn, sản phẩm, lý do...' + icon Tìm (Lucide Search, trong ô tìm) + icon Đặt lại (RotateCcw), dropdown trạng thái có 4 lựa chọn (Trạng thái/Chờ duyệt/Đã duyệt/Đã từ chối), KHÔNG có nút Làm mới/Thêm mới/Export, không nút 'Lọc' dạng text")
     public void returnsToolbarHasSearchStatusFilterAndNoExport() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.waitForAdminGateResolved();
@@ -1332,7 +1382,7 @@ public class AdminOrderTest extends BaseTest {
                 "Nut Dat lai o toolbar Tra hang phai chua icon Lucide RotateCcw (svg.lucide-rotate-ccw)");
         java.util.List<String> options = adminPage.getReturnsStatusFilterOptionTexts();
         Assert.assertEquals(options, java.util.Arrays.asList(
-                        "Tất cả trạng thái", "Chờ duyệt", "Đã duyệt", "Đã từ chối"),
+                        "Trạng thái", "Chờ duyệt", "Đã duyệt", "Đã từ chối"),
                 "Dropdown loc trang thai tra hang phai co dung 4 lua chon, dang thay: " + options);
         Assert.assertFalse(adminPage.isToolbarAddButtonDisplayed("returns"),
                 "Toolbar Tra hang khong duoc co nut Them moi");
@@ -1412,7 +1462,7 @@ public class AdminOrderTest extends BaseTest {
     }
 
     @Story("Trả hàng")
-    @Test(description = "ADM19-150 (TC_SCRA10_FUNC_007/008/009 + TC_SCRA10_FUNC_013, dot 21): Lọc yêu cầu trả hàng theo trạng thái Chờ duyệt/Đã duyệt/Đã từ chối: chỉ chọn dropdown thì bảng LỌC NGAY (client-side, KHÔNG còn nút Tìm để bấm); bấm Đặt lại thì ô tìm trống + dropdown về 'Tất cả trạng thái' + về trang 1 + bảng hiện lại toàn bộ yêu cầu đã tải (skip từng trạng thái nếu không có dòng ở trạng thái đó)")
+    @Test(description = "ADM19-150 (TC_SCRA10_FUNC_007/008/009 + TC_SCRA10_FUNC_013, dot 21, đợt 24/26: dropdown mặc định 'Tất cả trạng thái' -> 'Trạng thái'): Lọc yêu cầu trả hàng theo trạng thái Chờ duyệt/Đã duyệt/Đã từ chối: chỉ chọn dropdown thì bảng LỌC NGAY (client-side, KHÔNG còn nút Tìm để bấm); bấm Đặt lại thì ô tìm trống + dropdown về 'Trạng thái' + về trang 1 + bảng hiện lại toàn bộ yêu cầu đã tải (skip từng trạng thái nếu không có dòng ở trạng thái đó)")
     public void returnsStatusFilterAppliesOnlyAfterSearchAndResetDoesNotReload() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("returns");
@@ -1446,7 +1496,7 @@ public class AdminOrderTest extends BaseTest {
         Assert.assertEquals(adminPage.getReturnsSearchValue(), "",
                 "Bam Dat lai thi o tim kiem tra hang phai trong");
         Assert.assertEquals(adminPage.getReturnsStatusFilterValue(), "",
-                "Bam Dat lai thi dropdown loc trang thai tra hang phai ve 'Tất cả trạng thái' (value='')");
+                "Bam Dat lai thi dropdown loc trang thai tra hang phai ve 'Trạng thái' (value='')");
         Assert.assertEquals(adminPage.getPaginationCurrentPage("returns"), 1,
                 "Bam Dat lai thi phan trang tra hang phai ve trang 1");
         Assert.assertEquals(adminPage.getPaginationTotalRows("returns"), totalRows,
@@ -1518,10 +1568,10 @@ public class AdminOrderTest extends BaseTest {
         Assert.assertFalse(pageText.contains("Duyệt: hoàn kho + tạo bản ghi hoàn tiền"),
                 "Trang chi tiet tra hang dot 21 khong duoc con dong huong dan duyet/tu choi cua Drawer cu");
         java.util.List<String> headerTexts = adminPage.getPageHeadButtonTexts("admin-return-detail-page");
-        Assert.assertEquals(headerTexts.size(), 2,
-                "Header chi tiet tra hang phai CHI co dung 2 nut, dang thay: " + headerTexts);
-        Assert.assertTrue(headerTexts.contains("Từ chối") && headerTexts.contains("Duyệt"),
-                "Header chi tiet tra hang phai la [Từ chối] + [Duyệt], dang thay: " + headerTexts);
+        Assert.assertEquals(headerTexts.size(), 3,
+                "Header chi tiet tra hang dot 24/25 phai co dung 3 nut, dang thay: " + headerTexts);
+        Assert.assertTrue(headerTexts.contains("Quay lại") && headerTexts.contains("Từ chối") && headerTexts.contains("Duyệt"),
+                "Header chi tiet tra hang phai la [Quay lại] + [Từ chối] + [Duyệt], dang thay: " + headerTexts);
         Assert.assertFalse(pageText.contains("Ghi chú admin") && pageText.contains("admin-return-admin-note"),
                 "Trang chi tiet tra hang khong duoc co o nhap ghi chu admin");
         adminPage.closeReturnDetailPage();

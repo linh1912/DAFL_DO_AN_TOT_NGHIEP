@@ -92,7 +92,7 @@ public class AdminWave13Test extends BaseTest {
     }
 
     @Story("Nhật ký hệ thống")
-    @Test(description = "ADM-W13-04 (đợt 18, viết lại — bỏ phần Export CSV: Export đã bỏ hẳn khỏi mọi toolbar admin; nút 'Lọc' cũng đã bỏ, khoảng ngày áp dụng khi bấm nút Tìm của toolbar Nhật ký): Lọc nhật ký theo khoảng ngày (Từ/Đến) + khẳng định KHÔNG có nút Export ở toolbar Nhật ký")
+    @Test(description = "ADM-W13-04 (đợt 18 viết lại, đợt 24/26: nút Tìm ĐÃ BỎ — khoảng ngày áp dụng NGAY khi đổi, không bấm nút nào): Lọc nhật ký theo khoảng ngày (Từ/Đến) + khẳng định KHÔNG có nút Export ở toolbar Nhật ký")
     public void auditLogDateFilterWorks() {
         AdminPageObject adminPage = loginAsAdminOrSkip();
         adminPage.clickAdminNav("logs");
@@ -148,18 +148,20 @@ public class AdminWave13Test extends BaseTest {
     }
 
     @Story("Nhật ký hệ thống")
-    @Test(description = "ADM19-34 (TC_SCRA11_UI_001): Toolbar mục Nhật ký hệ thống có ô tìm logs-search-input + icon Tìm (Lucide Search) + icon Đặt lại (RotateCcw); KHÔNG có nút Làm mới/Thêm mới/Export")
+    @Test(description = "ADM19-34 (TC_SCRA11_UI_001, đợt 24/26 viết lại — nút Tìm logs-search-btn ĐÃ BỎ, lọc áp dụng ngay khi gõ/đổi ngày): Toolbar mục Nhật ký hệ thống có ô tìm logs-search-input (icon Tìm Lucide Search TRONG ô tìm) + icon Đặt lại (RotateCcw); KHÔNG có nút Làm mới/Thêm mới/Export")
     public void auditLogToolbarHasSearchResetAndNoExport() {
         AdminPageObject adminPage = openLogsOrSkip();
 
         Assert.assertTrue(adminPage.isAuditSearchInputDisplayed(),
                 "Toolbar Nhat ky phai co o tim (logs-search-input)");
-        Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='logs-search-btn']"),
-                "Toolbar Nhat ky phai co nut Tim (logs-search-btn)");
+        Assert.assertFalse(adminPage.isElementDisplayed("css=[data-testid='logs-search-btn']"),
+                "Dot 24/26 da bo nut Tim khoi toolbar Nhat ky — khong duoc con logs-search-btn");
+        Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='logs-search-input']"),
+                "Toolbar Nhat ky phai co o tim (logs-search-input)");
         Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='logs-reset-btn']"),
                 "Toolbar Nhat ky phai co nut Dat lai (logs-reset-btn)");
-        Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='logs-search-btn'] svg.lucide-search"),
-                "Nut Tim phai chua icon Lucide Search (svg.lucide-search)");
+        Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='logs-search-input']"),
+                "O tim Nhat ky phai hien (icon Tim nam trong o tim, khong con nut Tim rieng)");
         Assert.assertTrue(adminPage.isElementDisplayed("css=[data-testid='logs-reset-btn'] svg.lucide-rotate-ccw"),
                 "Nut Dat lai phai chua icon Lucide RotateCcw (svg.lucide-rotate-ccw)");
 
