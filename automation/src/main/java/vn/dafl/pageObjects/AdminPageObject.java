@@ -1244,11 +1244,6 @@ public class AdminPageObject extends BasePage {
         sleepInSecond(1);
     }
 
-    /** Khoi xem truoc (preview) cua san pham trong drawer co dang hien khong. */
-    public boolean isProductPreviewDisplayed() {
-        return isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_PREVIEW);
-    }
-
     /** Nhan trang thai ton kho ben canh o Ton kho (dot 24/25: 'Còn hàng' /
      *  'Sắp hết hàng' / 'Hết hàng'; an khi o Ton kho trong); "" neu khong hien. */
     public String getProductStockStatusText() {
@@ -3814,11 +3809,6 @@ public class AdminPageObject extends BasePage {
 
     public String getProductOriginalPriceInputValue() {
             return getElementValue(AdminPageUI.ADMIN_PRODUCT_ORIGINAL_PRICE_INPUT);
-        }
-
-    public String getProductPreviewText() {
-            waitForElementVisible(AdminPageUI.ADMIN_PRODUCT_PREVIEW);
-            return getElementText(AdminPageUI.ADMIN_PRODUCT_PREVIEW);
         }
 
     public String getProductPriceInputValue() {

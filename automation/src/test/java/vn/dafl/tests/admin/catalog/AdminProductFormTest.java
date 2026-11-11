@@ -19,9 +19,9 @@ import vn.dafl.pageUIs.AdminPageUI;
  * (chi doc + dong, khong luu).
  * Can cu code that dot 18 (AdminForms.tsx: validateAll + FormShell):
  *  - Form tao moi tu chon san danh muc dau tien (openProductCreate dat
- *    categoryId = categories[0]) nen KHONG the bo trong danh muc qua UI, va
- *    khoi Xem truoc hien ten danh muc do ngay khi mo form (khong hien
- *    'Chưa chọn danh mục'); loi bat buoc chi co o Ten / Gia ban / Ton kho.
+ *    categoryId = categories[0]) nen KHONG the bo trong danh muc qua UI;
+ *    loi bat buoc chi co o Ten / Gia ban / Ton kho.
+ *    (Dot 27: khoi Xem truoc cua form SP da xoa han khoi AdminForms.tsx.)
  *  - Loi BE (trung slug, mo ta qua dai, DM da an) chi hien dang formError
  *    trong form, KHONG kem toast (handleSubmit chi setFormError) — xem
  *    AdminProductTest (VAL_031/032/033).
@@ -49,7 +49,7 @@ public class AdminProductFormTest extends BaseTest {
     }
 
     @Story("Sản phẩm")
-    @Test(description = "ADM19-51 (TC_SCRA04_UI_006, đợt 26 viết lại — dán link ảnh ĐÃ BỎ): Form Thêm SP có đủ 5 nhóm (Thông tin cơ bản, Giá & tồn kho, Hình ảnh, Mô tả, Xem trước); ô Mã SP đang focus khi mở form; dropzone chứa input file thật (không display:none); KHÔNG còn nút 'Hoặc dán link ảnh'; Toggle trạng thái, nút +/- tồn kho, khối xem trước; đóng bằng Hủy, không tạo dữ liệu")
+    @Test(description = "ADM19-51 (TC_SCRA04_UI_006, đợt 26 viết lại — dán link ảnh ĐÃ BỎ; đợt 27: card Xem trước ĐÃ XÓA): Form Thêm SP có đủ 5 nhóm (Thông tin cơ bản, Giá & tồn kho, Trạng thái, Hình ảnh, Mô tả); ô Mã SP đang focus khi mở form; dropzone chứa input file thật (không display:none); KHÔNG còn nút 'Hoặc dán link ảnh'; Toggle trạng thái, nút +/- tồn kho; KHÔNG còn khối Xem trước; đóng bằng Hủy, không tạo dữ liệu")
     public void adminProductFormShowsAllSectionsAndAutofocusesCode() {
         AdminPageObject adminPage = openCreateForm();
         String modalText = adminPage.getProductFormModalText();
@@ -61,8 +61,7 @@ public class AdminProductFormTest extends BaseTest {
                 "Form them SP phai co nhom 'Hình ảnh', dang thay: " + modalText);
         Assert.assertTrue(modalText.contains("Mô tả"),
                 "Form them SP phai co nhom 'Mô tả', dang thay: " + modalText);
-        Assert.assertTrue(modalText.contains("Xem trước"),
-                "Form them SP phai co nhom 'Xem trước', dang thay: " + modalText);
+        // Dot 27: card Xem truoc (admin-product-preview) da xoa han khoi form SP.
         Assert.assertTrue(adminPage.isProductCodeInputFocused(),
                 "Mo form them SP thi o Ma SP (o nhap dau tien) phai dang duoc focus (FormShell autofocus)");
         Assert.assertTrue(adminPage.isProductImageDropzoneDisplayed(),
@@ -79,8 +78,8 @@ public class AdminProductFormTest extends BaseTest {
                 "Form them SP phai co nut '+' tang ton kho");
         Assert.assertTrue(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_STOCK_MINUS_BTN),
                 "Form them SP phai co nut '−' giam ton kho");
-        Assert.assertTrue(adminPage.isProductPreviewDisplayed(),
-                "Form them SP phai co khoi Xem truoc (admin-product-preview)");
+        Assert.assertFalse(adminPage.isElementDisplayed(AdminPageUI.ADMIN_PRODUCT_PREVIEW),
+                "Dot 27 da xoa card Xem truoc — form them SP KHONG duoc con 'admin-product-preview'");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
@@ -132,46 +131,6 @@ public class AdminProductFormTest extends BaseTest {
         adminPage.setProductOriginalPrice("200000");
         Assert.assertFalse(adminPage.isDiscountBadgeDisplayed(),
                 "Gia goc bang Gia ban (200000) thi badge % giam phai an");
-
-        adminPage.cancelProductForm();
-        Assert.assertFalse(adminPage.isProductFormModalPresent(),
-                "Dong form bang nut Hủy xong khong duoc con thay form san pham");
-    }
-
-    @Story("Sản phẩm")
-    @Test(description = "ADM19-54 (TC_SCRA04_UI_009): Khối Xem trước cập nhật trực tiếp theo dữ liệu nhập — nhập tên 'Son kem', giá 200000, tồn kho 5 thì khối Xem trước hiện đúng tên, tên danh mục đã chọn sẵn, giá '200.000đ', tồn kho 5; chưa nhập tên/giá thì hiện placeholder 'Tên sản phẩm' / '—'; đóng bằng Hủy, không lưu")
-    public void adminProductFormPreviewUpdatesLive() {
-        AdminPageObject adminPage = openCreateForm();
-        // Form tao moi tu chon san danh muc dau tien (openProductCreate) nen
-        // khoi Xem truoc hien ten danh muc do ngay khi mo form, khong hien
-        // placeholder 'Chưa chọn danh mục' (placeholder nay khong toi duoc qua UI).
-        String categoryName = adminPage.getFirstRealCategoryName();
-        Assert.assertNotNull(categoryName, "Phai co it nhat 1 danh muc that de mo form san pham");
-        String preview = adminPage.getProductPreviewText();
-        Assert.assertTrue(preview.contains("Tên sản phẩm"),
-                "Chua nhap ten thi khoi Xem truoc phai hien placeholder 'Tên sản phẩm', dang thay: " + preview);
-        Assert.assertTrue(preview.contains(categoryName),
-                "Khoi Xem truoc phai hien ten danh muc da chon san '" + categoryName + "', dang thay: " + preview);
-        Assert.assertTrue(preview.contains("—"),
-                "Chua nhap gia thi khoi Xem truoc phai hien '—' o cho gia, dang thay: " + preview);
-
-        adminPage.setProductName("Son kem");
-        adminPage.setProductPrice("200000");
-        adminPage.setProductStock("5");
-        preview = adminPage.getProductPreviewText();
-        Assert.assertTrue(preview.contains("Son kem"),
-                "Nhap ten 'Son kem' thi khoi Xem truoc phai hien 'Son kem', dang thay: " + preview);
-        Assert.assertTrue(preview.contains(categoryName),
-                "Khoi Xem truoc phai hien ten danh muc '" + categoryName + "', dang thay: " + preview);
-        Assert.assertTrue(preview.contains("200.000đ"),
-                "Nhap gia 200000 thi khoi Xem truoc phai hien '200.000đ', dang thay: " + preview);
-        Assert.assertTrue(preview.contains("Tồn kho: 5"),
-                "Nhap ton kho 5 thi khoi Xem truoc phai hien 'Tồn kho: 5', dang thay: " + preview);
-
-        // Xoa ten: khoi Xem truoc tro lai placeholder 'Tên sản phẩm'.
-        adminPage.setProductName("");
-        Assert.assertTrue(adminPage.getProductPreviewText().contains("Tên sản phẩm"),
-                "Xoa trong o Ten thi khoi Xem truoc phai tro lai placeholder 'Tên sản phẩm'");
 
         adminPage.cancelProductForm();
         Assert.assertFalse(adminPage.isProductFormModalPresent(),
